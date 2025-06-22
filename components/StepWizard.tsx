@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { saveProject, loadProject, createProjectId } from '../utils/storage'
+import FinanceDropzone from './FinanceDropzone'
 
 // Types voor stap data
 interface StepData {
@@ -9,6 +10,7 @@ interface StepData {
   desired: string
   feedback?: string
   completed: boolean
+  financeData?: any // Voor financiële data uit uploads
 }
 
 interface WizardData {
@@ -109,7 +111,8 @@ const STEPS = [
     questions: {
       current: 'Hoe is de huidige financiële situatie? Beschrijf budgetten, kosten en inkomsten.',
       desired: 'Wat zou de ideale financiële situatie zijn? Welke financiële doelen streef je na?'
-    }
+    },
+    hasFileUpload: true // Speciale markering voor financiën stap
   }
 ]
 
@@ -201,6 +204,27 @@ export default function StepWizard({ projectId, flow, onSave }: StepWizardProps)
     setTimeout(() => autoSave(newData), 2000)
   }
 
+  // Handle financiële data upload
+  const handleFinanceDataUpload = (financeData: any) => {
+    const stepId = 'finances'
+    const newData = {
+      ...wizardData,
+      [stepId]: {
+        ...wizardData[stepId],
+        financeData: financeData,
+        completed: false // Reset completed status when new data is uploaded
+      }
+    }
+    setWizardData(newData)
+    autoSave(newData)
+
+    console.log('💰 Financiële data toegevoegd aan wizard:', {
+      fileName: financeData.fileName,
+      rows: financeData.summary.totalRows,
+      columns: financeData.summary.totalColumns
+    })
+  }
+
   // Markeer stap als voltooid
   const markStepCompleted = (stepId: string) => {
     const stepData = wizardData[stepId]
@@ -221,26 +245,71 @@ export default function StepWizard({ projectId, flow, onSave }: StepWizardProps)
   const requestCoachFeedback = async (stepId: string) => {
     setIsLoading(true)
     try {
-      // TODO: Hier komt de AI coach integratie
       const stepData = wizardData[stepId]
       const step = STEPS.find(s => s.id === stepId)
       
-      // Simuleer AI feedback (vervang later met echte AI call)
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
-      const mockFeedback = `Gebaseerd op je input voor ${step?.title}, zie ik interessante ontwikkelingen. De gap tussen je huidige en gewenste situatie biedt concrete verbeterkansen. Overweeg om specifieke actiestappen te definiëren en prioriteiten te stellen.`
+      // Bereid data voor AI coach API
+      const requestBody = {
+        userPrompt: `Geef feedback op mijn ${step?.title} analyse`,
+        stepTitle: step?.title,
+        currentSituation: stepData.current,
+        desiredSituation: stepData.desired
+      }
+
+      // Voeg financiële data toe als beschikbaar
+      if (stepId === 'finances' && stepData.financeData) {
+        requestBody.userPrompt += `\n\nIk heb ook financiële data geüpload: ${stepData.financeData.fileName} met ${stepData.financeData.summary.totalRows} rijen data.`
+      }
+
+      // Roep coach API aan
+      const response = await fetch('/api/coach', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Fout bij ophalen feedback')
+      }
+
+      const data = await response.json()
       
       const newData = {
         ...wizardData,
         [stepId]: {
           ...stepData,
-          feedback: mockFeedback
+          feedback: data.feedback
         }
       }
       setWizardData(newData)
       autoSave(newData)
+
+      console.log('🤖 Coach feedback ontvangen:', {
+        stepTitle: step?.title,
+        feedbackLength: data.feedback.length,
+        wordCount: data.wordCount
+      })
+
     } catch (error) {
       console.error('❌ Fout bij ophalen feedback:', error)
+      
+      // Toon fallback feedback bij fout
+      const stepData = wizardData[stepId]
+      const step = STEPS.find(s => s.id === stepId)
+      
+      const fallbackFeedback = `Er is een fout opgetreden bij het ophalen van AI feedback voor ${step?.title}. Controleer je internetverbinding en probeer het opnieuw. Je kunt ook handmatig verder gaan met de analyse.`
+      
+      const newData = {
+        ...wizardData,
+        [stepId]: {
+          ...stepData,
+          feedback: fallbackFeedback
+        }
+      }
+      setWizardData(newData)
     } finally {
       setIsLoading(false)
     }
@@ -365,6 +434,23 @@ export default function StepWizard({ projectId, flow, onSave }: StepWizardProps)
               {currentStepData.description}
             </p>
           </div>
+
+          {/* Financiële data upload (alleen voor stap 8) */}
+          {currentStepData.hasFileUpload && (
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <span className="mr-2">📊</span>
+                Upload Financiële Data (Optioneel)
+              </h3>
+              <p className="text-gray-600 mb-4">
+                Upload een CSV of Excel bestand met financiële gegevens zoals budgetten, kosten, inkomsten of andere financiële data om je analyse te verrijken.
+              </p>
+              <FinanceDropzone 
+                onDataLoaded={handleFinanceDataUpload}
+                className="mb-4"
+              />
+            </div>
+          )}
 
           {/* Tekstvelden */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
