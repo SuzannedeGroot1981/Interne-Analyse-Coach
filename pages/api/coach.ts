@@ -145,8 +145,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       ],
       generationConfig: {
-        temperature: 0.4, // Aangepast naar 0.4 voor grammar/spell/APA checks
-        maxOutputTokens: 400, // Beperkt tot ~250 woorden
+        temperature: 0.4,
+        maxOutputTokens: 400,
         topP: 0.8,
         topK: 40
       }
@@ -234,7 +234,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       coachFeedback =
         "**Let op:** De coach merkte externe analyse-termen op. "
         + "Die horen pas bij de volgende opdracht en zijn hier niet beoordeeld.\n\n"
-        + coachFeedback.replace(forbidden, (m: string) => `~~${m}~~`);
+        + coachFeedback.replace(forbidden, (match: string) => `~~${match}~~`);
     }
 
     console.log('✅ Coach feedback gegenereerd:', {
