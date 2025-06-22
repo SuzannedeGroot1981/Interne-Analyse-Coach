@@ -75,7 +75,7 @@ export default function Sources() {
       setActualProjectId(finalProjectId);
       
       // Initialize with simplified default values for new project
-      setRows(Object.fromEntries(S_ROWS.map(r => [r.key, { bron: "", docs: [], summary: "" }])));
+      setRows(Object.fromEntries(S_ROWS.map(r => [r.key, { docs: [], summary: "" }])));
       setIsLoading(false);
       return;
     }
@@ -84,11 +84,11 @@ export default function Sources() {
     
     const p = loadProject(finalProjectId);
     if (p) {
-      setRows(p.sources ?? Object.fromEntries(S_ROWS.map(r => [r.key, { bron: "", docs: [], summary: "" }])));
+      setRows(p.sources ?? Object.fromEntries(S_ROWS.map(r => [r.key, { docs: [], summary: "" }])));
       setOrgName(p.meta?.orgName || "");
     } else {
       // Initialize with simplified default values if project not found
-      setRows(Object.fromEntries(S_ROWS.map(r => [r.key, { bron: "", docs: [], summary: "" }])));
+      setRows(Object.fromEntries(S_ROWS.map(r => [r.key, { docs: [], summary: "" }])));
     }
     setIsLoading(false);
   }, [id]);
@@ -129,9 +129,9 @@ export default function Sources() {
     }
   }
 
-  // Bereken voortgang op basis van beschikbare bronnen
+  // Bereken voortgang op basis van beschikbare documenten
   const rowsWithContent = Object.values(rows).filter((row: any) => 
-    row.bron?.trim() || (row.docs && row.docs.length > 0)
+    (row.docs && row.docs.length > 0)
   ).length;
   const progressPercentage = (rowsWithContent / S_ROWS.length) * 100;
 
@@ -212,10 +212,10 @@ export default function Sources() {
                 </div>
                 <div className="text-right">
                   <div className="text-sm text-gray-500">
-                    {rowsWithContent} van {S_ROWS.length} bronnen beschikbaar
+                    {rowsWithContent} van {S_ROWS.length} onderdelen met documenten
                   </div>
                   <div className="text-lg font-semibold text-blue-600">
-                    {Math.round(progressPercentage)}% ingevuld
+                    {Math.round(progressPercentage)}% documenten geüpload
                   </div>
                 </div>
               </div>
@@ -245,24 +245,24 @@ export default function Sources() {
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
                 <h3 className="text-lg font-semibold text-blue-800 mb-3 flex items-center">
                   <span className="mr-2">🎯</span>
-                  Opdracht: Interne Analyse op Organisatieniveau
+                  Opdracht: Document Upload & AI Samenvatting
                 </h3>
                 <div className="text-blue-700 space-y-2">
                   <p>
-                    <strong>Doel:</strong> Maak een systematische interne analyse van een organisatie volgens het McKinsey 7S-model aangevuld met financiële aspecten.
+                    <strong>Doel:</strong> Upload relevante documenten per 7S-onderdeel en laat AI automatisch samenvattingen genereren.
                   </p>
                   <p>
-                    <strong>Focus:</strong> Analyseer de <em>interne</em> factoren van de organisatie. Externe factoren (concurrentie, markt, PEST) komen in een latere opdracht aan bod.
+                    <strong>Workflow:</strong> Upload documenten → Klik "Samenvat" → AI genereert kernpunten → Gebruik in je analyse.
                   </p>
                   <p>
-                    <strong>Stap 1:</strong> Inventariseer hieronder welke bronnen en documenten je beschikbaar hebt voor elk onderdeel. Dit helpt je om gericht informatie te verzamelen.
+                    <strong>Focus:</strong> Verzamel <em>interne</em> organisatiedocumenten. Externe factoren komen in een latere opdracht.
                   </p>
                 </div>
               </div>
 
               <p className="text-gray-600 mb-6">
-                Inventariseer welke bronnen en documenten je beschikbaar hebt voor elk onderdeel van de 7S-analyse. 
-                Je kunt ook met incomplete bronnen verder gaan en later aanvullen tijdens de analyse.
+                Upload documenten per 7S-onderdeel en laat AI automatisch samenvattingen genereren. 
+                Deze samenvattingen worden gebruikt als basis voor je interne analyse.
               </p>
 
               {/* Bronnen Tabel */}
@@ -272,7 +272,6 @@ export default function Sources() {
                     <tr className="bg-gray-100">
                       <th className="p-4 text-left font-semibold text-gray-700 border-b">Onderdeel</th>
                       <th className="p-4 text-left font-semibold text-gray-700 border-b">Benodigde gegevens</th>
-                      <th className="p-4 text-left font-semibold text-gray-700 border-b">Mijn bronnen</th>
                       <th className="p-4 text-center font-semibold text-gray-700 border-b">Documenten</th>
                     </tr>
                   </thead>
@@ -292,14 +291,6 @@ export default function Sources() {
                         </td>
                         <td className="p-4">
                           <div className="text-sm text-gray-600">{r.voorbeeld}</div>
-                        </td>
-                        <td className="p-4">
-                          <textarea
-                            value={rows[r.key]?.bron || ""}
-                            onChange={e => handle(r.key, "bron", e.target.value)}
-                            placeholder="Beschrijf welke documenten, systemen of bronnen je hebt..."
-                            className="border border-gray-300 rounded-lg p-2 w-full h-20 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                          />
                         </td>
                         <td className="p-2">
                           <input 
@@ -336,7 +327,7 @@ export default function Sources() {
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-8">
                 <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
                   <span className="mr-2">💡</span>
-                  Tips voor bronneninventarisatie
+                  Tips voor document upload & samenvatting
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
                   <div>
@@ -363,7 +354,7 @@ export default function Sources() {
                     <h4 className="font-medium text-gray-800 mb-2">🔧 Workflow Tips</h4>
                     <ul className="space-y-1 text-xs">
                       <li>• Begin met beschikbare documenten</li>
-                      <li>• Vul tekstuele bronnen in waar mogelijk</li>
+                      <li>• Upload per 7S-onderdeel afzonderlijk</li>
                       <li>• Gebruik samenvattingen als basis voor analyse</li>
                       <li>• Je kunt later terugkeren om aan te vullen</li>
                       <li>• Focus op interne organisatie-aspecten</li>
@@ -372,7 +363,7 @@ export default function Sources() {
                 </div>
                 <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                   <p className="text-sm text-yellow-800">
-                    <strong>Let op:</strong> Focus op <em>interne</em> bronnen en factoren. Externe analyse (concurrentie, markt, PEST) komt in een latere opdracht.
+                    <strong>Let op:</strong> Focus op <em>interne</em> documenten en factoren. Externe analyse (concurrentie, markt, PEST) komt in een latere opdracht.
                   </p>
                 </div>
               </div>
@@ -380,7 +371,7 @@ export default function Sources() {
               {/* Continue Button */}
               <div className="flex items-center justify-between">
                 <div className="text-sm text-gray-500">
-                  Je kunt ook met incomplete bronnen verder gaan en later aanvullen
+                  Je kunt ook zonder documenten verder gaan en later aanvullen
                 </div>
                 <button 
                   onClick={handleContinue}
