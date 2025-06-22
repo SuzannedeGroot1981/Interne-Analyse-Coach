@@ -21,6 +21,8 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
+    "docx": "^9.5.1",
+    "html-to-docx": "^1.8.0",
     "mammoth": "^1.9.1",
     "next": "15.3.3",
     "papaparse": "^5.4.1",

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { saveProject, loadProject, createProjectId } from '../utils/storage'
 import FinanceDropzone from './FinanceDropzone'
+import ProjectActions from './ProjectActions'
 
 // Types voor stap data
 interface StepData {
@@ -123,6 +124,7 @@ export default function StepWizard({ projectId, flow, onSave }: StepWizardProps)
   const [isSaving, setIsSaving] = useState(false)
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const [actualProjectId, setActualProjectId] = useState<string>(projectId || '')
+  const [currentProjectData, setCurrentProjectData] = useState<any>(null)
 
   // Initialiseer wizard data
   useEffect(() => {
@@ -140,6 +142,7 @@ export default function StepWizard({ projectId, flow, onSave }: StepWizardProps)
         const existingProject = loadProject(finalProjectId)
         if (existingProject && existingProject.data.wizardData) {
           setWizardData(existingProject.data.wizardData)
+          setCurrentProjectData(existingProject)
           console.log('📖 Bestaande wizard data geladen')
         } else {
           // Initialiseer lege wizard data
@@ -177,6 +180,7 @@ export default function StepWizard({ projectId, flow, onSave }: StepWizardProps)
       const success = saveProject(actualProjectId, projectData)
       if (success) {
         setLastSaved(new Date())
+        setCurrentProjectData({ id: actualProjectId, data: projectData })
         if (onSave) {
           onSave(projectData)
         }
@@ -560,6 +564,13 @@ export default function StepWizard({ projectId, flow, onSave }: StepWizardProps)
           </div>
         </div>
       )}
+
+      {/* Project Actions - toon altijd onderaan */}
+      <ProjectActions 
+        projectId={actualProjectId}
+        projectData={currentProjectData}
+        className="mt-6"
+      />
 
       {/* Overzicht sectie (alleen tonen als alle stappen voltooid) */}
       {completedSteps === STEPS.length && (
