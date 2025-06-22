@@ -74,8 +74,8 @@ export default function Sources() {
       finalProjectId = uuid();
       setActualProjectId(finalProjectId);
       
-      // Initialize with default values for new project
-      setRows(Object.fromEntries(S_ROWS.map(r => [r.key, { bron: "", status: "Nog verzamelen", survey: false, docs: [] }])));
+      // Initialize with simplified default values for new project
+      setRows(Object.fromEntries(S_ROWS.map(r => [r.key, { bron: "", docs: [], summary: "" }])));
       setIsLoading(false);
       return;
     }
@@ -84,11 +84,11 @@ export default function Sources() {
     
     const p = loadProject(finalProjectId);
     if (p) {
-      setRows(p.sources ?? Object.fromEntries(S_ROWS.map(r => [r.key, { bron: "", status: "Nog verzamelen", survey: false, docs: [] }])));
+      setRows(p.sources ?? Object.fromEntries(S_ROWS.map(r => [r.key, { bron: "", docs: [], summary: "" }])));
       setOrgName(p.meta?.orgName || "");
     } else {
-      // Initialize with default values if project not found
-      setRows(Object.fromEntries(S_ROWS.map(r => [r.key, { bron: "", status: "Nog verzamelen", survey: false, docs: [] }])));
+      // Initialize with simplified default values if project not found
+      setRows(Object.fromEntries(S_ROWS.map(r => [r.key, { bron: "", docs: [], summary: "" }])));
     }
     setIsLoading(false);
   }, [id]);
@@ -97,20 +97,21 @@ export default function Sources() {
   useEffect(() => {
     if (actualProjectId && !isLoading) {
       const currentProject = loadProject(actualProjectId) || {};
-      saveProject(actualProjectId, (p: any) => ({
-        ...p,
-        meta: { ...(p.meta || {}), orgName }
-      }));
+      saveProject(actualProjectId, {
+        ...currentProject,
+        meta: { ...(currentProject.meta || {}), orgName }
+      });
     }
   }, [orgName, actualProjectId, isLoading]);
 
   // Auto-save rows
   useEffect(() => {
     if (actualProjectId && !isLoading) {
-      saveProject(actualProjectId, (p: any) => ({
-        ...p,
+      const currentProject = loadProject(actualProjectId) || {};
+      saveProject(actualProjectId, {
+        ...currentProject,
         sources: rows
-      }));
+      });
     }
   }, [rows, actualProjectId, isLoading]);
 
@@ -128,9 +129,11 @@ export default function Sources() {
     }
   }
 
-  // Bereken voortgang
-  const completedRows = Object.values(rows).filter((row: any) => row.status === "Klaar").length;
-  const progressPercentage = (completedRows / S_ROWS.length) * 100;
+  // Bereken voortgang op basis van beschikbare bronnen
+  const rowsWithContent = Object.values(rows).filter((row: any) => 
+    row.bron?.trim() || (row.docs && row.docs.length > 0)
+  ).length;
+  const progressPercentage = (rowsWithContent / S_ROWS.length) * 100;
 
   if (isLoading) {
     return (
@@ -209,10 +212,10 @@ export default function Sources() {
                 </div>
                 <div className="text-right">
                   <div className="text-sm text-gray-500">
-                    {completedRows} van {S_ROWS.length} bronnen klaar
+                    {rowsWithContent} van {S_ROWS.length} bronnen beschikbaar
                   </div>
                   <div className="text-lg font-semibold text-blue-600">
-                    {Math.round(progressPercentage)}% voltooid
+                    {Math.round(progressPercentage)}% ingevuld
                   </div>
                 </div>
               </div>
@@ -270,8 +273,6 @@ export default function Sources() {
                       <th className="p-4 text-left font-semibold text-gray-700 border-b">Onderdeel</th>
                       <th className="p-4 text-left font-semibold text-gray-700 border-b">Benodigde gegevens</th>
                       <th className="p-4 text-left font-semibold text-gray-700 border-b">Mijn bronnen</th>
-                      <th className="p-4 text-left font-semibold text-gray-700 border-b">Status</th>
-                      <th className="p-4 text-center font-semibold text-gray-700 border-b">Enquête gereed?</th>
                       <th className="p-4 text-center font-semibold text-gray-700 border-b">Documenten</th>
                     </tr>
                   </thead>
@@ -298,28 +299,6 @@ export default function Sources() {
                             onChange={e => handle(r.key, "bron", e.target.value)}
                             placeholder="Beschrijf welke documenten, systemen of bronnen je hebt..."
                             className="border border-gray-300 rounded-lg p-2 w-full h-20 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                          />
-                        </td>
-                        <td className="p-4">
-                          <select 
-                            value={rows[r.key]?.status || "Nog verzamelen"}
-                            onChange={e => handle(r.key, "status", e.target.value)}
-                            className={`border rounded-lg p-2 text-sm font-medium ${
-                              rows[r.key]?.status === "Klaar" 
-                                ? 'border-green-300 bg-green-50 text-green-700' 
-                                : 'border-gray-300 bg-white text-gray-700'
-                            }`}
-                          >
-                            <option value="Nog verzamelen">Nog verzamelen</option>
-                            <option value="Klaar">Klaar</option>
-                          </select>
-                        </td>
-                        <td className="p-2 text-center">
-                          <input 
-                            type="checkbox"
-                            checked={rows[r.key]?.survey || false}
-                            onChange={e => handle(r.key, "survey", e.target.checked)}
-                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
                           />
                         </td>
                         <td className="p-2">
@@ -371,23 +350,23 @@ export default function Sources() {
                     </ul>
                   </div>
                   <div>
-                    <h4 className="font-medium text-gray-800 mb-2">📊 Enquêtes</h4>
+                    <h4 className="font-medium text-gray-800 mb-2">📊 Documenten Upload</h4>
                     <ul className="space-y-1 text-xs">
-                      <li>• Medewerkerstevredenheidsonderzoeken</li>
-                      <li>• Cultuur- en klimaatmetingen</li>
-                      <li>• 360-graden feedback</li>
-                      <li>• Klantentevredenheidsonderzoeken</li>
-                      <li>• Competentie-assessments</li>
+                      <li>• Upload meerdere documenten per onderdeel</li>
+                      <li>• Ondersteunde formaten: PDF, DOCX, CSV, TXT</li>
+                      <li>• Klik "Samenvat" voor AI-samenvatting</li>
+                      <li>• Samenvattingen worden gebruikt in de analyse</li>
+                      <li>• Max 5MB per bestand aanbevolen</li>
                     </ul>
                   </div>
                   <div>
-                    <h4 className="font-medium text-gray-800 mb-2">🔧 Documenten Samenvatting</h4>
+                    <h4 className="font-medium text-gray-800 mb-2">🔧 Workflow Tips</h4>
                     <ul className="space-y-1 text-xs">
-                      <li>• Upload documenten per 7S-onderdeel</li>
-                      <li>• Klik "Samenvat" voor AI-samenvatting</li>
-                      <li>• Gebruik samenvattingen in je analyse</li>
-                      <li>• Ondersteunde formaten: PDF, DOCX, CSV, TXT</li>
-                      <li>• Max 5MB per bestand aanbevolen</li>
+                      <li>• Begin met beschikbare documenten</li>
+                      <li>• Vul tekstuele bronnen in waar mogelijk</li>
+                      <li>• Gebruik samenvattingen als basis voor analyse</li>
+                      <li>• Je kunt later terugkeren om aan te vullen</li>
+                      <li>• Focus op interne organisatie-aspecten</li>
                     </ul>
                   </div>
                 </div>
