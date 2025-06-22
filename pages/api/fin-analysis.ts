@@ -21,6 +21,34 @@ interface FinAnalysisResponse {
   }
 }
 
+// Specifieke prompt functie voor elke ratio
+function promptForRatio(ratioType: string, value: number): string {
+  switch (ratioType) {
+    case "rentabiliteit":
+      return `Je bent financieel adviseur in de zorg.
+Leg in max 120 woorden uit wat rentabiliteit betekent en hoe waarde ${value.toFixed(2)}%
+wordt beoordeeld voor een zorginstelling. Gebruik één concreet voorbeeld (bijv. investering
+in medische apparatuur).`
+
+    case "liquiditeit":
+      return `Je bent financieel adviseur in de zorg.
+Leg in max 120 woorden uit wat liquiditeit betekent en hoe waarde ${value.toFixed(2)}
+wordt beoordeeld voor een zorginstelling. Gebruik één concreet voorbeeld (bijv. betaling
+van leveranciers of salarissen).`
+
+    case "solvabiliteit":
+      return `Je bent financieel adviseur in de zorg.
+Leg in max 120 woorden uit wat solvabiliteit betekent en hoe waarde ${value.toFixed(2)}%
+wordt beoordeeld voor een zorginstelling. Gebruik één concreet voorbeeld (bijv. financiering
+van nieuwe zorglocatie of uitbreiding).`
+
+    default:
+      return `Je bent financieel adviseur in de zorg.
+Leg in max 120 woorden uit wat deze financiële ratio betekent en hoe waarde ${value.toFixed(2)}
+wordt beoordeeld voor een zorginstelling.`
+  }
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // Alleen POST requests toestaan
   if (req.method !== 'POST') {
@@ -65,131 +93,114 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Genereer AI uitleg voor elke beschikbare ratio
     const explanations: RatioExplanation[] = []
-    const ratioPromises: Promise<void>[] = []
 
-    // Helper functie voor Gemini API calls
-    const generateExplanation = async (ratioName: string, ratioValue: number | null, ratioFormula: string) => {
-      if (ratioValue === null) {
+    // Definieer ratio mapping voor de loop
+    const ratioMappings = [
+      { key: 'rentabiliteit', ratio: ratioAnalysis.rentabiliteit },
+      { key: 'liquiditeit', ratio: ratioAnalysis.liquiditeit },
+      { key: 'solvabiliteit', ratio: ratioAnalysis.solvabiliteit }
+    ]
+
+    // Loop over ratio's en genereer uitleg
+    for (const { key, ratio } of ratioMappings) {
+      if (ratio.value !== null) {
+        try {
+          console.log(`🤖 Genereer uitleg voor ${key}:`, ratio.value)
+
+          // Gebruik specifieke prompt functie
+          const promptText = promptForRatio(key, ratio.value)
+
+          // Gemini API aanroep
+          const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${apiKey}`
+          
+          const requestBody = {
+            contents: [
+              {
+                parts: [
+                  {
+                    text: promptText
+                  }
+                ]
+              }
+            ],
+            generationConfig: {
+              temperature: 0.6, // Verhoogd van 0.4 naar 0.6 voor betere uitleg
+              maxOutputTokens: 200,
+              topP: 0.8,
+              topK: 40
+            }
+          }
+
+          const response = await fetch(geminiUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+          })
+
+          if (!response.ok) {
+            const errorText = await response.text()
+            console.error(`Gemini API error for ${key}:`, response.status, errorText)
+            throw new Error(`Gemini API call failed: ${response.status}`)
+          }
+
+          const data = await response.json()
+          const explanation = data.candidates?.[0]?.content?.parts?.[0]?.text
+
+          if (!explanation) {
+            throw new Error('Geen uitleg ontvangen van Gemini API')
+          }
+
+          // Format waarde voor weergave
+          let formattedValue: string
+          if (key === 'rentabiliteit' || key === 'solvabiliteit') {
+            formattedValue = `${ratio.value}%`
+          } else {
+            formattedValue = ratio.value.toString()
+          }
+
+          explanations.push({
+            ratio: ratio.name,
+            waarde: formattedValue,
+            uitleg: explanation.trim()
+          })
+
+          console.log(`✅ Uitleg gegenereerd voor ${key}`)
+
+        } catch (error) {
+          console.error(`❌ Fout bij genereren uitleg voor ${key}:`, error)
+          
+          // Fallback uitleg bij API fout
+          const fallbackExplanations: { [key: string]: string } = {
+            'rentabiliteit': `Rentabiliteit van ${ratio.value}% toont hoe efficiënt je organisatie het eigen vermogen inzet. Voor zorgorganisaties is 5-15% gezond. Een lagere waarde kan duiden op inefficiëntie, een hogere waarde op mogelijk te weinig investeringen in zorgkwaliteit. Bijvoorbeeld: bij 8% rentabiliteit genereert elke €100 eigen vermogen €8 winst per jaar.`,
+            'liquiditeit': `Liquiditeit van ${ratio.value} geeft aan of je organisatie kortlopende verplichtingen kan nakomen. Een waarde tussen 1,0-3,0 is gezond voor zorgorganisaties. Te laag betekent liquiditeitsproblemen, te hoog kan inefficiënt gebruik van middelen betekenen. Bijvoorbeeld: bij 1,5 heb je €1,50 aan vlottende activa voor elke €1 aan kortlopende schulden.`,
+            'solvabiliteit': `Solvabiliteit van ${ratio.value}% toont de financiële stabiliteit. Voor zorgorganisaties is 20-60% eigen vermogen gezond. Dit geeft aan hoeveel van de organisatie echt 'van jezelf' is versus gefinancierd door schulden. Bijvoorbeeld: bij 35% solvabiliteit is €35 van elke €100 activa gefinancierd met eigen vermogen.`
+          }
+
+          // Format waarde voor fallback
+          let formattedValue: string
+          if (key === 'rentabiliteit' || key === 'solvabiliteit') {
+            formattedValue = `${ratio.value}%`
+          } else {
+            formattedValue = ratio.value.toString()
+          }
+
+          explanations.push({
+            ratio: ratio.name,
+            waarde: formattedValue,
+            uitleg: fallbackExplanations[key] || `Deze ratio heeft een waarde van ${formattedValue}. Raadpleeg een financieel adviseur voor een gedetailleerde analyse van deze waarde binnen de zorgsector.`
+          })
+        }
+      } else {
+        // Ratio niet beschikbaar
         explanations.push({
-          ratio: ratioName,
+          ratio: ratio.name,
           waarde: 'Niet beschikbaar',
           uitleg: 'Onvoldoende financiële data om deze ratio te berekenen. Zorg ervoor dat alle benodigde gegevens beschikbaar zijn in je financiële administratie.'
         })
-        return
-      }
-
-      try {
-        // Bepaal waarde formatting
-        let formattedValue: string
-        if (ratioName.includes('Rentabiliteit') || ratioName.includes('Solvabiliteit')) {
-          formattedValue = `${ratioValue}%`
-        } else {
-          formattedValue = ratioValue.toString()
-        }
-
-        // Construeer prompt voor deze specifieke ratio
-        const prompt = SYSTEM_PROMPT
-          .replace('[ratio-naam]', ratioName)
-          .replace('waarde X', `waarde ${formattedValue}`) + 
-          `\n\nRatio: ${ratioName}\nWaarde: ${formattedValue}\nFormule: ${ratioFormula}\n\nGeef een heldere uitleg over wat deze ratio betekent voor een zorgorganisatie.`
-
-        console.log(`🤖 Genereer uitleg voor ${ratioName}:`, formattedValue)
-
-        // Gemini API aanroep
-        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${apiKey}`
-        
-        const requestBody = {
-          contents: [
-            {
-              parts: [
-                {
-                  text: prompt
-                }
-              ]
-            }
-          ],
-          generationConfig: {
-            temperature: 0.4, // Lagere temperature voor consistente financiële uitleg
-            maxOutputTokens: 200, // Beperkt tot ~120 woorden
-            topP: 0.8,
-            topK: 40
-          }
-        }
-
-        const response = await fetch(geminiUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(requestBody)
-        })
-
-        if (!response.ok) {
-          const errorText = await response.text()
-          console.error(`Gemini API error for ${ratioName}:`, response.status, errorText)
-          throw new Error(`Gemini API call failed: ${response.status}`)
-        }
-
-        const data = await response.json()
-        const explanation = data.candidates?.[0]?.content?.parts?.[0]?.text
-
-        if (!explanation) {
-          throw new Error('Geen uitleg ontvangen van Gemini API')
-        }
-
-        explanations.push({
-          ratio: ratioName,
-          waarde: formattedValue,
-          uitleg: explanation.trim()
-        })
-
-        console.log(`✅ Uitleg gegenereerd voor ${ratioName}`)
-
-      } catch (error) {
-        console.error(`❌ Fout bij genereren uitleg voor ${ratioName}:`, error)
-        
-        // Fallback uitleg bij API fout
-        const fallbackExplanations: { [key: string]: string } = {
-          'Rentabiliteit (ROE)': `Rentabiliteit van ${formattedValue} toont hoe efficiënt je organisatie het eigen vermogen inzet. Voor zorgorganisaties is 5-15% gezond. Een lagere waarde kan duiden op inefficiëntie, een hogere waarde op mogelijk te weinig investeringen in zorgkwaliteit.`,
-          'Liquiditeit (Current Ratio)': `Liquiditeit van ${formattedValue} geeft aan of je organisatie kortlopende verplichtingen kan nakomen. Een waarde tussen 1,0-3,0 is gezond voor zorgorganisaties. Te laag betekent liquiditeitsproblemen, te hoog kan inefficiënt gebruik van middelen betekenen.`,
-          'Solvabiliteit (Equity Ratio)': `Solvabiliteit van ${formattedValue} toont de financiële stabiliteit. Voor zorgorganisaties is 20-60% eigen vermogen gezond. Dit geeft aan hoeveel van de organisatie echt 'van jezelf' is versus gefinancierd door schulden.`
-        }
-
-        explanations.push({
-          ratio: ratioName,
-          waarde: formattedValue,
-          uitleg: fallbackExplanations[ratioName] || `Deze ratio heeft een waarde van ${formattedValue}. Raadpleeg een financieel adviseur voor een gedetailleerde analyse van deze waarde binnen de zorgsector.`
-        })
       }
     }
-
-    // Start alle API calls parallel
-    if (ratioAnalysis.rentabiliteit.value !== null) {
-      ratioPromises.push(generateExplanation(
-        ratioAnalysis.rentabiliteit.name,
-        ratioAnalysis.rentabiliteit.value,
-        ratioAnalysis.rentabiliteit.formula
-      ))
-    }
-
-    if (ratioAnalysis.liquiditeit.value !== null) {
-      ratioPromises.push(generateExplanation(
-        ratioAnalysis.liquiditeit.name,
-        ratioAnalysis.liquiditeit.value,
-        ratioAnalysis.liquiditeit.formula
-      ))
-    }
-
-    if (ratioAnalysis.solvabiliteit.value !== null) {
-      ratioPromises.push(generateExplanation(
-        ratioAnalysis.solvabiliteit.name,
-        ratioAnalysis.solvabiliteit.value,
-        ratioAnalysis.solvabiliteit.formula
-      ))
-    }
-
-    // Wacht tot alle uitleg gegenereerd is
-    await Promise.all(ratioPromises)
 
     // Bepaal overall health status
     let overallHealth: 'healthy' | 'warning' | 'critical' = 'healthy'
