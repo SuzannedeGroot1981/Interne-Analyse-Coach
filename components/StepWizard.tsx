@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { saveProject, loadProject, createProjectId } from '../utils/storage'
 import FinanceDropzone from './FinanceDropzone'
 import ProjectActions from './ProjectActions'
+import ReactMarkdown from 'react-markdown'
 
 // Types voor stap data
 interface StepData {
@@ -908,7 +909,7 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
         </p>
       </div>
 
-      {/* Volledig rapport weergave */}
+      {/* Volledig rapport weergave met ReactMarkdown */}
       {fullReport && (
         <div className="bg-white rounded-xl shadow-lg p-6 mt-6">
           <div className="flex items-center justify-between mb-4">
@@ -924,10 +925,10 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
             </button>
           </div>
           
-          <div className="bg-gray-50 rounded-lg p-4 max-h-96 overflow-y-auto">
-            <pre className="text-sm text-gray-700 whitespace-pre-wrap font-mono">
-              {fullReport}
-            </pre>
+          <div className="bg-gray-50 rounded-lg p-6 max-h-96 overflow-y-auto">
+            <div className="prose max-w-none">
+              <ReactMarkdown>{fullReport}</ReactMarkdown>
+            </div>
           </div>
           
           <div className="flex items-center justify-between mt-4">
