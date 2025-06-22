@@ -1,13 +1,18 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { allow } from '../../utils/rateLimit'
+import { loadProject } from '../../utils/storage'
 
-/* ---- 1. Nieuwe SYSTEM_PROMPT -------------------- */
+/* ---- 1. Nieuwe SYSTEM_PROMPT met evidence integratie -------------------- */
 const SYSTEM_PROMPT = `
 Je bent een ervaren docent & managementcoach in de zorg.
 Je feedback betreft **uitsluitend de INTERNE analyse** (McKinsey 7S + financiële ratio's).
 Laat externe factoren (SWOT-extern, PEST(EL), concurrentie, kansen of bedreigingen)
 buiten beschouwing; verwijs er hoogstens naar met de opmerking
 "Wordt behandeld in een latere externe analyse".
+
+Gebruik onderstaande interview- en enquêtebevinding (indien aanwezig) 
+als feitelijk bewijs. Controleer of de student het bewijs citeert; 
+ontbreekt een verwijzing, voeg een verbeterpunt toe.
 
 Stijl- en vormeisen
 • Zakelijk, formeel Nederlands (u-vorm vermijden; "je" is toegestaan).  
@@ -50,7 +55,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Parse request body
-    const { userPrompt, stepTitle, currentSituation, desiredSituation } = req.body
+    const { userPrompt, stepTitle, currentSituation, desiredSituation, projectId } = req.body
 
     // Input validatie
     if (!userPrompt || typeof userPrompt !== 'string') {
@@ -65,8 +70,44 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       })
     }
 
-    // Construeer de volledige prompt
-    let fullPrompt = SYSTEM_PROMPT + '\n\n'
+    /* ---- 2. Verzamel evidence data vóór de Gemini-call -------------- */
+    let ev = "";
+    let project = null;
+    
+    if (projectId) {
+      project = loadProject(projectId);
+      if (project && project.evidence && stepTitle) {
+        // Map step title naar evidence key
+        const evidenceKeyMap: { [key: string]: string } = {
+          'Strategy': 'Strategy',
+          'Structure': 'Structure', 
+          'Systems': 'Systems',
+          'Shared Values': 'Shared Values',
+          'Skills': 'Skills',
+          'Style': 'Style',
+          'Staff': 'Staff',
+          'Financiën': 'Financiën'
+        };
+        
+        const evidenceKey = evidenceKeyMap[stepTitle];
+        if (evidenceKey && project.evidence[evidenceKey]) {
+          ev = project.evidence[evidenceKey];
+          console.log('📋 Evidence gevonden voor', stepTitle, ':', ev.substring(0, 100) + '...');
+        }
+      }
+    }
+
+    const userText = currentSituation || "";
+
+    // Construeer de volledige prompt met evidence
+    let fullPrompt = SYSTEM_PROMPT;
+    
+    // Voeg evidence toe aan system prompt als beschikbaar
+    if (ev) {
+      fullPrompt += `\n\nInterview/Survey Insight:\n«${ev}»\n\n`;
+    }
+    
+    fullPrompt += '\n\n';
     
     if (stepTitle) {
       fullPrompt += `7S-Element: ${stepTitle}\n\n`
@@ -85,6 +126,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log('🤖 Coach API aangeroepen:', {
       stepTitle: stepTitle || 'Geen stap',
       promptLength: fullPrompt.length,
+      hasEvidence: !!ev,
+      evidenceLength: ev.length,
       timestamp: new Date().toISOString()
     })
 
@@ -170,8 +213,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       })
     }
 
-    /* ---- 2. Na de fetch naar Gemini, vóór je res.json() terugstuurt -------------- */
-    /* mini-filter: vang per ongeluk extern advies af */
+    /* ---- 3. Na het antwoord: korte scan voor evidence citatie -------------- */
+    if (ev && userText && !coachFeedback.toLowerCase().includes("interview") && !coachFeedback.toLowerCase().includes("enquête")) {
+      // Check of student het evidence citeert in hun tekst
+      const hasInterviewRef = userText.toLowerCase().includes("interview") || 
+                             userText.toLowerCase().includes("gesprek") ||
+                             userText.toLowerCase().includes("gesproken");
+      const hasSurveyRef = userText.toLowerCase().includes("enquête") || 
+                          userText.toLowerCase().includes("onderzoek") ||
+                          userText.toLowerCase().includes("vragenlijst");
+      
+      if (!hasInterviewRef && !hasSurveyRef) {
+        coachFeedback = "**Let op:** Noem expliciet het interview/enquête-bewijs in je tekst. Je hebt waardevolle data beschikbaar die je analyse kan versterken.\n\n" + coachFeedback;
+      }
+    }
+
+    /* ---- 4. Mini-filter: vang per ongeluk extern advies af -------------- */
     const forbidden = /extern|PEST|kansen|bedreigingen|concurrent|macro/i;
     if (forbidden.test(coachFeedback)) {
       coachFeedback =
@@ -184,7 +241,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       feedbackLength: coachFeedback.length,
       stepTitle: stepTitle || 'Algemeen',
       success: true,
-      filteredExternal: forbidden.test(data.candidates?.[0]?.content?.parts?.[0]?.text || '')
+      hasEvidence: !!ev,
+      filteredExternal: forbidden.test(data.candidates?.[0]?.content?.parts?.[0]?.text || ''),
+      evidenceWarningAdded: ev && userText && !userText.toLowerCase().includes("interview") && !userText.toLowerCase().includes("enquête")
     })
 
     // Succesvol antwoord
@@ -193,7 +252,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       feedback: coachFeedback,
       stepTitle: stepTitle || null,
       timestamp: new Date().toISOString(),
-      wordCount: coachFeedback.split(/\s+/).length
+      wordCount: coachFeedback.split(/\s+/).length,
+      evidenceUsed: !!ev
     })
 
   } catch (error) {

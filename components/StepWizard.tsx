@@ -371,12 +371,13 @@ Je kunt altijd later terugkomen voor AI feedback wanneer de quota is gereset!`
       const stepData = wizardData[stepId]
       const step = STEPS.find(s => s.id === stepId)
       
-      // Bereid data voor AI coach API
+      // Bereid data voor AI coach API - inclusief projectId voor evidence
       const requestBody = {
         userPrompt: `Geef feedback op mijn ${step?.title} analyse`,
         stepTitle: step?.title,
         currentSituation: stepData.current,
-        desiredSituation: stepData.desired
+        desiredSituation: stepData.desired,
+        projectId: actualProjectId // Toegevoegd voor evidence lookup
       }
 
       // Voeg financiële data toe als beschikbaar
@@ -417,7 +418,8 @@ Je kunt altijd later terugkomen voor AI feedback wanneer de quota is gereset!`
       console.log('🤖 Coach feedback ontvangen:', {
         stepTitle: step?.title,
         feedbackLength: data.feedback.length,
-        wordCount: data.wordCount
+        wordCount: data.wordCount,
+        evidenceUsed: data.evidenceUsed
       })
 
     } catch (error) {
@@ -771,7 +773,7 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
                   </div>
                   <div className="mt-3 pt-3 border-t border-gray-200">
                     <p className="text-xs text-gray-500">
-                      💡 Gebruik deze bevindingen als basis voor je analyse
+                      💡 Gebruik deze bevindingen als basis voor je analyse en citeer ze expliciet in je tekst
                     </p>
                   </div>
                 </aside>
