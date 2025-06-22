@@ -123,6 +123,30 @@ export default function Home() {
           )}
         </div>
 
+        {/* Actief project sectie */}
+        {hasActive && activeId && (
+          <div className="max-w-4xl mx-auto mb-16">
+            <div className="bg-primary/10 border border-primary/20 rounded-2xl p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-bold text-primary mb-2 flex items-center">
+                    <span className="mr-2">🎯</span>
+                    Actief Project
+                  </h2>
+                  <p className="text-gray-700">
+                    Je hebt een actief project waar je aan kunt verder werken.
+                  </p>
+                </div>
+                <Link href={`/sources?id=${activeId}`}>
+                  <button className="px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-green-700 transition-colors">
+                    Verder werken →
+                  </button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Recente Projecten Sectie */}
         {!isLoading && projects.length > 0 && (
           <div className="max-w-4xl mx-auto mb-16">
@@ -242,7 +266,7 @@ export default function Home() {
                 </p>
               </div>
               
-              <Link href="/start">
+              <Link href="/orientatie?new=1">
                 <button className="btn-primary w-full py-4 px-6 text-lg font-semibold rounded-xl transition-all duration-200 transform hover:scale-105">
                   Start nieuwe interne analyse
                 </button>
