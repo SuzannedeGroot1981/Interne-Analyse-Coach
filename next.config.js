@@ -9,8 +9,6 @@ const nextConfig = {
     // Type checking is done separately, skip during build for speed
     ignoreBuildErrors: false,
   },
-  // Disable Next.js telemetry
-  telemetry: false,
 }
 
 module.exports = nextConfig
