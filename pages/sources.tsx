@@ -70,7 +70,7 @@ export default function Sources() {
 
   function handleContinue() {
     if (actualProjectId) {
-      window.location.href = nextLink(actualProjectId, "start");
+      window.location.href = `/evidence?id=${actualProjectId}`;
     }
   }
 
@@ -323,7 +323,7 @@ export default function Sources() {
                   onClick={handleContinue}
                   className="px-8 py-4 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center space-x-2"
                 >
-                  <span>Verder → Feitelijke situatie</span>
+                  <span>Verder → Bewijsmateriaal</span>
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
