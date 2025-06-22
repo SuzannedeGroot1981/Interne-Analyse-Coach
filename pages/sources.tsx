@@ -17,7 +17,7 @@ const S_ROWS = [
 
 export default function Sources() {
   const { query: { id } } = useRouter();
-  const [rows, setRows] = useState<Record<string, { bron: string, status: string }>>({});
+  const [rows, setRows] = useState<Record<string, { bron: string, status: string, interview?: boolean, survey?: boolean }>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [actualProjectId, setActualProjectId] = useState<string>('');
 
@@ -31,7 +31,7 @@ export default function Sources() {
       setActualProjectId(finalProjectId);
       
       // Initialize with default values for new project
-      setRows(Object.fromEntries(S_ROWS.map(r => [r.key, { bron: "", status: "Nog verzamelen" }])));
+      setRows(Object.fromEntries(S_ROWS.map(r => [r.key, { bron: "", status: "Nog verzamelen", interview: false, survey: false }])));
       setIsLoading(false);
       return;
     }
@@ -40,10 +40,10 @@ export default function Sources() {
     
     const p = loadProject(finalProjectId);
     if (p) {
-      setRows(p.sources ?? Object.fromEntries(S_ROWS.map(r => [r.key, { bron: "", status: "Nog verzamelen" }])));
+      setRows(p.sources ?? Object.fromEntries(S_ROWS.map(r => [r.key, { bron: "", status: "Nog verzamelen", interview: false, survey: false }])));
     } else {
       // Initialize with default values if project not found
-      setRows(Object.fromEntries(S_ROWS.map(r => [r.key, { bron: "", status: "Nog verzamelen" }])));
+      setRows(Object.fromEntries(S_ROWS.map(r => [r.key, { bron: "", status: "Nog verzamelen", interview: false, survey: false }])));
     }
     setIsLoading(false);
   }, [id]);
@@ -60,7 +60,7 @@ export default function Sources() {
     }
   }, [rows, actualProjectId, isLoading]);
 
-  function handle(rowKey: string, field: "bron" | "status", val: string) {
+  function handle(rowKey: string, field: "bron" | "status" | "interview" | "survey", val: string | boolean) {
     setRows(r => ({ ...r, [rowKey]: { ...r[rowKey], [field]: val } }));
   }
 
@@ -204,6 +204,8 @@ export default function Sources() {
                       <th className="p-4 text-left font-semibold text-gray-700 border-b">Benodigde gegevens</th>
                       <th className="p-4 text-left font-semibold text-gray-700 border-b">Mijn bronnen</th>
                       <th className="p-4 text-left font-semibold text-gray-700 border-b">Status</th>
+                      <th className="p-4 text-center font-semibold text-gray-700 border-b">Interviews gepland?</th>
+                      <th className="p-4 text-center font-semibold text-gray-700 border-b">Enquête gereed?</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -245,6 +247,22 @@ export default function Sources() {
                             <option value="Klaar">Klaar</option>
                           </select>
                         </td>
+                        <td className="p-2 text-center">
+                          <input 
+                            type="checkbox"
+                            checked={rows[r.key]?.interview || false}
+                            onChange={e => handle(r.key, "interview", e.target.checked)}
+                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                          />
+                        </td>
+                        <td className="p-2 text-center">
+                          <input 
+                            type="checkbox"
+                            checked={rows[r.key]?.survey || false}
+                            onChange={e => handle(r.key, "survey", e.target.checked)}
+                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                          />
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -257,7 +275,7 @@ export default function Sources() {
                   <span className="mr-2">💡</span>
                   Tips voor bronneninventarisatie
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
                   <div>
                     <h4 className="font-medium text-gray-800 mb-2">📄 Documentbronnen</h4>
                     <ul className="space-y-1 text-xs">
@@ -269,13 +287,23 @@ export default function Sources() {
                     </ul>
                   </div>
                   <div>
-                    <h4 className="font-medium text-gray-800 mb-2">👥 Menselijke bronnen</h4>
+                    <h4 className="font-medium text-gray-800 mb-2">👥 Interviews</h4>
                     <ul className="space-y-1 text-xs">
-                      <li>• Interviews met sleutelpersonen</li>
-                      <li>• Teambijeenkomsten en workshops</li>
+                      <li>• Gesprekken met sleutelpersonen</li>
+                      <li>• Management en teamleiders</li>
+                      <li>• Ervaren medewerkers</li>
+                      <li>• Stakeholders en klanten</li>
+                      <li>• Externe adviseurs</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-800 mb-2">📊 Enquêtes</h4>
+                    <ul className="space-y-1 text-xs">
                       <li>• Medewerkerstevredenheidsonderzoeken</li>
-                      <li>• Observaties van werkprocessen</li>
-                      <li>• Gesprekken met management en medewerkers</li>
+                      <li>• Cultuur- en klimaatmetingen</li>
+                      <li>• 360-graden feedback</li>
+                      <li>• Klantentevredenheidsonderzoeken</li>
+                      <li>• Competentie-assessments</li>
                     </ul>
                   </div>
                 </div>
