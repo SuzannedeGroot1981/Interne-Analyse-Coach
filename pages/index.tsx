@@ -1,5 +1,5 @@
-import Head from 'next/head'
 import Link from 'next/link'
+import Head from 'next/head'
 
 export default function Home() {
   return (
@@ -25,7 +25,7 @@ export default function Home() {
             </h1>
             
             <p className="text-xl text-primary font-medium mb-8 max-w-2xl mx-auto">
-              Gebruik AI om diepgaande interne analyses uit te voeren en bestaande concepten te verbeteren met professionele inzichten.
+              Jouw AI-gestuurde assistent voor diepgaande interne analyses en het verbeteren van concepten.
             </p>
           </div>
 
@@ -37,7 +37,7 @@ export default function Home() {
               <div className="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
                 <div className="text-center mb-6">
                   <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-                    <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
                   </div>
@@ -115,7 +115,7 @@ export default function Home() {
               
               <div className="text-center p-6">
                 <div className="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-full mb-4">
-                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 12l2 2 4-4" />
                   </svg>
                 </div>
