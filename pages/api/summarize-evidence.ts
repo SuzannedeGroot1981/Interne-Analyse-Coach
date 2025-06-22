@@ -1,15 +1,15 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
-import { allow } from '../../utils/rateLimit'
-import mammoth from 'mammoth'
-import Papa from 'papaparse'
+import type { NextApiRequest, NextApiResponse } from "next";
+import pdfParse from "pdf-parse";
+import mammoth from "mammoth";
+import Papa from "papaparse";
+import { Readable } from "stream";
+import { Buffer } from "buffer";
+import { allow } from '../../utils/rateLimit';
 
-interface SummarizeResponse {
-  success: boolean
-  summary: string
-  interviewCount: number
-  surveyRows?: number
-  error?: string
-}
+const GEMINI = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent`;
+const key = process.env.GEMINI_API_KEY;
+
+export const config = { api: { bodyParser: false } };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // Rate limiting check
@@ -18,189 +18,161 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(429).json({ message: "Te veel aanvragen, probeer in 1 minuut opnieuw." });
   }
 
-  if (req.method !== 'POST') {
-    return res.status(405).json({ 
-      error: 'Method not allowed. Use POST.',
-      allowedMethods: ['POST']
-    })
+  if (req.method !== "POST") return res.status(405).end();
+
+  if (!key) {
+    return res.status(500).json({ 
+      error: 'API configuratie ontbreekt. Check Environment Variables.',
+      hint: 'Voeg GEMINI_API_KEY toe aan je environment variables'
+    });
   }
 
   try {
-    // Check of Gemini API key beschikbaar is
-    const apiKey = process.env.GEMINI_API_KEY
-    if (!apiKey) {
-      console.error('GEMINI_API_KEY not found in environment variables')
-      return res.status(500).json({ 
-        error: 'API configuratie ontbreikt. Check Environment Variables.',
-        hint: 'Voeg GEMINI_API_KEY toe aan je environment variables'
-      })
-    }
+    /* ---------- bestanden uitlezen ---------- */
+    const files = (req as any).files || (await streamToFiles(req));
+    let fullText = "";
 
-    // Parse multipart form data (simplified approach)
-    // In een echte implementatie zou je een library zoals 'formidable' gebruiken
-    const contentType = req.headers['content-type']
-    if (!contentType || !contentType.includes('multipart/form-data')) {
-      return res.status(400).json({
-        error: 'Content-Type moet multipart/form-data zijn voor bestand uploads'
-      })
-    }
+    console.log('📁 Bestanden ontvangen:', {
+      interviews: files.interviews?.length || 0,
+      survey: !!files.survey
+    });
 
-    // Voor deze implementatie simuleren we de file processing
-    // In productie zou je de bestanden daadwerkelijk parsen
-    console.log('🎤 Evidence summarize API aangeroepen')
-
-    // Simuleer interview en survey data processing
-    let interviewTexts: string[] = []
-    let surveyData: any[] = []
-
-    // Mock data voor demonstratie (in productie zou je echte bestanden verwerken)
-    const mockInterviewText = `
-Interview 1 - Manager:
-"Onze organisatie heeft sterke punten in teamwork en innovatie. We zien echter uitdagingen in communicatie tussen afdelingen en hebben behoefte aan duidelijkere processen."
-
-Interview 2 - Medewerker:
-"De werksfeer is over het algemeen goed, maar er is onduidelijkheid over rollen en verantwoordelijkheden. Training en ontwikkeling kunnen beter."
-
-Interview 3 - Teamleider:
-"Financieel staan we er redelijk voor, maar we missen strategische focus. De organisatiestructuur kan efficiënter."
-    `
-
-    const mockSurveyData = [
-      { vraag: 'Tevredenheid werk', score: 7.2 },
-      { vraag: 'Communicatie', score: 6.1 },
-      { vraag: 'Leiderschap', score: 6.8 },
-      { vraag: 'Ontwikkeling', score: 5.9 }
-    ]
-
-    interviewTexts.push(mockInterviewText)
-    surveyData = mockSurveyData
-
-    // Bereid data voor AI samenvatting
-    let combinedText = ''
-    
-    if (interviewTexts.length > 0) {
-      combinedText += `INTERVIEW DATA:\n${interviewTexts.join('\n\n')}\n\n`
-    }
-    
-    if (surveyData.length > 0) {
-      combinedText += `ENQUÊTE RESULTATEN:\n${JSON.stringify(surveyData, null, 2)}\n\n`
-    }
-
-    if (!combinedText.trim()) {
-      return res.status(400).json({
-        error: 'Geen data gevonden om samen te vatten'
-      })
-    }
-
-    // AI prompt voor samenvatting
-    const prompt = `
-Je bent een organisatie-analist. Maak een gestructureerde samenvatting van de volgende interview- en enquêtedata voor een interne organisatie-analyse volgens het 7S-model.
-
-Focus op:
-- Belangrijkste bevindingen per 7S-element (Strategy, Structure, Systems, Shared Values, Skills, Style, Staff)
-- Financiële aspecten indien genoemd
-- Sterke punten en verbeterpunten
-- Concrete citaten en cijfers waar relevant
-
-Geef een heldere, professionele samenvatting van maximaal 500 woorden.
-
-DATA:
-${combinedText}
-
-Maak een samenvatting die bruikbaar is voor de interne analyse:
-`
-
-    console.log('🤖 Start AI samenvatting generatie...', {
-      interviewCount: interviewTexts.length,
-      surveyRows: surveyData.length,
-      textLength: combinedText.length
-    })
-
-    // Gemini API aanroep
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${apiKey}`
-    
-    const requestBody = {
-      contents: [
-        {
-          parts: [
-            {
-              text: prompt
-            }
-          ]
+    if (files.interviews) {
+      for (const f of files.interviews) {
+        console.log('📄 Verwerk interview bestand:', f.filename, f.mimetype);
+        
+        if (f.mimetype === "application/pdf") {
+          const pdfResult = await pdfParse(f.buffer);
+          fullText += `\n=== INTERVIEW: ${f.filename} ===\n${pdfResult.text}\n`;
+        } else if (f.mimetype === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+          const docxResult = await mammoth.extractRawText({ buffer: f.buffer });
+          fullText += `\n=== INTERVIEW: ${f.filename} ===\n${docxResult.value}\n`;
+        } else {
+          // Behandel als tekst bestand
+          fullText += `\n=== INTERVIEW: ${f.filename} ===\n${f.buffer.toString()}\n`;
         }
-      ],
-      generationConfig: {
-        temperature: 0.6, // Creatieve samenvatting
-        maxOutputTokens: 800,
-        topP: 0.8,
-        topK: 40
       }
     }
 
-    const response = await fetch(geminiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(requestBody)
-    })
+    if (files.survey?.buffer) {
+      console.log('📊 Verwerk enquête bestand:', files.survey.filename);
+      const csv = Papa.parse(files.survey.buffer.toString(), { header: true });
+      fullText += `\n=== ENQUÊTE DATA ===\n${JSON.stringify(csv.data, null, 2)}\n`;
+    }
 
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error('Gemini API error:', response.status, errorText)
+    if (!fullText.trim()) {
+      return res.status(400).json({
+        error: 'Geen bruikbare data gevonden in de geüploade bestanden'
+      });
+    }
+
+    /* ---------- samenvatting via Gemini ---------- */
+    const prompt = `
+Je bent onderzoeksmethodoloog. Maak een kernsamenvatting uit de transcript- 
+en enquêtedata. Orden per 7S-element; max 80 woorden per element; 
+noem percentage of citaat als bewijs. 
+Return als JSON: { "Strategy": "...", "Structure": "...", "Systems": "...", "Shared Values": "...", "Skills": "...", "Style": "...", "Staff": "...", "Financiën": "..." }
+
+Focus op INTERNE factoren alleen. Externe analyse komt later.
+
+DATA:
+${fullText}`;
+
+    const body = {
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: { 
+        temperature: 0.4, // Aangepast naar 0.4 voor consistente analyse
+        maxOutputTokens: 1000
+      }
+    };
+
+    console.log('🤖 Start Gemini API call voor samenvatting...', {
+      textLength: fullText.length,
+      wordCount: fullText.split(/\s+/).length
+    });
+
+    const g = await fetch(GEMINI + "?key=" + key, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+
+    if (!g.ok) {
+      const errorText = await g.text();
+      console.error('Gemini API error:', g.status, errorText);
       
-      if (response.status === 429) {
+      if (g.status === 429) {
         return res.status(429).json({
           error: 'API quota bereikt. Probeer het later opnieuw.',
           details: 'Dagelijkse API quota overschreden'
-        })
+        });
       }
       
-      throw new Error(`Gemini API call failed: ${response.status}`)
+      throw new Error(`Gemini API call failed: ${g.status}`);
     }
 
-    const data = await response.json()
-    const summary = data.candidates?.[0]?.content?.parts?.[0]?.text
+    const response = await g.json();
+    const summaryText = response.candidates?.[0]?.content?.parts?.[0]?.text;
 
-    if (!summary) {
-      throw new Error('Geen samenvatting ontvangen van Gemini API')
+    if (!summaryText) {
+      throw new Error('Geen samenvatting ontvangen van Gemini API');
+    }
+
+    // Probeer JSON te parsen, anders return als tekst
+    let summary;
+    try {
+      summary = JSON.parse(summaryText);
+    } catch {
+      // Als JSON parsing faalt, return als gestructureerde tekst
+      summary = {
+        summary: summaryText,
+        note: "Samenvatting kon niet als JSON worden geparsed"
+      };
     }
 
     console.log('✅ Evidence samenvatting voltooid:', {
-      summaryLength: summary.length,
-      interviewCount: interviewTexts.length,
-      surveyRows: surveyData.length
-    })
+      summaryType: typeof summary,
+      hasStructuredData: typeof summary === 'object' && summary !== null
+    });
 
-    // Succesvol antwoord
-    const result: SummarizeResponse = {
-      success: true,
-      summary: summary.trim(),
-      interviewCount: interviewTexts.length,
-      surveyRows: surveyData.length
-    }
-
-    return res.status(200).json(result)
+    res.json(summary);
 
   } catch (error) {
-    console.error('❌ Summarize evidence API error:', error)
+    console.error('❌ Summarize evidence error:', error);
     
-    const errorMessage = error instanceof Error ? error.message : 'Onbekende fout'
+    const errorMessage = error instanceof Error ? error.message : 'Onbekende fout';
     
-    return res.status(500).json({
-      success: false,
+    res.status(500).json({
       error: 'Er is een fout opgetreden bij het samenvatten van de evidence',
       details: errorMessage,
       timestamp: new Date().toISOString()
-    })
+    });
   }
 }
 
-// Export configuratie voor Next.js API routes
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: '10mb', // Verhoog limiet voor bestanden
-    },
-  },
+/* helper om FormData uit stream te halen */
+async function streamToFiles(req: NextApiRequest) {
+  const busboy = require("busboy");
+  const bb = busboy({ headers: req.headers });
+  const out: any = {};
+  
+  return new Promise<any>((resolve, reject) => {
+    bb.on("file", (name: string, stream: any, info: any) => {
+      const chunks: any[] = [];
+      stream.on("data", (c: any) => chunks.push(c));
+      stream.on("end", () => { 
+        out[name] = out[name] || []; 
+        out[name].push({ 
+          ...info, 
+          buffer: Buffer.concat(chunks),
+          filename: info.filename || 'unknown'
+        }); 
+      });
+    });
+    
+    bb.on("close", () => resolve(out));
+    bb.on("error", reject);
+    
+    req.pipe(bb);
+  });
 }
