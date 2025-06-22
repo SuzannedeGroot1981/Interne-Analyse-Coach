@@ -127,6 +127,149 @@ export default function StepWizard({ projectId, flow, onSave }: StepWizardProps)
   const [currentProjectData, setCurrentProjectData] = useState<any>(null)
   const [apiQuotaExceeded, setApiQuotaExceeded] = useState(false)
   const [lastQuotaError, setLastQuotaError] = useState<Date | null>(null)
+  const [fullReport, setFullReport] = useState<string>('')
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false)
+  const [isDownloadingWord, setIsDownloadingWord] = useState(false)
+
+  // Helper functies voor export functionaliteit
+  const getFullProject = () => {
+    // Converteer wizardData naar het formaat dat de export API verwacht
+    const data: Record<string, string> = {}
+    const feedback: Record<string, string> = {}
+
+    STEPS.forEach(step => {
+      const stepData = wizardData[step.id]
+      if (stepData) {
+        // Combineer current en desired situatie
+        let content = ''
+        if (stepData.current) {
+          content += `**Huidige situatie:**\n${stepData.current}\n\n`
+        }
+        if (stepData.desired) {
+          content += `**Gewenste situatie:**\n${stepData.desired}`
+        }
+        
+        if (content) {
+          data[step.title] = content
+        }
+        
+        if (stepData.feedback) {
+          feedback[step.title] = stepData.feedback
+        }
+      }
+    })
+
+    return {
+      title: `Interne Analyse ${new Date().toLocaleDateString('nl-NL')}`,
+      data,
+      feedback
+    }
+  }
+
+  const downloadWord = async () => {
+    setIsDownloadingWord(true)
+    try {
+      console.log('📄 Start Word download...', {
+        projectId: actualProjectId,
+        stepsCompleted: Object.values(wizardData).filter(step => step.completed).length
+      })
+
+      const projectData = getFullProject()
+      
+      const res = await fetch('/api/export-docx', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(projectData)
+      })
+
+      if (!res.ok) {
+        const errorData = await res.json()
+        throw new Error(errorData.message || 'Kon Word-bestand niet genereren')
+      }
+
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${projectData.title.replace(/\s+/g, '_')}.docx`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+
+      console.log('✅ Word download voltooid')
+    } catch (error) {
+      console.error('❌ Word download fout:', error)
+      alert(`Fout bij Word download: ${error instanceof Error ? error.message : 'Onbekende fout'}`)
+    } finally {
+      setIsDownloadingWord(false)
+    }
+  }
+
+  const generateFullReport = async () => {
+    setIsGeneratingReport(true)
+    try {
+      console.log('📊 Start rapport generatie...', {
+        projectId: actualProjectId,
+        stepsCompleted: Object.values(wizardData).filter(step => step.completed).length
+      })
+
+      // Maak een markdown rapport van alle stappen
+      let markdown = `# ${getFullProject().title}\n\n`
+      markdown += `*Gegenereerd op: ${new Date().toLocaleString('nl-NL')}*\n\n`
+      markdown += `---\n\n`
+
+      STEPS.forEach(step => {
+        const stepData = wizardData[step.id]
+        if (stepData && (stepData.current || stepData.desired)) {
+          markdown += `## ${step.icon} ${step.title}\n\n`
+          markdown += `*${step.description}*\n\n`
+          
+          if (stepData.current) {
+            markdown += `### 📊 Huidige Situatie\n\n${stepData.current}\n\n`
+          }
+          
+          if (stepData.desired) {
+            markdown += `### 🎯 Gewenste Situatie\n\n${stepData.desired}\n\n`
+          }
+          
+          if (stepData.feedback) {
+            markdown += `### 🤖 Coach Feedback\n\n${stepData.feedback}\n\n`
+          }
+          
+          if (stepData.completed) {
+            markdown += `*✅ Status: Voltooid*\n\n`
+          }
+          
+          markdown += `---\n\n`
+        }
+      })
+
+      // Voeg samenvatting toe
+      const completedSteps = Object.values(wizardData).filter(step => step.completed).length
+      markdown += `## 📈 Samenvatting\n\n`
+      markdown += `- **Voltooide stappen:** ${completedSteps} van ${STEPS.length}\n`
+      markdown += `- **Voortgang:** ${Math.round((completedSteps / STEPS.length) * 100)}%\n`
+      markdown += `- **Type analyse:** ${flow === 'start' ? 'Nieuwe interne analyse' : 'Verbeter bestaand concept'}\n\n`
+      
+      if (completedSteps === STEPS.length) {
+        markdown += `🎉 **Gefeliciteerd!** Je hebt alle stappen van de interne analyse voltooid.\n\n`
+      } else {
+        markdown += `💡 **Tip:** Voltooi de resterende ${STEPS.length - completedSteps} stappen voor een complete analyse.\n\n`
+      }
+
+      setFullReport(markdown)
+      console.log('✅ Rapport gegenereerd:', {
+        markdownLength: markdown.length,
+        completedSteps
+      })
+    } catch (error) {
+      console.error('❌ Rapport generatie fout:', error)
+      alert(`Fout bij rapport generatie: ${error instanceof Error ? error.message : 'Onbekende fout'}`)
+    } finally {
+      setIsGeneratingReport(false)
+    }
+  }
 
   // Initialiseer wizard data
   useEffect(() => {
@@ -712,6 +855,95 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
         </div>
       )}
 
+      {/* Export knoppen sectie */}
+      <div className="bg-white rounded-xl shadow-lg p-6 mt-6">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+          <span className="mr-2">📄</span>
+          Export & Rapporten
+        </h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Genereer volledig rapport */}
+          <button
+            onClick={generateFullReport}
+            disabled={isGeneratingReport}
+            className="flex items-center justify-center space-x-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {isGeneratingReport ? (
+              <>
+                <div className="animate-spin w-4 h-4 border border-white border-t-transparent rounded-full" />
+                <span>Genereren...</span>
+              </>
+            ) : (
+              <>
+                <span>📊</span>
+                <span>Genereer volledig rapport</span>
+              </>
+            )}
+          </button>
+
+          {/* Download Word */}
+          <button
+            onClick={downloadWord}
+            disabled={isDownloadingWord}
+            className="flex items-center justify-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {isDownloadingWord ? (
+              <>
+                <div className="animate-spin w-4 h-4 border border-white border-t-transparent rounded-full" />
+                <span>Downloaden...</span>
+              </>
+            ) : (
+              <>
+                <span>📄</span>
+                <span>Download Word</span>
+              </>
+            )}
+          </button>
+        </div>
+
+        <p className="text-sm text-gray-600 mt-3">
+          <strong>Tip:</strong> Het rapport bevat alle ingevulde stappen met coach feedback. 
+          Word export bevat professionele opmaak met HL-logo.
+        </p>
+      </div>
+
+      {/* Volledig rapport weergave */}
+      {fullReport && (
+        <div className="bg-white rounded-xl shadow-lg p-6 mt-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-800 flex items-center">
+              <span className="mr-2">📋</span>
+              Volledig Rapport
+            </h3>
+            <button
+              onClick={() => setFullReport('')}
+              className="text-gray-500 hover:text-gray-700 text-sm"
+            >
+              ✕ Sluiten
+            </button>
+          </div>
+          
+          <div className="bg-gray-50 rounded-lg p-4 max-h-96 overflow-y-auto">
+            <pre className="text-sm text-gray-700 whitespace-pre-wrap font-mono">
+              {fullReport}
+            </pre>
+          </div>
+          
+          <div className="flex items-center justify-between mt-4">
+            <span className="text-xs text-gray-500">
+              {fullReport.split('\n').length} regels • {fullReport.length} karakters
+            </span>
+            <button
+              onClick={() => navigator.clipboard.writeText(fullReport)}
+              className="text-sm text-blue-600 hover:text-blue-800"
+            >
+              📋 Kopieer naar clipboard
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Project Actions - toon altijd onderaan */}
       <ProjectActions 
         projectId={actualProjectId}
@@ -732,11 +964,19 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
               Je kunt nu een volledig rapport genereren of individuele stappen herzien.
             </p>
             <div className="flex justify-center space-x-4">
-              <button className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+              <button 
+                onClick={generateFullReport}
+                disabled={isGeneratingReport}
+                className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+              >
                 📄 Genereer Volledig Rapport
               </button>
-              <button className="px-6 py-3 bg-white text-green-600 border border-green-600 rounded-lg hover:bg-green-50 transition-colors">
-                📤 Exporteer Data
+              <button 
+                onClick={downloadWord}
+                disabled={isDownloadingWord}
+                className="px-6 py-3 bg-white text-green-600 border border-green-600 rounded-lg hover:bg-green-50 transition-colors disabled:opacity-50"
+              >
+                📤 Download Word
               </button>
             </div>
           </div>
