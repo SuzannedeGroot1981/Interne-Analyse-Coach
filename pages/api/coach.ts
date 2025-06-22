@@ -1,4 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next'
+import { allow } from '../../utils/rateLimit'
 
 /* ---- 1. Nieuwe SYSTEM_PROMPT -------------------- */
 const SYSTEM_PROMPT = `
@@ -26,6 +27,12 @@ Geen herhaling van studenttekst, geen externe analyse.
 `
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // Rate limiting check
+  const k = req.headers["x-forwarded-for"] ?? req.socket.remoteAddress ?? "anon";
+  if (!allow(String(k))) {
+    return res.status(429).json({ message: "Te veel aanvragen, probeer in 1 minuut opnieuw." });
+  }
+
   // Alleen POST requests toestaan
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed. Use POST.' })
@@ -95,7 +102,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       ],
       generationConfig: {
-        temperature: 0.6,
+        temperature: 0.4, // Aangepast naar 0.4 voor grammar/spell/APA checks
         maxOutputTokens: 400, // Beperkt tot ~250 woorden
         topP: 0.8,
         topK: 40

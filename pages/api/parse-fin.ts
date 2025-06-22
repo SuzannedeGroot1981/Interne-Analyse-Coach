@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import * as XLSX from 'xlsx'
 import Papa from 'papaparse'
+import { allow } from '../../utils/rateLimit'
 
 // Interface voor financiële data output
 interface FinancialMetrics {
@@ -56,6 +57,12 @@ const FIELD_MAPPINGS = {
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // Rate limiting check
+  const k = req.headers["x-forwarded-for"] ?? req.socket.remoteAddress ?? "anon";
+  if (!allow(String(k))) {
+    return res.status(429).json({ message: "Te veel aanvragen, probeer in 1 minuut opnieuw." });
+  }
+
   // Alleen POST requests toestaan
   if (req.method !== 'POST') {
     return res.status(405).json({ 

@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next/server'
 import { calculateAllRatios, type FinancialData, type RatioAnalysis } from '../../lib/ratios'
+import { allow } from '../../utils/rateLimit'
 
 const SYSTEM_PROMPT = `Je bent een financieel coach in de zorg. Leg in ≤120 woorden uit:
 wat betekent [ratio-naam] en hoe beoordeel je waarde X binnen de zorgsector?
@@ -50,6 +51,12 @@ wordt beoordeeld voor een zorginstelling.`
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // Rate limiting check
+  const k = req.headers["x-forwarded-for"] ?? req.socket.remoteAddress ?? "anon";
+  if (!allow(String(k))) {
+    return res.status(429).json({ message: "Te veel aanvragen, probeer in 1 minuut opnieuw." });
+  }
+
   // Alleen POST requests toestaan
   if (req.method !== 'POST') {
     return res.status(405).json({ 
@@ -124,7 +131,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               }
             ],
             generationConfig: {
-              temperature: 0.6, // Verhoogd van 0.4 naar 0.6 voor betere uitleg
+              temperature: 0.4, // Aangepast naar 0.4 voor consistente financiële uitleg
               maxOutputTokens: 200,
               topP: 0.8,
               topK: 40

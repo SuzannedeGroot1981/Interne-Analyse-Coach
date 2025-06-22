@@ -1,4 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next'
+import { allow } from '../../utils/rateLimit'
 
 const SYSTEM_PROMPT = `Je bent een ervaren academische reviewer en schrijfcoach. 
 Analyseer de gegeven tekst en geef feedback in de volgende structuur:
@@ -41,6 +42,12 @@ interface ReviewResponse {
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // Rate limiting check
+  const k = req.headers["x-forwarded-for"] ?? req.socket.remoteAddress ?? "anon";
+  if (!allow(String(k))) {
+    return res.status(429).json({ message: "Te veel aanvragen, probeer in 1 minuut opnieuw." });
+  }
+
   // Alleen POST requests toestaan
   if (req.method !== 'POST') {
     return res.status(405).json({ 
@@ -141,7 +148,7 @@ Geef je feedback volgens de gevraagde structuur.`
         }
       ],
       generationConfig: {
-        temperature: 0.7,
+        temperature: 0.4, // Aangepast naar 0.4 voor consistente review feedback
         maxOutputTokens: 1000,
         topP: 0.8,
         topK: 40
@@ -221,7 +228,7 @@ async function handleFixRequest(
         }
       ],
       generationConfig: {
-        temperature: 0.8,
+        temperature: 0.6, // Hogere temperature voor creatieve tekstverbetering
         maxOutputTokens: 1500,
         topP: 0.9,
         topK: 40

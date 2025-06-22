@@ -1,9 +1,16 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import { allow } from '../../utils/rateLimit';
 
 const GEMINI = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent`;
 const key = process.env.GEMINI_API_KEY;
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // Rate limiting check
+  const k = req.headers["x-forwarded-for"] ?? req.socket.remoteAddress ?? "anon";
+  if (!allow(String(k))) {
+    return res.status(429).json({ message: "Te veel aanvragen, probeer in 1 minuut opnieuw." });
+  }
+
   if (req.method !== "POST") return res.status(405).end();
   
   const { markdown } = req.body as { markdown: string };
@@ -38,7 +45,7 @@ Geef alleen concrete APA-fouten terug, geen algemene schrijfadviezen.`;
     const body = {
       contents: [{ parts: [{ text: system + "\n\n" + markdown }] }],
       generationConfig: { 
-        temperature: 0.4,
+        temperature: 0.4, // Aangepast naar 0.4 voor consistente APA checks
         maxOutputTokens: 300
       }
     };
