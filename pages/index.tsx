@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { listProjects, getOrCreateUserId, deleteProject, getActive, loadProject, type ProjectSummary } from '../utils/storage'
+import { listProjects, getOrCreateUserId, deleteProject, loadProject, type ProjectSummary } from '../utils/storage'
 import { v4 as uuid } from 'uuid'
 import { setActive, saveProject, clearActive } from '../utils/storage'
 
@@ -8,8 +8,6 @@ export default function Home() {
   const [projects, setProjects] = useState<ProjectSummary[]>([])
   const [userId, setUserId] = useState<string>('')
   const [isLoading, setIsLoading] = useState(true)
-  const [activeId, setActiveId] = useState<string | null>(null)
-  const [hasActive, setHasActive] = useState(false)
 
   // Nieuwe project functie
   function newProject() {
@@ -27,27 +25,12 @@ export default function Home() {
         const userIdFromStorage = getOrCreateUserId()
         setUserId(userIdFromStorage)
         
-        // Check voor actief project
-        const activeProjectId = getActive()
-        setActiveId(activeProjectId)
-        
-        // Declare activeProject with initial value
-        let activeProject = null
-        
-        // Controleer of actief project bestaat
-        if (activeProjectId) {
-          activeProject = loadProject(activeProjectId)
-          setHasActive(!!activeProject)
-        }
-        
         const userProjects = listProjects()
         setProjects(userProjects)
         
         console.log('📊 Dashboard geladen:', {
           userId: userIdFromStorage.slice(0, 8) + '...',
-          projectCount: userProjects.length,
-          activeProjectId: activeProjectId?.slice(0, 8) + '...' || 'geen',
-          hasActiveProject: !!activeProject
+          projectCount: userProjects.length
         })
       } catch (error) {
         console.error('❌ Fout bij laden dashboard:', error)
@@ -66,12 +49,6 @@ export default function Home() {
       const success = deleteProject(projectId)
       if (success) {
         setProjects(prev => prev.filter(p => p.id !== projectId))
-        
-        // Als dit het actieve project was, clear active
-        if (projectId === activeId) {
-          setActiveId(null)
-          setHasActive(false)
-        }
       }
     }
   }
@@ -125,38 +102,9 @@ export default function Home() {
           {userId && (
             <div className="text-xs text-gray-400 mb-4">
               Gebruiker-ID: {userId.slice(0, 8)}...{userId.slice(-4)}
-              {activeId && (
-                <span className="ml-2">
-                  • Actief project: {activeId.slice(0, 8)}...
-                </span>
-              )}
             </div>
           )}
         </div>
-
-        {/* Actief project sectie */}
-        {hasActive && activeId && (
-          <div className="max-w-4xl mx-auto mb-16">
-            <div className="bg-primary/10 border border-primary/20 rounded-2xl p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-xl font-bold text-primary mb-2 flex items-center">
-                    <span className="mr-2">🎯</span>
-                    Actief Project
-                  </h2>
-                  <p className="text-gray-700">
-                    Je hebt een actief project waar je aan kunt verder werken.
-                  </p>
-                </div>
-                <Link href={`/sources?id=${activeId}`}>
-                  <button className="px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-green-700 transition-colors">
-                    Verder werken →
-                  </button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Recente Projecten Sectie */}
         {!isLoading && projects.length > 0 && (
@@ -178,30 +126,21 @@ export default function Home() {
                 {projects.slice(0, 6).map((project) => (
                   <div
                     key={project.id}
-                    className={`border rounded-lg p-4 hover:shadow-md transition-all duration-200 group ${
-                      project.id === activeId 
-                        ? 'border-primary bg-green-50' 
-                        : 'border-gray-200'
-                    }`}
+                    className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200 group"
                   >
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center space-x-2">
                         <div className={`w-3 h-3 rounded-full ${
-                          project.id === activeId 
-                            ? 'bg-primary' 
-                            : project.flow === 'start' 
+                          project.flow === 'start' 
                             ? 'bg-green-500' 
                             : 'bg-blue-500'
                         }`} />
                         <span className={`text-xs font-medium px-2 py-1 rounded ${
-                          project.id === activeId
-                            ? 'bg-primary text-white'
-                            : project.flow === 'start' 
+                          project.flow === 'start' 
                             ? 'bg-green-100 text-green-700' 
                             : 'bg-blue-100 text-blue-700'
                         }`}>
-                          {project.id === activeId ? 'Actief' : 
-                           project.flow === 'start' ? 'Nieuwe Analyse' : 'Verbeter Concept'}
+                          {project.flow === 'start' ? 'Nieuwe Analyse' : 'Verbeter Concept'}
                         </span>
                       </div>
                       <button
@@ -222,12 +161,8 @@ export default function Home() {
                     </p>
                     
                     <Link href={`/sources?id=${project.id}`}>
-                      <button className={`w-full text-sm py-2 px-3 rounded transition-colors ${
-                        project.id === activeId
-                          ? 'bg-primary text-white hover:bg-green-700'
-                          : 'bg-gray-100 hover:bg-primary hover:text-white text-gray-700'
-                      }`}>
-                        {project.id === activeId ? 'Verder werken (actief)' : 'Verder werken'}
+                      <button className="w-full text-sm py-2 px-3 rounded transition-colors bg-gray-100 hover:bg-primary hover:text-white text-gray-700">
+                        Verder werken
                       </button>
                     </Link>
                   </div>
