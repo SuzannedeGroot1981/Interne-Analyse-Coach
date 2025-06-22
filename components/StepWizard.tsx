@@ -124,6 +124,7 @@ export default function StepWizard({ projectId, flow, onSave }: StepWizardProps)
   const [projectMeta, setProjectMeta] = useState<{ orgName?: string, level?: string }>({})
   const [isCheckingAPA, setIsCheckingAPA] = useState(false)
   const [evidence, setEvidence] = useState<any>(null) // Voor evidence data
+  const [sources, setSources] = useState<any>(null) // Voor sources data
 
   // Initialiseer wizard data
   useEffect(() => {
@@ -157,6 +158,15 @@ export default function StepWizard({ projectId, flow, onSave }: StepWizardProps)
             console.log('📋 Evidence data geladen:', {
               hasEvidence: !!existingProject.evidence,
               evidenceKeys: Object.keys(existingProject.evidence || {})
+            })
+          }
+
+          // Laad sources data als beschikbaar
+          if (existingProject.sources) {
+            setSources(existingProject.sources)
+            console.log('📚 Sources data geladen:', {
+              hasSources: !!existingProject.sources,
+              sourcesKeys: Object.keys(existingProject.sources || {})
             })
           }
           
@@ -545,6 +555,26 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
     return evidenceKey ? evidence[evidenceKey] : null
   }
 
+  // Helper functie om document samenvatting voor huidige stap te krijgen
+  const getDocumentSummaryForStep = (stepId: string) => {
+    if (!sources) return null
+    
+    // Map step IDs naar sources keys
+    const sourcesKeyMap: { [key: string]: string } = {
+      'strategy': 'Strategy',
+      'structure': 'Structure', 
+      'systems': 'Systems',
+      'shared-values': 'Shared Values',
+      'skills': 'Skills',
+      'style': 'Style',
+      'staff': 'Staff',
+      'finances': 'Financiën'
+    }
+    
+    const sourcesKey = sourcesKeyMap[stepId]
+    return sourcesKey && sources[sourcesKey] ? sources[sourcesKey].summary : null
+  }
+
   // Bereken voortgang
   const completedSteps = Object.values(wizardData).filter(step => step.completed).length
   const progressPercentage = (completedSteps / STEPS.length) * 100
@@ -552,6 +582,7 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
   const currentStepData = STEPS[currentStep]
   const currentWizardData = wizardData[currentStepData?.id] || { current: '', desired: '', completed: false }
   const currentEvidence = getEvidenceForStep(currentStepData?.id)
+  const currentDocumentSummary = getDocumentSummaryForStep(currentStepData?.id)
 
   return (
     <div className="max-w-6xl mx-auto p-6">
@@ -697,7 +728,7 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
             </div>
           )}
 
-          {/* Tekstvelden met evidence - grid layout */}
+          {/* Tekstvelden met evidence en document samenvatting - grid layout */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
             {/* Feitelijke situatie - 2/3 breedte */}
             <div className="lg:col-span-2">
@@ -760,8 +791,9 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
               </div>
             </div>
 
-            {/* Evidence sidebar - 1/3 breedte */}
-            <div className="lg:col-span-1">
+            {/* Evidence & Document Summary sidebar - 1/3 breedte */}
+            <div className="lg:col-span-1 space-y-4">
+              {/* Evidence sectie */}
               {currentEvidence ? (
                 <aside className="bg-gray-50 p-4 text-sm border-l-4 border-primary/60 rounded-lg">
                   <div className="flex items-center mb-3">
@@ -781,7 +813,7 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
                 <aside className="bg-blue-50 p-4 text-sm border-l-4 border-blue-300 rounded-lg">
                   <div className="flex items-center mb-3">
                     <span className="text-lg mr-2">💡</span>
-                    <b className="text-blue-800">Geen evidence beschikbaar</b>
+                    <b className="text-blue-800">Geen interview evidence beschikbaar</b>
                   </div>
                   <div className="text-blue-700">
                     <p className="mb-2">
@@ -797,6 +829,47 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
                       className="text-xs text-blue-600 hover:text-blue-800 underline"
                     >
                       → Ga naar Evidence stap
+                    </button>
+                  </div>
+                </aside>
+              )}
+
+              {/* Document samenvatting sectie */}
+              {currentDocumentSummary ? (
+                <aside className="bg-green-50 p-4 text-sm border-l-4 border-green-500/60 rounded-lg">
+                  <div className="flex items-center mb-3">
+                    <span className="text-lg mr-2">📄</span>
+                    <b className="text-gray-800">Document Samenvatting:</b>
+                  </div>
+                  <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+                    {currentDocumentSummary}
+                  </div>
+                  <div className="mt-3 pt-3 border-t border-gray-200">
+                    <p className="text-xs text-gray-500">
+                      📚 Gebaseerd op geüploade documenten uit de bronneninventarisatie
+                    </p>
+                  </div>
+                </aside>
+              ) : (
+                <aside className="bg-gray-50 p-4 text-sm border-l-4 border-gray-300 rounded-lg">
+                  <div className="flex items-center mb-3">
+                    <span className="text-lg mr-2">📄</span>
+                    <b className="text-gray-800">Geen document samenvatting</b>
+                  </div>
+                  <div className="text-gray-700">
+                    <p className="mb-2">
+                      Voor dit onderdeel zijn nog geen documenten geüpload en samengevat.
+                    </p>
+                    <p className="text-xs">
+                      Ga naar de <strong>Bronneninventarisatie</strong> om documenten te uploaden en samen te vatten.
+                    </p>
+                  </div>
+                  <div className="mt-3">
+                    <button
+                      onClick={() => window.location.href = `/sources?id=${actualProjectId}`}
+                      className="text-xs text-gray-600 hover:text-gray-800 underline"
+                    >
+                      → Ga naar Bronneninventarisatie
                     </button>
                   </div>
                 </aside>
