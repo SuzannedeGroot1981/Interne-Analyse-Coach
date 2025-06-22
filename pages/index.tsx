@@ -20,9 +20,12 @@ export default function Home() {
         const activeProjectId = getActive()
         setActiveId(activeProjectId)
         
+        // Declare activeProject with initial value
+        let activeProject = null
+        
         // Controleer of actief project bestaat
         if (activeProjectId) {
-          const activeProject = loadProject(activeProjectId)
+          activeProject = loadProject(activeProjectId)
           setHasActive(!!activeProject)
         }
         
