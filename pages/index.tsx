@@ -199,7 +199,7 @@ export default function Home() {
                 </p>
               </div>
               
-              <Link href="/start">
+              <Link href="/orientatie">
                 <button className="btn-primary w-full py-4 px-6 text-lg font-semibold rounded-xl transition-all duration-200 transform hover:scale-105">
                   Begin met een nieuwe interne analyse
                 </button>
