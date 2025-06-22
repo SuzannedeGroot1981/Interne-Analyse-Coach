@@ -435,13 +435,14 @@ Je kunt altijd later terugkomen voor AI feedback wanneer de quota is gereset!`
     } catch (error) {
       console.error('❌ Fout bij ophalen feedback:', error)
       
-      // Check for quota exceeded error
-      const isQuotaError = error.message && (
-        error.message.includes('API quota bereikt') || 
-        error.message.includes('429') ||
-        error.message.includes('quota') ||
-        error.message.includes('RESOURCE_EXHAUSTED') ||
-        error.message.includes('exceeded your current quota')
+      // Check for quota exceeded error with proper type checking
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      const isQuotaError = errorMessage && (
+        errorMessage.includes('API quota bereikt') || 
+        errorMessage.includes('429') ||
+        errorMessage.includes('quota') ||
+        errorMessage.includes('RESOURCE_EXHAUSTED') ||
+        errorMessage.includes('exceeded your current quota')
       )
 
       if (isQuotaError) {
@@ -478,7 +479,7 @@ De AI coach kan momenteel geen feedback geven omdat de dagelijkse API quota is o
 • Quota reset: elke 24 uur automatisch
 
 Je kunt later terugkomen voor AI feedback wanneer de quota is gereset!`
-      } else if (error.message && error.message.includes('network')) {
+      } else if (errorMessage && errorMessage.includes('network')) {
         fallbackFeedback = `🌐 **Netwerkfout**
 
 Er is een probleem met de internetverbinding.
