@@ -72,12 +72,12 @@ Geef alleen concrete APA-fouten terug, geen algemene schrijfadviezen.`;
     const response = await g.json();
     const txt = response.candidates?.[0]?.content?.parts?.[0]?.text || "";
 
-    // Parse de response
+    // Parse de response met expliciete type annotations
     const issues = txt.startsWith("OK") || txt.toLowerCase().includes("geen fouten") || txt.toLowerCase().includes("correct")
       ? [] 
       : txt.split(/\n+/)
-          .map(s => s.replace(/^[-•*]\s*/, "").trim())
-          .filter(s => s.length > 5); // Filter zeer korte regels
+          .map((s: string) => s.replace(/^[-•*]\s*/, "").trim())
+          .filter((s: string) => s.length > 5); // Filter zeer korte regels
 
     console.log('✅ APA check voltooid:', {
       textLength: markdown.length,
