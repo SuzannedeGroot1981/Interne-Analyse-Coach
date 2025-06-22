@@ -2,39 +2,168 @@
 
 import { useState } from 'react'
 import { saveProject, loadProject, createProjectId, listProjects } from '../utils/storage'
+import ReactMarkdown from 'react-markdown'
 
 interface ProjectActionsProps {
   projectId?: string
   projectData?: any
+  wizardData?: any // Toegevoegd voor directe toegang tot wizard data
   className?: string
 }
 
-export default function ProjectActions({ projectId, projectData, className = '' }: ProjectActionsProps) {
+export default function ProjectActions({ projectId, projectData, wizardData, className = '' }: ProjectActionsProps) {
   const [isExportingWord, setIsExportingWord] = useState(false)
   const [isExportingJson, setIsExportingJson] = useState(false)
   const [isImporting, setIsImporting] = useState(false)
   const [importError, setImportError] = useState<string | null>(null)
   const [importSuccess, setImportSuccess] = useState<string | null>(null)
+  const [fullReport, setFullReport] = useState<string>('')
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false)
+
+  // Helper functie om project data te formatteren voor export
+  const getFormattedProjectData = () => {
+    if (!wizardData) return null
+
+    // Stappen definitie (moet consistent zijn met StepWizard)
+    const STEPS = [
+      { id: 'strategy', title: 'Strategy' },
+      { id: 'structure', title: 'Structure' },
+      { id: 'systems', title: 'Systems' },
+      { id: 'shared-values', title: 'Shared Values' },
+      { id: 'skills', title: 'Skills' },
+      { id: 'style', title: 'Style' },
+      { id: 'staff', title: 'Staff' },
+      { id: 'finances', title: 'Financiën' }
+    ]
+
+    const data: Record<string, string> = {}
+    const feedback: Record<string, string> = {}
+
+    STEPS.forEach(step => {
+      const stepData = wizardData[step.id]
+      if (stepData) {
+        // Combineer current en desired situatie
+        let content = ''
+        if (stepData.current) {
+          content += `**Huidige situatie:**\n${stepData.current}\n\n`
+        }
+        if (stepData.desired) {
+          content += `**Gewenste situatie:**\n${stepData.desired}`
+        }
+        
+        if (content) {
+          data[step.title] = content
+        }
+        
+        if (stepData.feedback) {
+          feedback[step.title] = stepData.feedback
+        }
+      }
+    })
+
+    return {
+      title: `Interne Analyse ${new Date().toLocaleDateString('nl-NL')}`,
+      data,
+      feedback
+    }
+  }
+
+  // Genereer volledig rapport
+  const generateFullReport = async () => {
+    setIsGeneratingReport(true)
+    try {
+      console.log('📊 Start rapport generatie...', {
+        projectId,
+        hasWizardData: !!wizardData
+      })
+
+      if (!wizardData) {
+        throw new Error('Geen wizard data beschikbaar voor rapport generatie')
+      }
+
+      // Stappen definitie
+      const STEPS = [
+        { id: 'strategy', title: 'Strategy', subtitle: 'Strategie & Richting', icon: '🎯', description: 'De langetermijnvisie, missie en strategische doelstellingen van de organisatie.' },
+        { id: 'structure', title: 'Structure', subtitle: 'Organisatiestructuur', icon: '🏗️', description: 'De manier waarop de organisatie is georganiseerd, rapportagelijnen en besluitvorming.' },
+        { id: 'systems', title: 'Systems', subtitle: 'Systemen & Processen', icon: '⚙️', description: 'De procedures, processen en systemen die het dagelijkse werk ondersteunen.' },
+        { id: 'shared-values', title: 'Shared Values', subtitle: 'Gedeelde Waarden', icon: '💎', description: 'De kernwaarden, cultuur en normen die de organisatie definiëren.' },
+        { id: 'skills', title: 'Skills', subtitle: 'Vaardigheden & Competenties', icon: '🎓', description: 'De kennis, vaardigheden en competenties die aanwezig zijn in de organisatie.' },
+        { id: 'style', title: 'Style', subtitle: 'Leiderschapsstijl', icon: '👑', description: 'De leiderschapsstijl en managementaanpak binnen de organisatie.' },
+        { id: 'staff', title: 'Staff', subtitle: 'Personeel & Mensen', icon: '👥', description: 'De mensen in de organisatie, hun rollen en hoe ze worden ontwikkeld.' },
+        { id: 'finances', title: 'Financiën', subtitle: 'Financiële Situatie', icon: '💰', description: 'De financiële gezondheid, budgetten en economische aspecten van de organisatie.' }
+      ]
+
+      // Maak een markdown rapport van alle stappen
+      let markdown = `# ${getFormattedProjectData()?.title || 'Interne Analyse'}\n\n`
+      markdown += `*Gegenereerd op: ${new Date().toLocaleString('nl-NL')}*\n\n`
+      markdown += `---\n\n`
+
+      STEPS.forEach(step => {
+        const stepData = wizardData[step.id]
+        if (stepData && (stepData.current || stepData.desired)) {
+          markdown += `## ${step.icon} ${step.title}\n\n`
+          markdown += `*${step.description}*\n\n`
+          
+          if (stepData.current) {
+            markdown += `### 📊 Huidige Situatie\n\n${stepData.current}\n\n`
+          }
+          
+          if (stepData.desired) {
+            markdown += `### 🎯 Gewenste Situatie\n\n${stepData.desired}\n\n`
+          }
+          
+          if (stepData.feedback) {
+            markdown += `### 🤖 Coach Feedback\n\n${stepData.feedback}\n\n`
+          }
+          
+          if (stepData.completed) {
+            markdown += `*✅ Status: Voltooid*\n\n`
+          }
+          
+          markdown += `---\n\n`
+        }
+      })
+
+      // Voeg samenvatting toe
+      const completedSteps = Object.values(wizardData).filter((step: any) => step.completed).length
+      markdown += `## 📈 Samenvatting\n\n`
+      markdown += `- **Voltooide stappen:** ${completedSteps} van ${STEPS.length}\n`
+      markdown += `- **Voortgang:** ${Math.round((completedSteps / STEPS.length) * 100)}%\n`
+      markdown += `- **Type analyse:** ${projectData?.flow === 'start' ? 'Nieuwe interne analyse' : 'Verbeter bestaand concept'}\n\n`
+      
+      if (completedSteps === STEPS.length) {
+        markdown += `🎉 **Gefeliciteerd!** Je hebt alle stappen van de interne analyse voltooid.\n\n`
+      } else {
+        markdown += `💡 **Tip:** Voltooi de resterende ${STEPS.length - completedSteps} stappen voor een complete analyse.\n\n`
+      }
+
+      setFullReport(markdown)
+      console.log('✅ Rapport gegenereerd:', {
+        markdownLength: markdown.length,
+        completedSteps
+      })
+    } catch (error) {
+      console.error('❌ Rapport generatie fout:', error)
+      alert(`Fout bij rapport generatie: ${error instanceof Error ? error.message : 'Onbekende fout'}`)
+    } finally {
+      setIsGeneratingReport(false)
+    }
+  }
 
   // Download als Word document
   const downloadWord = async () => {
-    if (!projectData && !projectId) {
-      alert('Geen project data beschikbaar voor export')
+    if (!wizardData) {
+      alert('Geen wizard data beschikbaar voor Word export')
       return
     }
 
     setIsExportingWord(true)
     try {
-      console.log('📄 Start Word export...', { projectId, hasData: !!projectData })
+      console.log('📄 Start Word export...', { projectId, hasWizardData: !!wizardData })
 
-      // Bereid data voor (verstuur via hidden textarea concept)
-      const exportData = {
-        projectId,
-        projectData: projectData || (projectId ? loadProject(projectId)?.data : null)
-      }
-
-      if (!exportData.projectData) {
-        throw new Error('Geen project data gevonden')
+      const exportData = getFormattedProjectData()
+      if (!exportData) {
+        throw new Error('Geen project data gevonden voor export')
       }
 
       const response = await fetch('/api/export-docx', {
@@ -47,7 +176,7 @@ export default function ProjectActions({ projectId, projectData, className = '' 
 
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(errorData.error || 'Export mislukt')
+        throw new Error(errorData.message || 'Export mislukt')
       }
 
       // Download het bestand
@@ -208,29 +337,44 @@ export default function ProjectActions({ projectId, projectData, className = '' 
   }
 
   return (
-    <div className={`space-y-4 ${className}`}>
-      {/* Action buttons */}
+    <div className={`space-y-6 ${className}`}>
+      {/* Export & Rapporten sectie */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
         <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-          <span className="mr-2">💾</span>
-          Project Acties
+          <span className="mr-2">📄</span>
+          Export & Rapporten
         </h3>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          {/* Genereer volledig rapport */}
+          <button
+            onClick={generateFullReport}
+            disabled={isGeneratingReport || !wizardData}
+            className="flex items-center justify-center space-x-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {isGeneratingReport ? (
+              <>
+                <div className="animate-spin w-4 h-4 border border-white border-t-transparent rounded-full" />
+                <span>Genereren...</span>
+              </>
+            ) : (
+              <>
+                <span>📊</span>
+                <span>Genereer volledig rapport</span>
+              </>
+            )}
+          </button>
+
           {/* Download Word */}
           <button
             onClick={downloadWord}
-            disabled={isExportingWord || (!projectData && !projectId)}
-            className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
-              isExportingWord
-                ? 'bg-blue-100 text-blue-700 cursor-not-allowed'
-                : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg'
-            }`}
+            disabled={isExportingWord || !wizardData}
+            className="flex items-center justify-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {isExportingWord ? (
               <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                <span>Exporteren...</span>
+                <div className="animate-spin w-4 h-4 border border-white border-t-transparent rounded-full" />
+                <span>Downloaden...</span>
               </>
             ) : (
               <>
@@ -239,7 +383,58 @@ export default function ProjectActions({ projectId, projectData, className = '' 
               </>
             )}
           </button>
+        </div>
 
+        <p className="text-sm text-gray-600 mb-4">
+          <strong>Tip:</strong> Het rapport bevat alle ingevulde stappen met coach feedback. 
+          Word export bevat professionele opmaak met HL-logo.
+        </p>
+      </div>
+
+      {/* Volledig rapport weergave */}
+      {fullReport && (
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-800 flex items-center">
+              <span className="mr-2">📋</span>
+              Volledig Rapport
+            </h3>
+            <button
+              onClick={() => setFullReport('')}
+              className="text-gray-500 hover:text-gray-700 text-sm"
+            >
+              ✕ Sluiten
+            </button>
+          </div>
+          
+          <div className="bg-gray-50 rounded-lg p-6 max-h-96 overflow-y-auto">
+            <div className="prose max-w-none">
+              <ReactMarkdown>{fullReport}</ReactMarkdown>
+            </div>
+          </div>
+          
+          <div className="flex items-center justify-between mt-4">
+            <span className="text-xs text-gray-500">
+              {fullReport.split('\n').length} regels • {fullReport.length} karakters
+            </span>
+            <button
+              onClick={() => navigator.clipboard.writeText(fullReport)}
+              className="text-sm text-blue-600 hover:text-blue-800"
+            >
+              📋 Kopieer naar clipboard
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Project Beheer sectie */}
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+          <span className="mr-2">💾</span>
+          Project Beheer
+        </h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Download JSON */}
           <button
             onClick={downloadProject}
@@ -326,7 +521,8 @@ export default function ProjectActions({ projectId, projectData, className = '' 
       <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
         <h4 className="text-sm font-semibold text-gray-700 mb-2">💡 Instructies</h4>
         <div className="text-xs text-gray-600 space-y-1">
-          <p><strong>📄 Download Word:</strong> Exporteert je analyse als professioneel Word document met HL-logo en paginanummering</p>
+          <p><strong>📊 Genereer Rapport:</strong> Maakt een volledig overzicht van alle stappen met coach feedback</p>
+          <p><strong>📄 Download Word:</strong> Exporteert je analyse als professioneel Word document met HL-logo</p>
           <p><strong>📦 Download Project:</strong> Slaat je volledige project op als JSON bestand voor backup of delen</p>
           <p><strong>📥 Project Importeren:</strong> Laadt een eerder geëxporteerd JSON project bestand in</p>
         </div>
