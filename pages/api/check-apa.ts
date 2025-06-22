@@ -45,7 +45,7 @@ Geef alleen concrete APA-fouten terug, geen algemene schrijfadviezen.`;
     const body = {
       contents: [{ parts: [{ text: system + "\n\n" + markdown }] }],
       generationConfig: { 
-        temperature: 0.4, // Aangepast naar 0.4 voor consistente APA checks
+        temperature: 0.4,
         maxOutputTokens: 300
       }
     };

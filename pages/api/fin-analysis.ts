@@ -1,4 +1,4 @@
-import { NextApiRequest, NextApiResponse } from 'next/server'
+import { NextApiRequest, NextApiResponse } from 'next'
 import { calculateAllRatios, type FinancialData, type RatioAnalysis } from '../../lib/ratios'
 import { allow } from '../../utils/rateLimit'
 
@@ -131,7 +131,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               }
             ],
             generationConfig: {
-              temperature: 0.4, // Aangepast naar 0.4 voor consistente financiële uitleg
+              temperature: 0.4,
               maxOutputTokens: 200,
               topP: 0.8,
               topK: 40

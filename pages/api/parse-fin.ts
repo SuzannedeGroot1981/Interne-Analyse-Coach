@@ -146,7 +146,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
 
         // Extract headers (eerste rij) en converteer naar lowercase
-        headers = (jsonData[0] as any[]).map(h => 
+        headers = (jsonData[0] as any[]).map((h: any) => 
           String(h || '').trim().toLowerCase()
         )
 
@@ -158,7 +158,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             rowData[header] = value !== null && value !== undefined ? value : null
           })
           return rowData
-        }).filter(row => {
+        }).filter((row: any) => {
           // Filter lege rijen
           return Object.values(row).some(val => val !== null && val !== '')
         })
