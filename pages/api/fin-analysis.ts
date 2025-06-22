@@ -109,7 +109,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             }
           ],
           generationConfig: {
-            temperature: 0.7,
+            temperature: 0.4, // Lagere temperature voor consistente financiële uitleg
             maxOutputTokens: 200, // Beperkt tot ~120 woorden
             topP: 0.8,
             topK: 40
