@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { saveProject, loadProject, createProjectId } from '../utils/storage'
 import FinanceDropzone from './FinanceDropzone'
 import ProjectActions from './ProjectActions'
+import { useRouter } from 'next/router'
 
 // Types voor stap data
 interface StepData {
@@ -33,8 +34,7 @@ const STEPS = [
     icon: '🎯',
     description: 'De langetermijnvisie, missie en strategische doelstellingen van de organisatie.',
     questions: {
-      current: 'Beschrijf de huidige strategie van je organisatie. Wat zijn de belangrijkste doelstellingen en hoe worden deze nagestreefd?',
-      desired: 'Wat zou de ideale strategie zijn? Welke strategische veranderingen zijn nodig om succesvol te zijn?'
+      current: 'Beschrijf de huidige strategie van je organisatie. Wat zijn de belangrijkste doelstellingen en hoe worden deze nagestreefd?'
     }
   },
   {
@@ -44,8 +44,7 @@ const STEPS = [
     icon: '🏗️',
     description: 'De manier waarop de organisatie is georganiseerd, rapportagelijnen en besluitvorming.',
     questions: {
-      current: 'Hoe is je organisatie momenteel gestructureerd? Beschrijf de hiërarchie, afdelingen en rapportagelijnen.',
-      desired: 'Hoe zou de organisatiestructuur er ideaal uit moeten zien? Welke structurele aanpassingen zijn gewenst?'
+      current: 'Hoe is je organisatie momenteel gestructureerd? Beschrijf de hiërarchie, afdelingen en rapportagelijnen.'
     }
   },
   {
@@ -55,8 +54,7 @@ const STEPS = [
     icon: '⚙️',
     description: 'De procedures, processen en systemen die het dagelijkse werk ondersteunen.',
     questions: {
-      current: 'Welke systemen en processen gebruikt je organisatie nu? Hoe verlopen de belangrijkste werkprocessen?',
-      desired: 'Welke systemen en processen zouden ideaal zijn? Waar liggen de grootste verbeterkansen?'
+      current: 'Welke systemen en processen gebruikt je organisatie nu? Hoe verlopen de belangrijkste werkprocessen?'
     }
   },
   {
@@ -66,8 +64,7 @@ const STEPS = [
     icon: '💎',
     description: 'De kernwaarden, cultuur en normen die de organisatie definiëren.',
     questions: {
-      current: 'Wat zijn de huidige waarden en cultuur van je organisatie? Hoe uit zich dit in het dagelijkse gedrag?',
-      desired: 'Welke waarden en cultuur streef je na? Hoe zou de ideale organisatiecultuur eruit zien?'
+      current: 'Wat zijn de huidige waarden en cultuur van je organisatie? Hoe uit zich dit in het dagelijkse gedrag?'
     }
   },
   {
@@ -77,8 +74,7 @@ const STEPS = [
     icon: '🎓',
     description: 'De kennis, vaardigheden en competenties die aanwezig zijn in de organisatie.',
     questions: {
-      current: 'Welke vaardigheden en competenties zijn er momenteel aanwezig? Waar ligt de expertise van je team?',
-      desired: 'Welke vaardigheden zijn nodig voor de toekomst? Waar liggen de grootste ontwikkelbehoeften?'
+      current: 'Welke vaardigheden en competenties zijn er momenteel aanwezig? Waar ligt de expertise van je team?'
     }
   },
   {
@@ -88,8 +84,7 @@ const STEPS = [
     icon: '👑',
     description: 'De leiderschapsstijl en managementaanpak binnen de organisatie.',
     questions: {
-      current: 'Hoe wordt er momenteel leiding gegeven? Wat kenmerkt de huidige managementstijl?',
-      desired: 'Welke leiderschapsstijl zou het beste passen? Hoe zou ideaal management eruit zien?'
+      current: 'Hoe wordt er momenteel leiding gegeven? Wat kenmerkt de huidige managementstijl?'
     }
   },
   {
@@ -99,8 +94,7 @@ const STEPS = [
     icon: '👥',
     description: 'De mensen in de organisatie, hun rollen en hoe ze worden ontwikkeld.',
     questions: {
-      current: 'Hoe ziet je huidige personeelsbestand eruit? Wat kenmerkt je team en medewerkers?',
-      desired: 'Welk type personeel heb je ideaal nodig? Hoe zou je team er in de toekomst uit moeten zien?'
+      current: 'Hoe ziet je huidige personeelsbestand eruit? Wat kenmerkt je team en medewerkers?'
     }
   },
   {
@@ -110,14 +104,14 @@ const STEPS = [
     icon: '💰',
     description: 'De financiële gezondheid, budgetten en economische aspecten van de organisatie.',
     questions: {
-      current: 'Hoe is de huidige financiële situatie? Beschrijf budgetten, kosten en inkomsten.',
-      desired: 'Wat zou de ideale financiële situatie zijn? Welke financiële doelen streef je na?'
+      current: 'Hoe is de huidige financiële situatie? Beschrijf budgetten, kosten en inkomsten.'
     },
     hasFileUpload: true // Speciale markering voor financiën stap
   }
 ]
 
 export default function StepWizard({ projectId, flow, onSave }: StepWizardProps) {
+  const router = useRouter()
   const [currentStep, setCurrentStep] = useState(0)
   const [wizardData, setWizardData] = useState<WizardData>({})
   const [isLoading, setIsLoading] = useState(false)
@@ -127,24 +121,33 @@ export default function StepWizard({ projectId, flow, onSave }: StepWizardProps)
   const [currentProjectData, setCurrentProjectData] = useState<any>(null)
   const [apiQuotaExceeded, setApiQuotaExceeded] = useState(false)
   const [lastQuotaError, setLastQuotaError] = useState<Date | null>(null)
+  const [projectMeta, setProjectMeta] = useState<{ orgName?: string, level?: string }>({})
 
   // Initialiseer wizard data
   useEffect(() => {
     const initializeWizard = () => {
+      // Haal project ID uit URL parameter als niet meegegeven
       let finalProjectId = projectId
-
-      // Maak nieuw project ID als er geen is
       if (!finalProjectId) {
-        finalProjectId = createProjectId()
-        setActualProjectId(finalProjectId)
+        const urlParams = new URLSearchParams(window.location.search)
+        const idFromUrl = urlParams.get('id')
+        if (idFromUrl) {
+          finalProjectId = idFromUrl
+          setActualProjectId(idFromUrl)
+        } else {
+          // Maak nieuw project ID als er geen is
+          finalProjectId = createProjectId()
+          setActualProjectId(finalProjectId)
+        }
       }
 
       // Probeer bestaand project te laden
       if (finalProjectId) {
         const existingProject = loadProject(finalProjectId)
-        if (existingProject && existingProject.data.wizardData) {
-          setWizardData(existingProject.data.wizardData)
+        if (existingProject && existingProject.wizardData) {
+          setWizardData(existingProject.wizardData)
           setCurrentProjectData(existingProject)
+          setProjectMeta(existingProject.meta || {})
           console.log('📖 Bestaande wizard data geladen')
         } else {
           // Initialiseer lege wizard data
@@ -172,10 +175,11 @@ export default function StepWizard({ projectId, flow, onSave }: StepWizardProps)
     setIsSaving(true)
     try {
       const projectData = {
-        title: `${flow === 'start' ? 'Nieuwe Analyse' : 'Verbeter Concept'} - ${new Date().toLocaleDateString()}`,
+        title: `${flow === 'start' ? 'Nieuwe Analyse' : 'Verbeter Concept'} - ${projectMeta.orgName || new Date().toLocaleDateString()}`,
         flow,
         wizardData: data,
         currentStep,
+        meta: projectMeta,
         lastModified: new Date().toISOString()
       }
 
@@ -234,7 +238,7 @@ export default function StepWizard({ projectId, flow, onSave }: StepWizardProps)
   // Markeer stap als voltooid
   const markStepCompleted = (stepId: string) => {
     const stepData = wizardData[stepId]
-    if (stepData && stepData.current.trim() && stepData.desired.trim()) {
+    if (stepData && stepData.current.trim()) {
       const newData = {
         ...wizardData,
         [stepId]: {
@@ -489,8 +493,13 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-800">
-              {flow === 'start' ? '🆕 Nieuwe Interne Analyse' : '🔄 Verbeter Bestaand Concept'}
+              {flow === 'start' ? '🆕 Feitelijke Situatie Analyse' : '🔄 Verbeter Bestaand Concept'}
             </h1>
+            {projectMeta.orgName && (
+              <p className="text-gray-600">
+                <strong>{projectMeta.orgName}</strong> • {projectMeta.level}
+              </p>
+            )}
             <p className="text-gray-600">
               Systematische analyse volgens de 7S-methode + Financiën
             </p>
@@ -593,9 +602,9 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
             </div>
           )}
 
-          {/* Tekstvelden */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            {/* Huidige situatie */}
+          {/* Tekstvelden - alleen feitelijke situatie */}
+          <div className="mb-6">
+            {/* Feitelijke situatie */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-3">
                 📊 Feitelijke Situatie
@@ -606,24 +615,24 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
               <textarea
                 value={currentWizardData.current}
                 onChange={(e) => updateStepData(currentStepData.id, 'current', e.target.value)}
-                placeholder="Beschrijf de huidige situatie..."
+                placeholder="Beschrijf de huidige feitelijke situatie..."
                 className="w-full h-40 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
               />
             </div>
 
-            {/* Gewenste situatie */}
-            <div>
+            {/* Gewenste situatie (optioneel) */}
+            <div className="mt-6">
               <label className="block text-sm font-semibold text-gray-700 mb-3">
-                🎯 Gewenste Situatie
+                🎯 Gewenste Situatie (Optioneel)
               </label>
               <p className="text-sm text-gray-600 mb-3">
-                {currentStepData.questions.desired}
+                Beschrijf eventueel ook de gewenste toekomstige situatie voor dit onderdeel.
               </p>
               <textarea
                 value={currentWizardData.desired}
                 onChange={(e) => updateStepData(currentStepData.id, 'desired', e.target.value)}
-                placeholder="Beschrijf de gewenste situatie..."
-                className="w-full h-40 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+                placeholder="Beschrijf de gewenste situatie (optioneel)..."
+                className="w-full h-32 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
               />
             </div>
           </div>
@@ -647,7 +656,7 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
               {/* Coach feedback knop */}
               <button
                 onClick={() => requestCoachFeedback(currentStepData.id)}
-                disabled={isLoading || !currentWizardData.current.trim() || !currentWizardData.desired.trim()}
+                disabled={isLoading || !currentWizardData.current.trim()}
                 className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
                   apiQuotaExceeded && isQuotaErrorRecent()
                     ? 'bg-yellow-100 text-yellow-700 border border-yellow-200 hover:bg-yellow-200'
@@ -676,7 +685,7 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
               {/* Markeer als voltooid */}
               <button
                 onClick={() => markStepCompleted(currentStepData.id)}
-                disabled={!currentWizardData.current.trim() || !currentWizardData.desired.trim()}
+                disabled={!currentWizardData.current.trim()}
                 className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
                   currentWizardData.completed
                     ? 'bg-green-100 text-green-700 border border-green-200'
@@ -730,7 +739,6 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
             </h3>
             <p className="text-green-700 mb-4">
               Je hebt alle 8 stappen van de interne analyse doorlopen. 
-              Je kunt nu een volledig rapport genereren of individuele stappen herzien.
             </p>
             <p className="text-green-600 text-sm">
               Gebruik de "Export & Rapporten" sectie hieronder om je analyse te downloaden of te delen.
