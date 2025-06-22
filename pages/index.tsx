@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { listProjects, getOrCreateUserId, deleteProject, getActive, loadProject, type ProjectSummary } from '../utils/storage'
+import { v4 as uuid } from 'uuid'
+import { setActive, saveProject, clearActive } from '../utils/storage'
 
 export default function Home() {
   const [projects, setProjects] = useState<ProjectSummary[]>([])
@@ -8,6 +10,15 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true)
   const [activeId, setActiveId] = useState<string | null>(null)
   const [hasActive, setHasActive] = useState(false)
+
+  // Nieuwe project functie
+  function newProject() {
+    clearActive()
+    const id = uuid()
+    setActive(id)
+    saveProject(id, { flow: "new", meta: { orgLevel: "Organisatie" } })
+    window.location.href = `/sources?id=${id}`
+  }
 
   // Laad projecten bij component mount
   useEffect(() => {
@@ -246,11 +257,11 @@ export default function Home() {
           </div>
         )}
 
-        {/* Main Action Buttons - Correcte workflow */}
+        {/* Main Action Buttons - Nieuwe workflow */}
         <div className="max-w-4xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             
-            {/* Start nieuwe interne analyse - CORRECTE WORKFLOW */}
+            {/* Nieuw project - DIRECTE WORKFLOW */}
             <div className="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
               <div className="text-center mb-6">
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
@@ -259,18 +270,19 @@ export default function Home() {
                   </svg>
                 </div>
                 <h2 className="text-2xl font-bold text-gray-800 mb-3">
-                  Start Nieuwe Interne Analyse
+                  Nieuw Project
                 </h2>
                 <p className="text-gray-600 mb-6">
                   Begin een volledig nieuwe interne analyse van je organisatie volgens het 7S-model met AI-ondersteuning.
                 </p>
               </div>
               
-              <Link href="/orientatie?new=1">
-                <button className="btn-primary w-full py-4 px-6 text-lg font-semibold rounded-xl transition-all duration-200 transform hover:scale-105">
-                  Start nieuwe interne analyse
-                </button>
-              </Link>
+              <button
+                onClick={newProject}
+                className="btn-primary w-full py-4 px-6 text-lg font-semibold rounded-xl transition-all duration-200 transform hover:scale-105"
+              >
+                Start nieuw project
+              </button>
             </div>
 
             {/* Check een concept versie */}
