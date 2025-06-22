@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import { loadProject, saveProject } from "../utils/storage";
 import { useRouter } from "next/router";
+import { nextLink, prevLink } from "../utils/nav";
 
 const S_ROWS = [
   { key:"Strategy", label:"Strategy",    voorbeeld:"Strategisch plan, SWOT" },
@@ -46,6 +47,16 @@ export default function Sources() {
     setRows(r => ({ ...r, [rowKey]: { ...r[rowKey], [field]: val } }));
   }
 
+  function handleBack() {
+    window.location.href = prevLink("orientatie");
+  }
+
+  function handleContinue() {
+    if (id) {
+      window.location.href = nextLink(id as string, "start");
+    }
+  }
+
   // Bereken voortgang
   const completedRows = Object.values(rows).filter(row => row.status === "Klaar").length;
   const progressPercentage = (completedRows / S_ROWS.length) * 100;
@@ -70,7 +81,7 @@ export default function Sources() {
           {/* Terug knop */}
           <div className="mb-6">
             <button 
-              onClick={() => window.history.back()}
+              onClick={handleBack}
               className="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors"
             >
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -211,7 +222,7 @@ export default function Sources() {
                   Je kunt ook met incomplete bronnen verder gaan en later aanvullen
                 </div>
                 <button 
-                  onClick={() => window.location.href = `/start?id=${id}`}
+                  onClick={handleContinue}
                   className="px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold flex items-center space-x-2"
                 >
                   <span>Verder → Feitelijke situatie</span>

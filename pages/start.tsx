@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import StepWizard from '../components/StepWizard'
+import { homeLink } from '../utils/nav'
 
 export default function Start() {
   const router = useRouter()
@@ -11,9 +12,9 @@ export default function Start() {
 
   useEffect(() => {
     // Check voor project parameter in URL
-    const { project } = router.query
-    if (project && typeof project === 'string') {
-      setProjectId(project)
+    const { id } = router.query
+    if (id && typeof id === 'string') {
+      setProjectId(id)
     }
     setIsLoading(false)
   }, [router.query])
@@ -43,7 +44,7 @@ export default function Start() {
         <div className="container mx-auto px-4 py-8">
           {/* Terug knop */}
           <div className="mb-6">
-            <Link href="/" className="inline-flex items-center text-primary hover:text-green-700 transition-colors">
+            <Link href={homeLink()} className="inline-flex items-center text-primary hover:text-green-700 transition-colors">
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import Layout from "../components/Layout";
 import { v4 as uuid } from "uuid";
 import { saveProject } from "../utils/storage";
+import { nextLink, homeLink } from "../utils/nav";
 
 export default function Orientatie() {
   const [orgName, setOrgName] = useState("");
@@ -11,7 +12,7 @@ export default function Orientatie() {
   function handleContinue() {
     const id = uuid();
     saveProject(id, { flow: "new", meta: { orgName, level } });
-    window.location.href = `/sources?id=${id}`;
+    window.location.href = nextLink(id, "sources");
   }
 
   return (
@@ -21,7 +22,7 @@ export default function Orientatie() {
           {/* Terug knop */}
           <div className="mb-6">
             <button 
-              onClick={() => window.history.back()}
+              onClick={() => window.location.href = homeLink()}
               className="inline-flex items-center text-primary hover:text-green-700 transition-colors"
             >
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
