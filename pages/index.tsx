@@ -123,27 +123,6 @@ export default function Home() {
           )}
         </div>
 
-        {/* Hoofdknoppen - aangepast volgens instructies */}
-        <div className="max-w-md mx-auto mb-16 space-y-4">
-          {/* Ga verder met actief project (alleen tonen als er een actief project is) */}
-          {hasActive && activeId && (
-            <button 
-              className="btn-primary w-full py-4 px-6 text-lg font-semibold rounded-xl transition-all duration-200 transform hover:scale-105"
-              onClick={() => window.location.href = `/sources?id=${activeId}`}
-            >
-              Ga verder met mijn interne analyse
-            </button>
-          )}
-
-          {/* Nieuw project beginnen */}
-          <button 
-            className="btn-secondary w-full py-4 px-6 text-lg font-semibold rounded-xl transition-all duration-200 transform hover:scale-105"
-            onClick={() => window.location.href = "/sources"}
-          >
-            Nieuw project beginnen
-          </button>
-        </div>
-
         {/* Recente Projecten Sectie */}
         {!isLoading && projects.length > 0 && (
           <div className="max-w-4xl mx-auto mb-16">
@@ -242,6 +221,59 @@ export default function Home() {
             </div>
           </div>
         )}
+
+        {/* Main Action Buttons - Terug naar originele versie */}
+        <div className="max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            
+            {/* Begin nieuwe analyse */}
+            <div className="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+              <div className="text-center mb-6">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+                  <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </div>
+                <h2 className="text-2xl font-bold text-gray-800 mb-3">
+                  Start Nieuwe Analyse
+                </h2>
+                <p className="text-gray-600 mb-6">
+                  Begin een volledig nieuwe interne analyse van je organisatie volgens het 7S-model met AI-ondersteuning.
+                </p>
+              </div>
+              
+              <Link href="/start">
+                <button className="btn-primary w-full py-4 px-6 text-lg font-semibold rounded-xl transition-all duration-200 transform hover:scale-105">
+                  Start nieuwe interne analyse
+                </button>
+              </Link>
+            </div>
+
+            {/* Verbeter bestaand concept */}
+            <div className="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+              <div className="text-center mb-6">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
+                  <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </div>
+                <h2 className="text-2xl font-bold text-gray-800 mb-3">
+                  Verbeter Bestaand Concept
+                </h2>
+                <p className="text-gray-600 mb-6">
+                  Upload je bestaande analyse of concept en laat AI helpen bij het identificeren van verbeterpunten en optimalisaties.
+                </p>
+              </div>
+              
+              <Link href="/improve">
+                <button className="btn-secondary w-full py-4 px-6 text-lg font-semibold rounded-xl transition-all duration-200 transform hover:scale-105">
+                  Verbeter een bestaand concept
+                </button>
+              </Link>
+            </div>
+
+          </div>
+        </div>
 
         {/* Features Section */}
         <div className="mt-20 max-w-6xl mx-auto">
