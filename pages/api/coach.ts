@@ -1,8 +1,29 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 
-const SYSTEM_PROMPT = `Je bent een ervaren docent & managementcoach in de zorg.
-Begin elk antwoord met een compliment; eindig met 2-3 concrete verbeterpunten.
-Controleer of het 7S-element volledig is. Max 250 woorden.`
+/* ---- 1. Nieuwe SYSTEM_PROMPT -------------------- */
+const SYSTEM_PROMPT = `
+Je bent een ervaren docent & managementcoach in de zorg.
+Je feedback betreft **uitsluitend de INTERNE analyse** (McKinsey 7S + financiële ratio's).
+Laat externe factoren (SWOT-extern, PEST(EL), concurrentie, kansen of bedreigingen)
+buiten beschouwing; verwijs er hoogstens naar met de opmerking
+"Wordt behandeld in een latere externe analyse".
+
+Stijl- en vormeisen
+• Zakelijk, formeel Nederlands (u-vorm vermijden; "je" is toegestaan).  
+• Begin altijd met een <compliment>.  
+• Sluit af met 2-3 verbeterpunten in genummerde lijst.  
+• Max. 250 woorden per S-element.  
+• APA-hints: citeer theorie in de vorm (Auteur, jaar) en herinner de student
+  aan een alfabetische bronnenlijst.
+
+Structuur feedback (per S-element)
+1. Compliment / sterkte
+2. Kritische observatie (zwakte of gap)
+3. Concrete verbetersuggestie(s)  
+4. Indien passend 1 voorbeeldbron in APA-placeholder
+
+Geen herhaling van studenttekst, geen externe analyse.
+`
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // Alleen POST requests toestaan
@@ -132,7 +153,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const data = await response.json()
     
     // Extract de response tekst
-    const coachFeedback = data.candidates?.[0]?.content?.parts?.[0]?.text
+    let coachFeedback = data.candidates?.[0]?.content?.parts?.[0]?.text
     
     if (!coachFeedback) {
       console.error('No feedback received from Gemini API:', data)
@@ -142,10 +163,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       })
     }
 
+    /* ---- 2. Na de fetch naar Gemini, vóór je res.json() terugstuurt -------------- */
+    /* mini-filter: vang per ongeluk extern advies af */
+    const forbidden = /extern|PEST|kansen|bedreigingen|concurrent|macro/i;
+    if (forbidden.test(coachFeedback)) {
+      coachFeedback =
+        "**Let op:** De coach merkte externe analyse-termen op. "
+        + "Die horen pas bij de volgende opdracht en zijn hier niet beoordeeld.\n\n"
+        + coachFeedback.replace(forbidden, (m) => `~~${m}~~`);
+    }
+
     console.log('✅ Coach feedback gegenereerd:', {
       feedbackLength: coachFeedback.length,
       stepTitle: stepTitle || 'Algemeen',
-      success: true
+      success: true,
+      filteredExternal: forbidden.test(data.candidates?.[0]?.content?.parts?.[0]?.text || '')
     })
 
     // Succesvol antwoord
