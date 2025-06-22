@@ -56,7 +56,7 @@ const HEALTHCARE_BENCHMARKS = {
  * Bereken rentabiliteit (Return on Equity)
  * Formule: nettowinst / eigenVermogen
  */
-export function calculateRentabiliteit(nettowinst: number | null, eigenVermogen: number | null): FinancialRatio {
+export function calculateRentabiliteit(nettowinst: number | null | undefined, eigenVermogen: number | null | undefined): FinancialRatio {
   const ratio: FinancialRatio = {
     name: 'Rentabiliteit (ROE)',
     value: null,
@@ -66,13 +66,16 @@ export function calculateRentabiliteit(nettowinst: number | null, eigenVermogen:
     benchmarkRange: HEALTHCARE_BENCHMARKS.rentabiliteit
   }
 
-  // Valideer input
-  if (nettowinst === null || eigenVermogen === null || eigenVermogen === 0) {
+  // Valideer input - behandel undefined als null
+  const validNettowinst = nettowinst ?? null
+  const validEigenVermogen = eigenVermogen ?? null
+  
+  if (validNettowinst === null || validEigenVermogen === null || validEigenVermogen === 0) {
     return ratio
   }
 
   // Bereken ratio
-  const value = nettowinst / eigenVermogen
+  const value = validNettowinst / validEigenVermogen
   ratio.value = Math.round(value * 10000) / 100 // Rond af op 2 decimalen als percentage
 
   // Beoordeel gezondheid
@@ -90,7 +93,7 @@ export function calculateRentabiliteit(nettowinst: number | null, eigenVermogen:
  * Bereken liquiditeit (Current Ratio)
  * Formule: vlottendeActiva / kortlopendeSchulden
  */
-export function calculateLiquiditeit(vlottendeActiva: number | null, kortlopendeSchulden: number | null): FinancialRatio {
+export function calculateLiquiditeit(vlottendeActiva: number | null | undefined, kortlopendeSchulden: number | null | undefined): FinancialRatio {
   const ratio: FinancialRatio = {
     name: 'Liquiditeit (Current Ratio)',
     value: null,
@@ -100,13 +103,16 @@ export function calculateLiquiditeit(vlottendeActiva: number | null, kortlopende
     benchmarkRange: HEALTHCARE_BENCHMARKS.liquiditeit
   }
 
-  // Valideer input
-  if (vlottendeActiva === null || kortlopendeSchulden === null || kortlopendeSchulden === 0) {
+  // Valideer input - behandel undefined als null
+  const validVlottendeActiva = vlottendeActiva ?? null
+  const validKortlopendeSchulden = kortlopendeSchulden ?? null
+  
+  if (validVlottendeActiva === null || validKortlopendeSchulden === null || validKortlopendeSchulden === 0) {
     return ratio
   }
 
   // Bereken ratio
-  const value = vlottendeActiva / kortlopendeSchulden
+  const value = validVlottendeActiva / validKortlopendeSchulden
   ratio.value = Math.round(value * 100) / 100 // Rond af op 2 decimalen
 
   // Beoordeel gezondheid
@@ -124,7 +130,7 @@ export function calculateLiquiditeit(vlottendeActiva: number | null, kortlopende
  * Bereken solvabiliteit (Equity Ratio)
  * Formule: eigenVermogen / totaalActiva
  */
-export function calculateSolvabiliteit(eigenVermogen: number | null, totaalActiva: number | null): FinancialRatio {
+export function calculateSolvabiliteit(eigenVermogen: number | null | undefined, totaalActiva: number | null | undefined): FinancialRatio {
   const ratio: FinancialRatio = {
     name: 'Solvabiliteit (Equity Ratio)',
     value: null,
@@ -134,13 +140,16 @@ export function calculateSolvabiliteit(eigenVermogen: number | null, totaalActiv
     benchmarkRange: HEALTHCARE_BENCHMARKS.solvabiliteit
   }
 
-  // Valideer input
-  if (eigenVermogen === null || totaalActiva === null || totaalActiva === 0) {
+  // Valideer input - behandel undefined als null
+  const validEigenVermogen = eigenVermogen ?? null
+  const validTotaalActiva = totaalActiva ?? null
+  
+  if (validEigenVermogen === null || validTotaalActiva === null || validTotaalActiva === 0) {
     return ratio
   }
 
   // Bereken ratio
-  const value = eigenVermogen / totaalActiva
+  const value = validEigenVermogen / validTotaalActiva
   ratio.value = Math.round(value * 10000) / 100 // Rond af op 2 decimalen als percentage
 
   // Beoordeel gezondheid
