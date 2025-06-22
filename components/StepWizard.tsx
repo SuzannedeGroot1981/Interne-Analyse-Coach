@@ -122,6 +122,7 @@ export default function StepWizard({ projectId, flow, onSave }: StepWizardProps)
   const [apiQuotaExceeded, setApiQuotaExceeded] = useState(false)
   const [lastQuotaError, setLastQuotaError] = useState<Date | null>(null)
   const [projectMeta, setProjectMeta] = useState<{ orgName?: string, level?: string }>({})
+  const [isCheckingAPA, setIsCheckingAPA] = useState(false)
 
   // Initialiseer wizard data
   useEffect(() => {
@@ -256,6 +257,66 @@ export default function StepWizard({ projectId, flow, onSave }: StepWizardProps)
     if (!lastQuotaError) return false
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000)
     return lastQuotaError > oneHourAgo
+  }
+
+  // APA Self-check functie
+  const checkAPA = async () => {
+    setIsCheckingAPA(true)
+    try {
+      console.log('📝 Start APA self-check...', {
+        projectId: actualProjectId,
+        stepsWithContent: Object.keys(wizardData).filter(key => wizardData[key].current.trim()).length
+      })
+
+      // Verzamel alle S-teksten
+      let allText = ''
+      STEPS.forEach(step => {
+        const stepData = wizardData[step.id]
+        if (stepData && stepData.current.trim()) {
+          allText += `## ${step.title}\n\n${stepData.current}\n\n`
+          if (stepData.desired && stepData.desired.trim()) {
+            allText += `### Gewenste situatie\n\n${stepData.desired}\n\n`
+          }
+        }
+      })
+
+      if (!allText.trim()) {
+        alert('Geen tekst gevonden om te controleren. Vul eerst enkele stappen in.')
+        return
+      }
+
+      const res = await fetch("/api/check-apa", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ markdown: allText })
+      })
+
+      if (!res.ok) {
+        const errorData = await res.json()
+        throw new Error(errorData.issues?.[0] || 'APA check mislukt')
+      }
+
+      const { issues } = await res.json()
+      
+      console.log('✅ APA check voltooid:', {
+        textLength: allText.length,
+        issuesFound: issues.length
+      })
+
+      // Toon resultaat
+      if (issues.length === 0) {
+        alert("Geen APA-problemen gevonden 🎉\n\nJe bronvermeldingen en citaten lijken correct te zijn volgens APA-richtlijnen.")
+      } else {
+        const issueText = issues.map((issue: string, index: number) => `${index + 1}. ${issue}`).join('\n')
+        alert(`APA-aandachtspunten gevonden:\n\n${issueText}\n\n💡 Tip: Controleer je bronvermeldingen en citaten volgens APA 7e editie richtlijnen.`)
+      }
+
+    } catch (error) {
+      console.error('❌ APA check fout:', error)
+      alert(`Fout bij APA controle: ${error instanceof Error ? error.message : 'Onbekende fout'}\n\nProbeer het later opnieuw.`)
+    } finally {
+      setIsCheckingAPA(false)
+    }
   }
 
   // Vraag coach feedback (placeholder voor AI integratie)
@@ -634,6 +695,35 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
                 placeholder="Beschrijf de gewenste situatie (optioneel)..."
                 className="w-full h-32 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
               />
+            </div>
+
+            {/* APA Self-check knop */}
+            <div className="mt-4">
+              <button
+                onClick={checkAPA}
+                disabled={isCheckingAPA}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${
+                  isCheckingAPA
+                    ? 'bg-gray-100 text-gray-500 border-gray-300 cursor-not-allowed'
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+                }`}
+                title="Controleer je bronvermeldingen en citaten volgens APA-richtlijnen"
+              >
+                {isCheckingAPA ? (
+                  <div className="flex items-center space-x-2">
+                    <div className="animate-spin w-3 h-3 border border-gray-500 border-t-transparent rounded-full" />
+                    <span>Controleren...</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center space-x-2">
+                    <span>📝</span>
+                    <span>Self-check APA</span>
+                  </div>
+                )}
+              </button>
+              <p className="text-xs text-gray-500 mt-1">
+                Controleert bronvermeldingen en citaten in alle ingevulde stappen
+              </p>
             </div>
           </div>
 
