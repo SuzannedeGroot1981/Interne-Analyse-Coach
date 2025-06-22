@@ -65,14 +65,18 @@ export default function Sources() {
   const [actualProjectId, setActualProjectId] = useState<string>('');
   const [orgName, setOrgName] = useState("");
 
-  /* load & autosave - GEEN nieuwe projecten maken hier */
+  /* load & autosave */
   useEffect(() => {
     let finalProjectId = id as string;
     
-    // Als er geen ID is, redirect naar home - GEEN nieuw project maken
+    // Als er geen ID is, maak een nieuw project
     if (!finalProjectId) {
-      console.warn('⚠️ Geen project ID gevonden, redirect naar home')
-      window.location.href = homeLink();
+      finalProjectId = uuid();
+      setActualProjectId(finalProjectId);
+      
+      // Initialize with simplified default values for new project
+      setRows(Object.fromEntries(S_ROWS.map(r => [r.key, { docs: [], summary: "" }])));
+      setIsLoading(false);
       return;
     }
     
@@ -82,12 +86,9 @@ export default function Sources() {
     if (p) {
       setRows(p.sources ?? Object.fromEntries(S_ROWS.map(r => [r.key, { docs: [], summary: "" }])));
       setOrgName(p.meta?.orgName || "");
-      console.log('📖 Bestaand project geladen:', finalProjectId)
     } else {
-      // Project niet gevonden - redirect naar home
-      console.warn('⚠️ Project niet gevonden, redirect naar home:', finalProjectId)
-      window.location.href = homeLink();
-      return;
+      // Initialize with simplified default values if project not found
+      setRows(Object.fromEntries(S_ROWS.map(r => [r.key, { docs: [], summary: "" }])));
     }
     setIsLoading(false);
   }, [id]);
@@ -98,8 +99,7 @@ export default function Sources() {
       const currentProject = loadProject(actualProjectId) || {};
       saveProject(actualProjectId, {
         ...currentProject,
-        meta: { ...(currentProject.meta || {}), orgName },
-        updatedAt: new Date().toISOString()
+        meta: { ...(currentProject.meta || {}), orgName }
       });
     }
   }, [orgName, actualProjectId, isLoading]);
@@ -110,8 +110,7 @@ export default function Sources() {
       const currentProject = loadProject(actualProjectId) || {};
       saveProject(actualProjectId, {
         ...currentProject,
-        sources: rows,
-        updatedAt: new Date().toISOString()
+        sources: rows
       });
     }
   }, [rows, actualProjectId, isLoading]);
@@ -121,7 +120,6 @@ export default function Sources() {
   }
 
   function handleBack() {
-    // Gewoon terug naar home - GEEN project logica
     window.location.href = homeLink();
   }
 
