@@ -234,7 +234,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       coachFeedback =
         "**Let op:** De coach merkte externe analyse-termen op. "
         + "Die horen pas bij de volgende opdracht en zijn hier niet beoordeeld.\n\n"
-        + coachFeedback.replace(forbidden, (m) => `~~${m}~~`);
+        + coachFeedback.replace(forbidden, (m: string) => `~~${m}~~`);
     }
 
     console.log('✅ Coach feedback gegenereerd:', {
