@@ -93,40 +93,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const errorText = await response.text()
       console.error('Gemini API error:', response.status, errorText)
       
-      // Parse error response for better error handling
-      let errorData
-      try {
-        errorData = JSON.parse(errorText)
-      } catch {
-        errorData = { error: { message: errorText } }
-      }
-      
-      // Specifieke error handling voor quota problemen
-      if (response.status === 429 || 
-          (errorData.error && (
-            errorData.error.message?.includes('quota') ||
-            errorData.error.message?.includes('exceeded') ||
-            errorData.error.status === 'RESOURCE_EXHAUSTED'
-          ))) {
+      // Specifieke error handling
+      if (response.status === 429) {
         return res.status(429).json({
           error: 'API quota bereikt. Probeer het later opnieuw.',
-          details: 'Dagelijkse API quota overschreden. Quota reset na 24 uur.',
-          quotaInfo: {
-            resetTime: '24 uur',
-            upgradeUrl: 'https://makersuite.google.com/app/apikey',
-            currentPlan: 'Free tier'
-          }
+          details: 'Rate limit exceeded'
         })
       }
       
       if (response.status === 400) {
         return res.status(400).json({
           error: 'Ongeldige aanvraag naar Gemini API.',
-          details: errorData.error?.message || errorText
+          details: errorText
         })
       }
       
-      throw new Error(`Gemini API call failed: ${response.status} ${errorData.error?.message || errorText}`)
+      throw new Error(`Gemini API call failed: ${response.status} ${errorText}`)
     }
 
     const data = await response.json()
@@ -162,25 +144,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     
-    // Check if this is a quota-related error
-    const isQuotaError = errorMessage.includes('quota') || 
-                        errorMessage.includes('429') || 
-                        errorMessage.includes('RESOURCE_EXHAUSTED') ||
-                        errorMessage.includes('exceeded')
-    
-    return res.status(isQuotaError ? 429 : 500).json({
-      error: isQuotaError 
-        ? 'API quota bereikt. Probeer het later opnieuw.'
-        : 'Er is een fout opgetreden bij het genereren van coach feedback',
+    return res.status(500).json({
+      error: 'Er is een fout opgetreden bij het genereren van coach feedback',
       details: errorMessage,
-      timestamp: new Date().toISOString(),
-      ...(isQuotaError && {
-        quotaInfo: {
-          resetTime: '24 uur',
-          upgradeUrl: 'https://makersuite.google.com/app/apikey',
-          suggestion: 'Upgrade naar betaald plan voor hogere limieten'
-        }
-      })
+      timestamp: new Date().toISOString()
     })
   }
 }

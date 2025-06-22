@@ -125,8 +125,6 @@ export default function StepWizard({ projectId, flow, onSave }: StepWizardProps)
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const [actualProjectId, setActualProjectId] = useState<string>(projectId || '')
   const [currentProjectData, setCurrentProjectData] = useState<any>(null)
-  const [apiQuotaExceeded, setApiQuotaExceeded] = useState(false)
-  const [lastQuotaError, setLastQuotaError] = useState<Date | null>(null)
 
   // Initialiseer wizard data
   useEffect(() => {
@@ -247,49 +245,8 @@ export default function StepWizard({ projectId, flow, onSave }: StepWizardProps)
     }
   }
 
-  // Check if quota error is recent (within last hour)
-  const isQuotaErrorRecent = () => {
-    if (!lastQuotaError) return false
-    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000)
-    return lastQuotaError > oneHourAgo
-  }
-
   // Vraag coach feedback (placeholder voor AI integratie)
   const requestCoachFeedback = async (stepId: string) => {
-    // Check if we recently hit quota limit
-    if (apiQuotaExceeded && isQuotaErrorRecent()) {
-      const stepData = wizardData[stepId]
-      const step = STEPS.find(s => s.id === stepId)
-      
-      const quotaFeedback = `⏰ **API Quota Tijdelijk Bereikt**
-
-De AI coach kan momenteel geen nieuwe feedback geven omdat de dagelijkse API quota is overschreden.
-
-**Wat kun je doen:**
-• **Wacht enkele uren** - de quota reset automatisch na 24 uur
-• **Ga handmatig verder** - je analyse is nog steeds waardevol zonder AI feedback
-• **Upgrade je API plan** in [Google AI Studio](https://makersuite.google.com/app/apikey) voor hogere limieten
-
-**Handmatige analyse tips voor ${step?.title}:**
-• Vergelijk je huidige en gewenste situatie kritisch
-• Identificeer de 3 grootste verschillen
-• Bedenk concrete stappen om van huidig naar gewenst te komen
-• Overweeg welke resources (tijd, geld, mensen) je nodig hebt
-
-Je kunt altijd later terugkomen voor AI feedback wanneer de quota is gereset!`
-
-      const newData = {
-        ...wizardData,
-        [stepId]: {
-          ...stepData,
-          feedback: quotaFeedback
-        }
-      }
-      setWizardData(newData)
-      autoSave(newData)
-      return
-    }
-
     setIsLoading(true)
     try {
       const stepData = wizardData[stepId]
@@ -334,10 +291,6 @@ Je kunt altijd later terugkomen voor AI feedback wanneer de quota is gereset!`
       setWizardData(newData)
       autoSave(newData)
 
-      // Reset quota error state on successful request
-      setApiQuotaExceeded(false)
-      setLastQuotaError(null)
-
       console.log('🤖 Coach feedback ontvangen:', {
         stepTitle: step?.title,
         feedbackLength: data.feedback.length,
@@ -347,72 +300,11 @@ Je kunt altijd later terugkomen voor AI feedback wanneer de quota is gereset!`
     } catch (error) {
       console.error('❌ Fout bij ophalen feedback:', error)
       
-      // Check for quota exceeded error
-      const isQuotaError = error.message && (
-        error.message.includes('API quota bereikt') || 
-        error.message.includes('429') ||
-        error.message.includes('quota') ||
-        error.message.includes('RESOURCE_EXHAUSTED') ||
-        error.message.includes('exceeded your current quota')
-      )
-
-      if (isQuotaError) {
-        setApiQuotaExceeded(true)
-        setLastQuotaError(new Date())
-      }
-      
-      // Verbeterde error handling voor API quota problemen
+      // Toon fallback feedback bij fout
       const stepData = wizardData[stepId]
       const step = STEPS.find(s => s.id === stepId)
       
-      let fallbackFeedback = ''
-      
-      if (isQuotaError) {
-        fallbackFeedback = `⚠️ **API Quota Bereikt**
-
-De AI coach kan momenteel geen feedback geven omdat de dagelijkse API quota is overschreden.
-
-**Wat kun je doen:**
-• **Wacht enkele uren** - quota reset automatisch na 24 uur
-• **Check je API key** in [Google AI Studio](https://makersuite.google.com/app/apikey)
-• **Upgrade naar betaald plan** voor hogere limieten
-• **Ga handmatig verder** - je analyse blijft waardevol!
-
-**Handmatige analyse tips:**
-• Vergelijk huidige vs gewenste situatie kritisch
-• Identificeer de 3 grootste verschillen  
-• Bedenk concrete actiestappen
-• Overweeg benodigde resources (tijd, budget, mensen)
-
-**Quota informatie:**
-• Gratis tier: beperkt aantal requests per dag
-• Betaald plan: veel hogere limieten beschikbaar
-• Quota reset: elke 24 uur automatisch
-
-Je kunt later terugkomen voor AI feedback wanneer de quota is gereset!`
-      } else if (error.message && error.message.includes('network')) {
-        fallbackFeedback = `🌐 **Netwerkfout**
-
-Er is een probleem met de internetverbinding.
-
-**Wat kun je doen:**
-• Controleer je internetverbinding
-• Probeer het over enkele seconden opnieuw
-• Ga handmatig verder met de analyse
-
-Je analyse wordt automatisch opgeslagen, dus je verliest geen werk.`
-      } else {
-        fallbackFeedback = `❌ **Tijdelijke Fout**
-
-Er is een onverwachte fout opgetreden bij het ophalen van AI feedback voor ${step?.title}.
-
-**Wat kun je doen:**
-• Probeer het over enkele minuten opnieuw
-• Controleer je internetverbinding
-• Ga handmatig verder met de analyse
-
-Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je werk automatisch op.`
-      }
+      const fallbackFeedback = `Er is een fout opgetreden bij het ophalen van AI feedback voor ${step?.title}. Controleer je internetverbinding en probeer het opnieuw. Je kunt ook handmatig verder gaan met de analyse.`
       
       const newData = {
         ...wizardData,
@@ -422,7 +314,6 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
         }
       }
       setWizardData(newData)
-      autoSave(newData)
     } finally {
       setIsLoading(false)
     }
@@ -456,34 +347,6 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      {/* API Quota Warning Banner */}
-      {apiQuotaExceeded && isQuotaErrorRecent() && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-          <div className="flex items-start space-x-3">
-            <div className="text-yellow-600 text-xl">⚠️</div>
-            <div>
-              <h3 className="text-yellow-800 font-semibold mb-1">
-                API Quota Tijdelijk Bereikt
-              </h3>
-              <p className="text-yellow-700 text-sm mb-2">
-                De AI coach functionaliteit is tijdelijk niet beschikbaar. Je kunt wel handmatig verder werken aan je analyse.
-              </p>
-              <div className="flex items-center space-x-4 text-xs text-yellow-600">
-                <span>Quota reset: ~{Math.ceil((24 * 60 - (Date.now() - lastQuotaError!.getTime()) / (1000 * 60)) / 60)} uur</span>
-                <a 
-                  href="https://makersuite.google.com/app/apikey" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="underline hover:text-yellow-800"
-                >
-                  Upgrade API Plan
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Header met voortgang */}
       <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
         <div className="flex items-center justify-between mb-4">
@@ -635,9 +498,9 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
                 <span className="mr-2">🤖</span>
                 Coach Feedback
               </h3>
-              <div className="text-blue-700 text-sm whitespace-pre-line">
+              <p className="text-blue-700 text-sm">
                 {currentWizardData.feedback}
-              </div>
+              </p>
             </div>
           )}
 
@@ -648,22 +511,12 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
               <button
                 onClick={() => requestCoachFeedback(currentStepData.id)}
                 disabled={isLoading || !currentWizardData.current.trim() || !currentWizardData.desired.trim()}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
-                  apiQuotaExceeded && isQuotaErrorRecent()
-                    ? 'bg-yellow-100 text-yellow-700 border border-yellow-200 hover:bg-yellow-200'
-                    : 'bg-blue-600 text-white hover:bg-blue-700'
-                } disabled:opacity-50 disabled:cursor-not-allowed`}
-                title={apiQuotaExceeded && isQuotaErrorRecent() ? 'API quota bereikt - handmatige feedback beschikbaar' : 'Vraag AI coach feedback'}
+                className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {isLoading ? (
                   <>
                     <div className="animate-spin w-4 h-4 border border-white border-t-transparent rounded-full" />
                     <span>Analyseren...</span>
-                  </>
-                ) : apiQuotaExceeded && isQuotaErrorRecent() ? (
-                  <>
-                    <span>⚠️</span>
-                    <span>Handmatige feedback</span>
                   </>
                 ) : (
                   <>
