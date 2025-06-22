@@ -147,7 +147,7 @@ export default function Home() {
                       {formatDate(project.updatedAt)}
                     </p>
                     
-                    <Link href={`/${project.flow}?project=${project.id}`}>
+                    <Link href={`/${project.flow}?id=${project.id}`}>
                       <button className="w-full text-sm bg-gray-100 hover:bg-primary hover:text-white text-gray-700 py-2 px-3 rounded transition-colors">
                         Verder werken
                       </button>
@@ -199,7 +199,7 @@ export default function Home() {
                 </p>
               </div>
               
-              <Link href="/orientatie">
+              <Link href="/sources">
                 <button className="btn-primary w-full py-4 px-6 text-lg font-semibold rounded-xl transition-all duration-200 transform hover:scale-105">
                   Begin met een nieuwe interne analyse
                 </button>
