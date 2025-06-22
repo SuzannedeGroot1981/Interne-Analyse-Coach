@@ -300,11 +300,53 @@ export default function StepWizard({ projectId, flow, onSave }: StepWizardProps)
     } catch (error) {
       console.error('❌ Fout bij ophalen feedback:', error)
       
-      // Toon fallback feedback bij fout
+      // Verbeterde error handling voor API quota problemen
       const stepData = wizardData[stepId]
       const step = STEPS.find(s => s.id === stepId)
       
-      const fallbackFeedback = `Er is een fout opgetreden bij het ophalen van AI feedback voor ${step?.title}. Controleer je internetverbinding en probeer het opnieuw. Je kunt ook handmatig verder gaan met de analyse.`
+      let fallbackFeedback = ''
+      
+      // Check voor specifieke API quota errors
+      if (error.message && (
+        error.message.includes('API quota bereikt') || 
+        error.message.includes('429') ||
+        error.message.includes('quota') ||
+        error.message.includes('RESOURCE_EXHAUSTED')
+      )) {
+        fallbackFeedback = `⚠️ **API Quota Bereikt**
+
+De AI coach kan momenteel geen feedback geven omdat de API quota is overschreden.
+
+**Wat kun je doen:**
+• Controleer je Gemini API key en quota in Google AI Studio
+• Wacht enkele minuten en probeer het opnieuw
+• Upgrade je API plan voor meer quota
+• Ga handmatig verder met je analyse
+
+Je kunt ook zonder AI feedback doorgaan - de analyse is nog steeds waardevol!`
+      } else if (error.message && error.message.includes('network')) {
+        fallbackFeedback = `🌐 **Netwerkfout**
+
+Er is een probleem met de internetverbinding.
+
+**Wat kun je doen:**
+• Controleer je internetverbinding
+• Probeer het over enkele seconden opnieuw
+• Ga handmatig verder met de analyse
+
+Je analyse wordt automatisch opgeslagen, dus je verliest geen werk.`
+      } else {
+        fallbackFeedback = `❌ **Tijdelijke Fout**
+
+Er is een onverwachte fout opgetreden bij het ophalen van AI feedback voor ${step?.title}.
+
+**Wat kun je doen:**
+• Probeer het over enkele minuten opnieuw
+• Controleer je internetverbinding
+• Ga handmatig verder met de analyse
+
+Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je werk automatisch op.`
+      }
       
       const newData = {
         ...wizardData,
@@ -498,9 +540,9 @@ export default function StepWizard({ projectId, flow, onSave }: StepWizardProps)
                 <span className="mr-2">🤖</span>
                 Coach Feedback
               </h3>
-              <p className="text-blue-700 text-sm">
+              <div className="text-blue-700 text-sm whitespace-pre-line">
                 {currentWizardData.feedback}
-              </p>
+              </div>
             </div>
           )}
 
