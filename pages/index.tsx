@@ -9,7 +9,6 @@ export default function Home() {
   const [userId, setUserId] = useState<string>('')
   const [isLoading, setIsLoading] = useState(true)
   const [activeId, setActiveId] = useState<string | null>(null)
-  const [hasActive, setHasActive] = useState(false)
 
   // Nieuwe project functie - ALLEEN hier nieuwe projecten maken
   function newProject() {
@@ -54,23 +53,13 @@ export default function Home() {
         const activeProjectId = getActive()
         setActiveId(activeProjectId)
         
-        // Declare activeProject with initial value
-        let activeProject = null
-        
-        // Controleer of actief project bestaat
-        if (activeProjectId) {
-          activeProject = loadProject(activeProjectId)
-          setHasActive(!!activeProject)
-        }
-        
         const userProjects = listProjects()
         setProjects(userProjects)
         
         console.log('📊 Dashboard geladen:', {
           userId: userIdFromStorage.slice(0, 8) + '...',
           projectCount: userProjects.length,
-          activeProjectId: activeProjectId?.slice(0, 8) + '...' || 'geen',
-          hasActiveProject: !!activeProject
+          activeProjectId: activeProjectId?.slice(0, 8) + '...' || 'geen'
         })
       } catch (error) {
         console.error('❌ Fout bij laden dashboard:', error)
@@ -93,7 +82,6 @@ export default function Home() {
         // Als dit het actieve project was, clear active
         if (projectId === activeId) {
           setActiveId(null)
-          setHasActive(false)
         }
       }
     }
@@ -156,30 +144,6 @@ export default function Home() {
             </div>
           )}
         </div>
-
-        {/* Actief project sectie */}
-        {hasActive && activeId && (
-          <div className="max-w-4xl mx-auto mb-16">
-            <div className="bg-primary/10 border border-primary/20 rounded-2xl p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-xl font-bold text-primary mb-2 flex items-center">
-                    <span className="mr-2">🎯</span>
-                    Actief Project
-                  </h2>
-                  <p className="text-gray-700">
-                    Je hebt een actief project waar je aan kunt verder werken.
-                  </p>
-                </div>
-                <Link href={`/sources?id=${activeId}`}>
-                  <button className="px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-green-700 transition-colors">
-                    Verder werken →
-                  </button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Recente Projecten Sectie */}
         {!isLoading && projects.length > 0 && (
