@@ -588,7 +588,7 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-800">
-              {flow === 'start' ? '🆕 Feitelijke Situatie Analyse' : '🔄 Verbeter Bestaand Concept'}
+              {flow === 'start' ? '🆕 Interne analyse' : '🔄 Verbeter Bestaand Concept'}
             </h1>
             {projectMeta.orgName && (
               <p className="text-gray-600">
