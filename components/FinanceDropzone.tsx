@@ -3,6 +3,7 @@
 import { useCallback, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import * as XLSX from 'xlsx'
+import FinancialAnalysis from './FinancialAnalysis'
 
 interface FinanceData {
   fileName: string
@@ -13,6 +14,7 @@ interface FinanceData {
     totalColumns: number
     fileSize: string
   }
+  metrics?: any // Toegevoegd voor parsed financial metrics
 }
 
 interface FinanceDropzoneProps {
@@ -24,6 +26,8 @@ export default function FinanceDropzone({ onDataLoaded, className = '' }: Financ
   const [isProcessing, setIsProcessing] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [uploadedData, setUploadedData] = useState<FinanceData | null>(null)
+  const [parsedFinanceData, setParsedFinanceData] = useState<any>(null)
+  const [isParsingFinance, setIsParsingFinance] = useState(false)
 
   // Verwerk CSV bestand
   const processCSV = (file: File): Promise<FinanceData> => {
@@ -130,6 +134,52 @@ export default function FinanceDropzone({ onDataLoaded, className = '' }: Financ
     })
   }
 
+  // Parse financiële data via API
+  const parseFinancialData = async (financeData: FinanceData) => {
+    setIsParsingFinance(true)
+    try {
+      console.log('💰 Start financiële data parsing...', {
+        fileName: financeData.fileName,
+        rows: financeData.summary.totalRows
+      })
+
+      // Converteer data naar base64 voor API
+      const dataString = JSON.stringify(financeData.data)
+      const base64Data = btoa(dataString)
+
+      const response = await fetch('/api/parse-fin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fileData: base64Data,
+          fileName: financeData.fileName,
+          fileType: financeData.fileName.endsWith('.csv') ? 'text/csv' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Parsing mislukt')
+      }
+
+      const parsedData = await response.json()
+      setParsedFinanceData(parsedData)
+
+      console.log('✅ Financiële data parsing voltooid:', {
+        metricsFound: Object.keys(parsedData.metrics).filter(k => parsedData.metrics[k] !== null).length,
+        totalMetrics: Object.keys(parsedData.metrics).length
+      })
+
+    } catch (error) {
+      console.error('❌ Fout bij financiële parsing:', error)
+      setError(error instanceof Error ? error.message : 'Onbekende fout bij parsing')
+    } finally {
+      setIsParsingFinance(false)
+    }
+  }
+
   // Format bestandsgrootte
   const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return '0 Bytes'
@@ -146,6 +196,7 @@ export default function FinanceDropzone({ onDataLoaded, className = '' }: Financ
     const file = acceptedFiles[0]
     setIsProcessing(true)
     setError(null)
+    setParsedFinanceData(null)
 
     try {
       let financeData: FinanceData
@@ -160,6 +211,9 @@ export default function FinanceDropzone({ onDataLoaded, className = '' }: Financ
 
       setUploadedData(financeData)
       onDataLoaded(financeData)
+      
+      // Automatisch financiële data parsing starten
+      await parseFinancialData(financeData)
       
       console.log('💰 Financiële data geladen:', {
         fileName: financeData.fileName,
@@ -192,11 +246,12 @@ export default function FinanceDropzone({ onDataLoaded, className = '' }: Financ
   // Verwijder geüploade data
   const clearData = () => {
     setUploadedData(null)
+    setParsedFinanceData(null)
     setError(null)
   }
 
   return (
-    <div className={`space-y-4 ${className}`}>
+    <div className={`space-y-6 ${className}`}>
       {/* Dropzone */}
       <div
         {...getRootProps()}
@@ -217,7 +272,7 @@ export default function FinanceDropzone({ onDataLoaded, className = '' }: Financ
           <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
             uploadedData ? 'bg-green-100' : 'bg-gray-100'
           }`}>
-            {isProcessing ? (
+            {isProcessing || isParsingFinance ? (
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
             ) : uploadedData ? (
               <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -241,6 +296,15 @@ export default function FinanceDropzone({ onDataLoaded, className = '' }: Financ
                   Even geduld, we analyseren je financiële data
                 </p>
               </div>
+            ) : isParsingFinance ? (
+              <div>
+                <p className="text-lg font-medium text-purple-600">
+                  Financiële data wordt geanalyseerd...
+                </p>
+                <p className="text-sm text-gray-500">
+                  AI extraheert automatisch de belangrijkste financiële metrics
+                </p>
+              </div>
             ) : uploadedData ? (
               <div>
                 <p className="text-lg font-medium text-green-600">
@@ -249,6 +313,11 @@ export default function FinanceDropzone({ onDataLoaded, className = '' }: Financ
                 <p className="text-sm text-gray-500">
                   {uploadedData.summary.totalRows} rijen • {uploadedData.summary.totalColumns} kolommen • {uploadedData.summary.fileSize}
                 </p>
+                {parsedFinanceData && (
+                  <p className="text-sm text-purple-600 mt-1">
+                    🤖 Financiële metrics geëxtraheerd en klaar voor analyse
+                  </p>
+                )}
               </div>
             ) : isDragActive ? (
               <div>
@@ -385,6 +454,14 @@ export default function FinanceDropzone({ onDataLoaded, className = '' }: Financ
             </div>
           )}
         </div>
+      )}
+
+      {/* Financiële Analyse Component */}
+      {parsedFinanceData && (
+        <FinancialAnalysis 
+          financialData={parsedFinanceData}
+          className="mt-6"
+        />
       )}
     </div>
   )
