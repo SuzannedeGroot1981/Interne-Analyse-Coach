@@ -1,9 +1,9 @@
 import Head from 'next/head'
-import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import StepWizard from '../components/StepWizard'
 import { homeLink } from '../utils/nav'
+import { loadProject } from '../utils/storage'
 
 export default function Start() {
   const router = useRouter()
@@ -14,13 +14,30 @@ export default function Start() {
     // Check voor project parameter in URL
     const { id } = router.query
     if (id && typeof id === 'string') {
-      setProjectId(id)
+      // Controleer of project bestaat
+      const project = loadProject(id)
+      if (project) {
+        setProjectId(id)
+        console.log('📖 Start pagina - project geladen:', id)
+      } else {
+        console.warn('⚠️ Start pagina - project niet gevonden, redirect naar home:', id)
+        window.location.href = homeLink()
+        return
+      }
+    } else {
+      console.warn('⚠️ Start pagina - geen project ID, redirect naar home')
+      window.location.href = homeLink()
+      return
     }
     setIsLoading(false)
   }, [router.query])
 
   const handleSave = (data: any) => {
     console.log('📊 Project data opgeslagen:', data)
+  }
+
+  const handleBack = () => {
+    window.location.href = homeLink()
   }
 
   if (isLoading) {
@@ -58,12 +75,15 @@ export default function Start() {
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-between h-16">
               {/* Terug knop */}
-              <Link href={homeLink()} className="inline-flex items-center text-primary hover:text-green-700 transition-colors">
+              <button 
+                onClick={handleBack}
+                className="inline-flex items-center text-primary hover:text-green-700 transition-colors"
+              >
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
                 Terug naar hoofdmenu
-              </Link>
+              </button>
 
               {/* Logo (klein) */}
               <div className="flex items-center space-x-2">

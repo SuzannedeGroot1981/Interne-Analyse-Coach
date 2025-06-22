@@ -11,13 +11,36 @@ export default function Home() {
   const [activeId, setActiveId] = useState<string | null>(null)
   const [hasActive, setHasActive] = useState(false)
 
-  // Nieuwe project functie
+  // Nieuwe project functie - ALLEEN hier nieuwe projecten maken
   function newProject() {
     clearActive()
     const id = uuid()
     setActive(id)
-    saveProject(id, { flow: "new", meta: { orgLevel: "Organisatie" } })
+    saveProject(id, { 
+      flow: "start", 
+      meta: { orgLevel: "Organisatie" },
+      title: `Nieuwe Analyse - ${new Date().toLocaleDateString()}`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    })
+    console.log('🆕 Nieuw project aangemaakt:', id)
     window.location.href = `/sources?id=${id}`
+  }
+
+  // Verbeter concept functie - ALLEEN hier nieuwe improve projecten maken
+  function improveProject() {
+    clearActive()
+    const id = uuid()
+    setActive(id)
+    saveProject(id, { 
+      flow: "improve", 
+      meta: { orgLevel: "Organisatie" },
+      title: `Verbeter Concept - ${new Date().toLocaleDateString()}`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    })
+    console.log('🔄 Verbeter concept project aangemaakt:', id)
+    window.location.href = `/improve?id=${id}`
   }
 
   // Laad projecten bij component mount
@@ -301,11 +324,12 @@ export default function Home() {
                 </p>
               </div>
               
-              <Link href="/improve">
-                <button className="btn-secondary w-full py-4 px-6 text-lg font-semibold rounded-xl transition-all duration-200 transform hover:scale-105">
-                  Check een concept versie
-                </button>
-              </Link>
+              <button
+                onClick={improveProject}
+                className="btn-secondary w-full py-4 px-6 text-lg font-semibold rounded-xl transition-all duration-200 transform hover:scale-105"
+              >
+                Check een concept versie
+              </button>
             </div>
 
           </div>

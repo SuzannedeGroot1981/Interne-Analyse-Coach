@@ -41,7 +41,11 @@ export default function Evidence() {
       // Sla resultaat op in project
       if (id) {
         const currentProject = loadProject(id as string) || {};
-        saveProject(id as string, { ...currentProject, evidence: json });
+        saveProject(id as string, { 
+          ...currentProject, 
+          evidence: json,
+          updatedAt: new Date().toISOString()
+        });
       }
 
       console.log('✅ Evidence samenvatting voltooid:', {
@@ -79,6 +83,23 @@ export default function Evidence() {
     setError(null);
   };
 
+  // Veilige navigatie - controleer of project ID bestaat
+  const handleBack = () => {
+    if (id) {
+      window.location.href = `/sources?id=${id}`;
+    } else {
+      window.location.href = '/';
+    }
+  };
+
+  const handleContinue = () => {
+    if (id) {
+      window.location.href = `/start?id=${id}`;
+    } else {
+      window.location.href = '/';
+    }
+  };
+
   return (
     <>
       <Head>
@@ -94,13 +115,13 @@ export default function Evidence() {
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-between h-16">
               <button 
-                onClick={() => window.location.href = '/'}
+                onClick={handleBack}
                 className="inline-flex items-center text-purple-600 hover:text-purple-800 transition-colors"
               >
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
-                Terug naar hoofdmenu
+                Terug naar bronnen
               </button>
 
               <div className="flex items-center space-x-2">
@@ -308,7 +329,7 @@ export default function Evidence() {
               {/* Navigatie */}
               <div className="flex items-center justify-between">
                 <button
-                  onClick={() => window.location.href = `/sources?id=${id}`}
+                  onClick={handleBack}
                   className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center space-x-2"
                 >
                   <span>←</span>
@@ -316,7 +337,7 @@ export default function Evidence() {
                 </button>
 
                 <button 
-                  onClick={() => window.location.href = `/start?id=${id}`}
+                  onClick={handleContinue}
                   className="px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center space-x-2"
                 >
                   <span>Verder → Feitelijke situatie</span>
