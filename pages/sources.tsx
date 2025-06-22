@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { loadProject, saveProject, createProjectId } from "../utils/storage";
+import { setActive, getActive, saveProject, loadProject } from "../utils/storage";
 import { useRouter } from "next/router";
 import { nextLink, homeLink } from "../utils/nav";
 import Head from 'next/head'
+import { v4 as uuid } from "uuid";
 
 const S_ROWS = [
   { key:"Strategy", label:"Strategy",    voorbeeld:"Strategisch plan, SWOT" },
@@ -15,11 +16,18 @@ const S_ROWS = [
   { key:"Financiën", label:"Financiën",  voorbeeld:"Balans, resultaatrekening" },
 ];
 
+// Helper functie voor file naar base64 conversie
+async function fileToBase64(file: File) {
+  const b = await file.arrayBuffer();
+  return "data:" + file.type + ";base64," + btoa(String.fromCharCode(...new Uint8Array(b)));
+}
+
 export default function Sources() {
   const { query: { id } } = useRouter();
-  const [rows, setRows] = useState<Record<string, { bron: string, status: string, interview?: boolean, survey?: boolean }>>({});
+  const [rows, setRows] = useState<Record<string, any>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [actualProjectId, setActualProjectId] = useState<string>('');
+  const [orgName, setOrgName] = useState("");
 
   /* load & autosave */
   useEffect(() => {
@@ -27,11 +35,11 @@ export default function Sources() {
     
     // Als er geen ID is, maak een nieuw project
     if (!finalProjectId) {
-      finalProjectId = createProjectId();
+      finalProjectId = uuid();
       setActualProjectId(finalProjectId);
       
       // Initialize with default values for new project
-      setRows(Object.fromEntries(S_ROWS.map(r => [r.key, { bron: "", status: "Nog verzamelen", interview: false, survey: false }])));
+      setRows(Object.fromEntries(S_ROWS.map(r => [r.key, { bron: "", status: "Nog verzamelen", interview: false, survey: false, docs: [] }])));
       setIsLoading(false);
       return;
     }
@@ -40,28 +48,38 @@ export default function Sources() {
     
     const p = loadProject(finalProjectId);
     if (p) {
-      setRows(p.sources ?? Object.fromEntries(S_ROWS.map(r => [r.key, { bron: "", status: "Nog verzamelen", interview: false, survey: false }])));
+      setRows(p.sources ?? Object.fromEntries(S_ROWS.map(r => [r.key, { bron: "", status: "Nog verzamelen", interview: false, survey: false, docs: [] }])));
+      setOrgName(p.meta?.orgName || "");
     } else {
       // Initialize with default values if project not found
-      setRows(Object.fromEntries(S_ROWS.map(r => [r.key, { bron: "", status: "Nog verzamelen", interview: false, survey: false }])));
+      setRows(Object.fromEntries(S_ROWS.map(r => [r.key, { bron: "", status: "Nog verzamelen", interview: false, survey: false, docs: [] }])));
     }
     setIsLoading(false);
   }, [id]);
 
+  // Auto-save organisatienaam
   useEffect(() => {
     if (actualProjectId && !isLoading) {
       const currentProject = loadProject(actualProjectId) || {};
-      saveProject(actualProjectId, { 
-        ...currentProject, 
-        sources: rows, 
-        meta: { level: "Organisatie niveau" }, // Vast ingesteld op organisatieniveau
-        flow: "new"
-      });
+      saveProject(actualProjectId, (p: any) => ({
+        ...p,
+        meta: { ...(p.meta || {}), orgName }
+      }));
+    }
+  }, [orgName, actualProjectId, isLoading]);
+
+  // Auto-save rows
+  useEffect(() => {
+    if (actualProjectId && !isLoading) {
+      saveProject(actualProjectId, (p: any) => ({
+        ...p,
+        sources: rows
+      }));
     }
   }, [rows, actualProjectId, isLoading]);
 
-  function handle(rowKey: string, field: "bron" | "status" | "interview" | "survey", val: string | boolean) {
-    setRows(r => ({ ...r, [rowKey]: { ...r[rowKey], [field]: val } }));
+  function handle(rowKey: string, field: string, val: any) {
+    setRows(o => ({ ...o, [rowKey]: { ...o[rowKey], [field]: val } }));
   }
 
   function handleBack() {
@@ -75,7 +93,7 @@ export default function Sources() {
   }
 
   // Bereken voortgang
-  const completedRows = Object.values(rows).filter(row => row.status === "Klaar").length;
+  const completedRows = Object.values(rows).filter((row: any) => row.status === "Klaar").length;
   const progressPercentage = (completedRows / S_ROWS.length) * 100;
 
   if (isLoading) {
@@ -171,6 +189,19 @@ export default function Sources() {
                 />
               </div>
 
+              {/* Organisatienaam veld */}
+              <div className="mb-6">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  🏢 Organisatienaam
+                </label>
+                <input 
+                  value={orgName} 
+                  onChange={e => setOrgName(e.target.value)}
+                  placeholder="Naam van de organisatie die je analyseert..."
+                  className="border rounded w-full p-2 mb-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
               {/* Instructies */}
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
                 <h3 className="text-lg font-semibold text-blue-800 mb-3 flex items-center">
@@ -206,6 +237,7 @@ export default function Sources() {
                       <th className="p-4 text-left font-semibold text-gray-700 border-b">Status</th>
                       <th className="p-4 text-center font-semibold text-gray-700 border-b">Interviews gepland?</th>
                       <th className="p-4 text-center font-semibold text-gray-700 border-b">Enquête gereed?</th>
+                      <th className="p-4 text-center font-semibold text-gray-700 border-b">Documenten</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -262,6 +294,27 @@ export default function Sources() {
                             onChange={e => handle(r.key, "survey", e.target.checked)}
                             className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
                           />
+                        </td>
+                        <td className="p-2">
+                          <input 
+                            type="file" 
+                            multiple 
+                            accept=".pdf,.docx,.csv,.txt"
+                            onChange={async e => {
+                              const files = Array.from(e.target.files || []);
+                              const docs = await Promise.all(files.map(async f => ({
+                                name: f.name,
+                                data: await fileToBase64(f)
+                              })));
+                              handle(r.key, "docs", docs);
+                            }}
+                            className="text-xs"
+                          />
+                          {rows[r.key]?.docs?.length ? (
+                            <span className="text-xs text-gray-600 block mt-1">
+                              {rows[r.key].docs.length} bestand(en)
+                            </span>
+                          ) : null}
                         </td>
                       </tr>
                     ))}
