@@ -1,7 +1,149 @@
 // Storage utilities voor localStorage projectbeheer
-import { v4 as uuidv4 } from 'uuid'
+// Eenvoudige implementatie met lijst en actieve project tracking
 
-// Types voor project data
+// bewaar lijst én activeId in localStorage
+const KEY_LIST = "iac_projects";
+const KEY_ACTIVE = "iac_active";
+
+export interface Project {
+  id: string
+  data: any
+}
+
+export function listProjects(): Project[] {
+  if (typeof window === 'undefined') {
+    console.warn('listProjects: localStorage niet beschikbaar op server-side')
+    return []
+  }
+  
+  try {
+    const stored = localStorage.getItem(KEY_LIST)
+    return stored ? JSON.parse(stored) : []
+  } catch (error) {
+    console.error('❌ Fout bij laden projectenlijst:', error)
+    return []
+  }
+}
+
+export function saveProject(id: string, data: any): boolean {
+  if (typeof window === 'undefined') {
+    console.warn('saveProject: localStorage niet beschikbaar op server-side')
+    return false
+  }
+
+  try {
+    const list = listProjects()
+    const idx = list.findIndex(p => p.id === id)
+    
+    if (idx > -1) {
+      list[idx].data = data
+    } else {
+      list.push({ id, data })
+    }
+    
+    localStorage.setItem(KEY_LIST, JSON.stringify(list))
+    console.log('💾 Project opgeslagen:', id)
+    return true
+  } catch (error) {
+    console.error('❌ Fout bij opslaan project:', error)
+    return false
+  }
+}
+
+export function loadProject(id: string): any {
+  if (typeof window === 'undefined') {
+    console.warn('loadProject: localStorage niet beschikbaar op server-side')
+    return null
+  }
+
+  try {
+    const project = listProjects().find(p => p.id === id)
+    if (project) {
+      console.log('📖 Project geladen:', id)
+      return project.data
+    }
+    
+    console.warn('📂 Project niet gevonden:', id)
+    return null
+  } catch (error) {
+    console.error('❌ Fout bij laden project:', error)
+    return null
+  }
+}
+
+export function setActive(id: string): void {
+  if (typeof window === 'undefined') {
+    console.warn('setActive: localStorage niet beschikbaar op server-side')
+    return
+  }
+
+  try {
+    localStorage.setItem(KEY_ACTIVE, id)
+    console.log('🎯 Actief project ingesteld:', id)
+  } catch (error) {
+    console.error('❌ Fout bij instellen actief project:', error)
+  }
+}
+
+export function getActive(): string | null {
+  if (typeof window === 'undefined') {
+    console.warn('getActive: localStorage niet beschikbaar op server-side')
+    return null
+  }
+
+  try {
+    return localStorage.getItem(KEY_ACTIVE)
+  } catch (error) {
+    console.error('❌ Fout bij ophalen actief project:', error)
+    return null
+  }
+}
+
+export function clearActive(): void {
+  if (typeof window === 'undefined') {
+    console.warn('clearActive: localStorage niet beschikbaar op server-side')
+    return
+  }
+
+  try {
+    localStorage.removeItem(KEY_ACTIVE)
+    console.log('🗑️ Actief project gewist')
+  } catch (error) {
+    console.error('❌ Fout bij wissen actief project:', error)
+  }
+}
+
+// Verwijder project
+export function deleteProject(id: string): boolean {
+  if (typeof window === 'undefined') {
+    console.warn('deleteProject: localStorage niet beschikbaar op server-side')
+    return false
+  }
+
+  try {
+    const list = listProjects()
+    const filteredList = list.filter(p => p.id !== id)
+    localStorage.setItem(KEY_LIST, JSON.stringify(filteredList))
+    
+    // Clear active als dit het actieve project was
+    if (getActive() === id) {
+      clearActive()
+    }
+    
+    console.log('🗑️ Project verwijderd:', id)
+    return true
+  } catch (error) {
+    console.error('❌ Fout bij verwijderen project:', error)
+    return false
+  }
+}
+
+// Maak nieuw project ID (eenvoudige implementatie)
+export function createProjectId(): string {
+  return `iac_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+}
+
+// Helper types voor backwards compatibility
 export interface ProjectSummary {
   id: string
   title: string
@@ -18,10 +160,9 @@ export interface ProjectData {
   updatedAt: string
 }
 
-// Genereer of haal gebruiker-ID op
+// Backwards compatibility functies
 export function getOrCreateUserId(): string {
   if (typeof window === 'undefined') {
-    // Server-side: return dummy ID
     return 'server-side'
   }
 
@@ -29,173 +170,12 @@ export function getOrCreateUserId(): string {
   let userId = localStorage.getItem(storageKey)
   
   if (!userId) {
-    // Genereer nieuwe UUID voor gebruiker
-    userId = uuidv4()
+    userId = createProjectId()
     localStorage.setItem(storageKey, userId)
     console.log('🆔 Nieuwe gebruiker-ID gegenereerd:', userId)
   }
   
   return userId
-}
-
-// Sla project op in localStorage
-export function saveProject(id: string, data: any): boolean {
-  try {
-    if (typeof window === 'undefined') {
-      console.warn('saveProject: localStorage niet beschikbaar op server-side')
-      return false
-    }
-
-    const userId = getOrCreateUserId()
-    const storageKey = `iac_project_${id}`
-    
-    const projectData: ProjectData = {
-      id,
-      title: data.title || `Project ${id.slice(0, 8)}`,
-      flow: data.flow || 'start',
-      data,
-      createdAt: data.createdAt || new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    }
-
-    localStorage.setItem(storageKey, JSON.stringify(projectData))
-    
-    // Update project index
-    updateProjectIndex(id, projectData)
-    
-    console.log('💾 Project opgeslagen:', id, projectData.title)
-    return true
-  } catch (error) {
-    console.error('❌ Fout bij opslaan project:', error)
-    return false
-  }
-}
-
-// Laad project uit localStorage
-export function loadProject(id: string): ProjectData | null {
-  try {
-    if (typeof window === 'undefined') {
-      console.warn('loadProject: localStorage niet beschikbaar op server-side')
-      return null
-    }
-
-    const storageKey = `iac_project_${id}`
-    const stored = localStorage.getItem(storageKey)
-    
-    if (!stored) {
-      console.warn('📂 Project niet gevonden:', id)
-      return null
-    }
-
-    const projectData: ProjectData = JSON.parse(stored)
-    console.log('📖 Project geladen:', id, projectData.title)
-    return projectData
-  } catch (error) {
-    console.error('❌ Fout bij laden project:', error)
-    return null
-  }
-}
-
-// Haal lijst van alle projecten op
-export function listProjects(): ProjectSummary[] {
-  try {
-    if (typeof window === 'undefined') {
-      console.warn('listProjects: localStorage niet beschikbaar op server-side')
-      return []
-    }
-
-    const indexKey = 'iac_project_index'
-    const stored = localStorage.getItem(indexKey)
-    
-    if (!stored) {
-      console.log('📋 Geen projecten gevonden')
-      return []
-    }
-
-    const projectIndex: ProjectSummary[] = JSON.parse(stored)
-    
-    // Sorteer op updatedAt (nieuwste eerst)
-    const sortedProjects = projectIndex.sort((a, b) => 
-      new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-    )
-    
-    console.log('📋 Projecten geladen:', sortedProjects.length)
-    return sortedProjects
-  } catch (error) {
-    console.error('❌ Fout bij laden projectenlijst:', error)
-    return []
-  }
-}
-
-// Update project index (interne functie)
-function updateProjectIndex(id: string, projectData: ProjectData): void {
-  try {
-    const indexKey = 'iac_project_index'
-    const stored = localStorage.getItem(indexKey)
-    let projectIndex: ProjectSummary[] = stored ? JSON.parse(stored) : []
-    
-    // Zoek bestaand project in index
-    const existingIndex = projectIndex.findIndex(p => p.id === id)
-    
-    const summary: ProjectSummary = {
-      id: projectData.id,
-      title: projectData.title,
-      flow: projectData.flow,
-      updatedAt: projectData.updatedAt
-    }
-    
-    if (existingIndex >= 0) {
-      // Update bestaand project
-      projectIndex[existingIndex] = summary
-    } else {
-      // Voeg nieuw project toe
-      projectIndex.push(summary)
-    }
-    
-    // Beperk tot laatste 50 projecten
-    if (projectIndex.length > 50) {
-      projectIndex = projectIndex
-        .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
-        .slice(0, 50)
-    }
-    
-    localStorage.setItem(indexKey, JSON.stringify(projectIndex))
-  } catch (error) {
-    console.error('❌ Fout bij updaten project index:', error)
-  }
-}
-
-// Verwijder project
-export function deleteProject(id: string): boolean {
-  try {
-    if (typeof window === 'undefined') {
-      console.warn('deleteProject: localStorage niet beschikbaar op server-side')
-      return false
-    }
-
-    const storageKey = `iac_project_${id}`
-    localStorage.removeItem(storageKey)
-    
-    // Update index
-    const indexKey = 'iac_project_index'
-    const stored = localStorage.getItem(indexKey)
-    if (stored) {
-      const projectIndex: ProjectSummary[] = JSON.parse(stored)
-      const filteredIndex = projectIndex.filter(p => p.id !== id)
-      localStorage.setItem(indexKey, JSON.stringify(filteredIndex))
-    }
-    
-    console.log('🗑️ Project verwijderd:', id)
-    return true
-  } catch (error) {
-    console.error('❌ Fout bij verwijderen project:', error)
-    return false
-  }
-}
-
-// Maak nieuw project ID
-export function createProjectId(): string {
-  return uuidv4()
 }
 
 // Cleanup oude projecten (optioneel)
@@ -212,7 +192,8 @@ export function cleanupOldProjects(maxAge: number = 30): number {
     let deletedCount = 0
     
     projects.forEach(project => {
-      const projectDate = new Date(project.updatedAt)
+      // Check if project has updatedAt in data
+      const projectDate = project.data?.updatedAt ? new Date(project.data.updatedAt) : new Date(0)
       if (projectDate < cutoffDate) {
         deleteProject(project.id)
         deletedCount++
