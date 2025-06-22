@@ -14,7 +14,7 @@ export default function Home() {
         <div className="container mx-auto px-4 py-16">
           {/* Header */}
           <div className="text-center mb-16">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-blue-600 rounded-full mb-8">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-primary rounded-full mb-8">
               <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
@@ -24,7 +24,7 @@ export default function Home() {
               Interne Analyse Coach
             </h1>
             
-            <p className="text-xl text-blue-700 font-medium mb-8 max-w-2xl mx-auto">
+            <p className="text-xl text-primary font-medium mb-8 max-w-2xl mx-auto">
               Gebruik AI om diepgaande interne analyses uit te voeren en bestaande concepten te verbeteren met professionele inzichten.
             </p>
           </div>
