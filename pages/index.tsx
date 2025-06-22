@@ -210,7 +210,7 @@ export default function Home() {
                       {formatDate(project.updatedAt)}
                     </p>
                     
-                    <Link href={`/${project.flow}?id=${project.id}`}>
+                    <Link href={`/sources?id=${project.id}`}>
                       <button className={`w-full text-sm py-2 px-3 rounded transition-colors ${
                         project.id === activeId
                           ? 'bg-primary text-white hover:bg-green-700'
@@ -246,11 +246,11 @@ export default function Home() {
           </div>
         )}
 
-        {/* Main Action Buttons - Terug naar originele versie */}
+        {/* Main Action Buttons - Correcte workflow */}
         <div className="max-w-4xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             
-            {/* Begin nieuwe analyse */}
+            {/* Start nieuwe interne analyse - CORRECTE WORKFLOW */}
             <div className="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
               <div className="text-center mb-6">
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
@@ -259,7 +259,7 @@ export default function Home() {
                   </svg>
                 </div>
                 <h2 className="text-2xl font-bold text-gray-800 mb-3">
-                  Start Nieuwe Analyse
+                  Start Nieuwe Interne Analyse
                 </h2>
                 <p className="text-gray-600 mb-6">
                   Begin een volledig nieuwe interne analyse van je organisatie volgens het 7S-model met AI-ondersteuning.
@@ -273,7 +273,7 @@ export default function Home() {
               </Link>
             </div>
 
-            {/* Verbeter bestaand concept */}
+            {/* Check een concept versie */}
             <div className="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
               <div className="text-center mb-6">
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
@@ -282,7 +282,7 @@ export default function Home() {
                   </svg>
                 </div>
                 <h2 className="text-2xl font-bold text-gray-800 mb-3">
-                  Verbeter Bestaand Concept
+                  Check een Concept Versie
                 </h2>
                 <p className="text-gray-600 mb-6">
                   Upload je bestaande analyse of concept en laat AI helpen bij het identificeren van verbeterpunten en optimalisaties.
@@ -291,7 +291,7 @@ export default function Home() {
               
               <Link href="/improve">
                 <button className="btn-secondary w-full py-4 px-6 text-lg font-semibold rounded-xl transition-all duration-200 transform hover:scale-105">
-                  Verbeter een bestaand concept
+                  Check een concept versie
                 </button>
               </Link>
             </div>
