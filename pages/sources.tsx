@@ -17,9 +17,45 @@ const S_ROWS = [
 ];
 
 // Helper functie voor file naar base64 conversie
-async function fileToBase64(file: File) {
-  const b = await file.arrayBuffer();
-  return "data:" + file.type + ";base64," + btoa(String.fromCharCode(...new Uint8Array(b)));
+async function fileToB64(f: File) {
+  const ab = await f.arrayBuffer();
+  return {
+    name: f.name,
+    type: f.type || "text/plain",
+    data: "data:" + (f.type || "") + ";base64," +
+          btoa(String.fromCharCode(...new Uint8Array(ab)))
+  };
+}
+
+function handleDocs(row: string, fileList: FileList | null, rows: Record<string, any>, handle: (rowKey: string, field: string, val: any) => void) {
+  const files = Array.from(fileList || []);
+  Promise.all(files.map(fileToB64)).then(list => {
+    handle(row, "docs", list);
+  });
+}
+
+async function summarize(row: string, rows: Record<string, any>, handle: (rowKey: string, field: string, val: any) => void) {
+  const docs = rows[row]?.docs || [];
+  if (!docs.length) return alert("Geen documenten geüpload.");
+  
+  try {
+    const res = await fetch("/api/summarize-docs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ element: row, docs })
+    });
+    
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.error || 'Samenvatting mislukt');
+    }
+    
+    const { summary } = await res.json();
+    handle(row, "summary", summary);
+  } catch (error) {
+    console.error('❌ Samenvatting fout:', error);
+    alert(`Fout bij samenvatting: ${error instanceof Error ? error.message : 'Onbekende fout'}`);
+  }
 }
 
 export default function Sources() {
@@ -39,7 +75,7 @@ export default function Sources() {
       setActualProjectId(finalProjectId);
       
       // Initialize with default values for new project
-      setRows(Object.fromEntries(S_ROWS.map(r => [r.key, { bron: "", status: "Nog verzamelen", interview: false, survey: false, docs: [] }])));
+      setRows(Object.fromEntries(S_ROWS.map(r => [r.key, { bron: "", status: "Nog verzamelen", survey: false, docs: [] }])));
       setIsLoading(false);
       return;
     }
@@ -48,11 +84,11 @@ export default function Sources() {
     
     const p = loadProject(finalProjectId);
     if (p) {
-      setRows(p.sources ?? Object.fromEntries(S_ROWS.map(r => [r.key, { bron: "", status: "Nog verzamelen", interview: false, survey: false, docs: [] }])));
+      setRows(p.sources ?? Object.fromEntries(S_ROWS.map(r => [r.key, { bron: "", status: "Nog verzamelen", survey: false, docs: [] }])));
       setOrgName(p.meta?.orgName || "");
     } else {
       // Initialize with default values if project not found
-      setRows(Object.fromEntries(S_ROWS.map(r => [r.key, { bron: "", status: "Nog verzamelen", interview: false, survey: false, docs: [] }])));
+      setRows(Object.fromEntries(S_ROWS.map(r => [r.key, { bron: "", status: "Nog verzamelen", survey: false, docs: [] }])));
     }
     setIsLoading(false);
   }, [id]);
@@ -235,7 +271,6 @@ export default function Sources() {
                       <th className="p-4 text-left font-semibold text-gray-700 border-b">Benodigde gegevens</th>
                       <th className="p-4 text-left font-semibold text-gray-700 border-b">Mijn bronnen</th>
                       <th className="p-4 text-left font-semibold text-gray-700 border-b">Status</th>
-                      <th className="p-4 text-center font-semibold text-gray-700 border-b">Interviews gepland?</th>
                       <th className="p-4 text-center font-semibold text-gray-700 border-b">Enquête gereed?</th>
                       <th className="p-4 text-center font-semibold text-gray-700 border-b">Documenten</th>
                     </tr>
@@ -282,14 +317,6 @@ export default function Sources() {
                         <td className="p-2 text-center">
                           <input 
                             type="checkbox"
-                            checked={rows[r.key]?.interview || false}
-                            onChange={e => handle(r.key, "interview", e.target.checked)}
-                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
-                          />
-                        </td>
-                        <td className="p-2 text-center">
-                          <input 
-                            type="checkbox"
                             checked={rows[r.key]?.survey || false}
                             onChange={e => handle(r.key, "survey", e.target.checked)}
                             className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
@@ -300,21 +327,25 @@ export default function Sources() {
                             type="file" 
                             multiple 
                             accept=".pdf,.docx,.csv,.txt"
-                            onChange={async e => {
-                              const files = Array.from(e.target.files || []);
-                              const docs = await Promise.all(files.map(async f => ({
-                                name: f.name,
-                                data: await fileToBase64(f)
-                              })));
-                              handle(r.key, "docs", docs);
-                            }}
+                            onChange={e => handleDocs(r.key, e.target.files, rows, handle)}
                             className="text-xs"
                           />
                           {rows[r.key]?.docs?.length ? (
-                            <span className="text-xs text-gray-600 block mt-1">
-                              {rows[r.key].docs.length} bestand(en)
-                            </span>
+                            <div className="text-xs text-gray-600">
+                              {rows[r.key].docs.length} bestand(en) –&nbsp;
+                              <button 
+                                className="underline"
+                                onClick={() => summarize(r.key, rows, handle)}
+                              >
+                                Samenvat
+                              </button>
+                            </div>
                           ) : null}
+                          {rows[r.key]?.summary && (
+                            <div className="text-xs mt-1 bg-gray-50 p-2 border rounded">
+                              <b>Samenvatting:</b><br/>{rows[r.key].summary}
+                            </div>
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -340,16 +371,6 @@ export default function Sources() {
                     </ul>
                   </div>
                   <div>
-                    <h4 className="font-medium text-gray-800 mb-2">👥 Interviews</h4>
-                    <ul className="space-y-1 text-xs">
-                      <li>• Gesprekken met sleutelpersonen</li>
-                      <li>• Management en teamleiders</li>
-                      <li>• Ervaren medewerkers</li>
-                      <li>• Stakeholders en klanten</li>
-                      <li>• Externe adviseurs</li>
-                    </ul>
-                  </div>
-                  <div>
                     <h4 className="font-medium text-gray-800 mb-2">📊 Enquêtes</h4>
                     <ul className="space-y-1 text-xs">
                       <li>• Medewerkerstevredenheidsonderzoeken</li>
@@ -357,6 +378,16 @@ export default function Sources() {
                       <li>• 360-graden feedback</li>
                       <li>• Klantentevredenheidsonderzoeken</li>
                       <li>• Competentie-assessments</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-800 mb-2">🔧 Documenten Samenvatting</h4>
+                    <ul className="space-y-1 text-xs">
+                      <li>• Upload documenten per 7S-onderdeel</li>
+                      <li>• Klik "Samenvat" voor AI-samenvatting</li>
+                      <li>• Gebruik samenvattingen in je analyse</li>
+                      <li>• Ondersteunde formaten: PDF, DOCX, CSV, TXT</li>
+                      <li>• Max 5MB per bestand aanbevolen</li>
                     </ul>
                   </div>
                 </div>
