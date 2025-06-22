@@ -2,9 +2,10 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import pdfParse from "pdf-parse";
 import mammoth from "mammoth";
 import Papa from "papaparse";
+import { Buffer } from "buffer";
 import { allow } from '../../utils/rateLimit';
 
-const GEMINI = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent`;
+const GEMINI = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent";
 const key = process.env.GEMINI_API_KEY;
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
