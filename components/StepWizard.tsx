@@ -123,6 +123,7 @@ export default function StepWizard({ projectId, flow, onSave }: StepWizardProps)
   const [lastQuotaError, setLastQuotaError] = useState<Date | null>(null)
   const [projectMeta, setProjectMeta] = useState<{ orgName?: string, level?: string }>({})
   const [isCheckingAPA, setIsCheckingAPA] = useState(false)
+  const [evidence, setEvidence] = useState<any>(null) // Voor evidence data
 
   // Initialiseer wizard data
   useEffect(() => {
@@ -149,6 +150,16 @@ export default function StepWizard({ projectId, flow, onSave }: StepWizardProps)
           setWizardData(existingProject.wizardData)
           setCurrentProjectData(existingProject)
           setProjectMeta(existingProject.meta || {})
+          
+          // Laad evidence data als beschikbaar
+          if (existingProject.evidence) {
+            setEvidence(existingProject.evidence)
+            console.log('📋 Evidence data geladen:', {
+              hasEvidence: !!existingProject.evidence,
+              evidenceKeys: Object.keys(existingProject.evidence || {})
+            })
+          }
+          
           console.log('📖 Bestaande wizard data geladen')
         } else {
           // Initialiseer lege wizard data
@@ -512,12 +523,33 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
     }
   }
 
+  // Helper functie om evidence voor huidige stap te krijgen
+  const getEvidenceForStep = (stepId: string) => {
+    if (!evidence) return null
+    
+    // Map step IDs naar evidence keys
+    const evidenceKeyMap: { [key: string]: string } = {
+      'strategy': 'Strategy',
+      'structure': 'Structure', 
+      'systems': 'Systems',
+      'shared-values': 'Shared Values',
+      'skills': 'Skills',
+      'style': 'Style',
+      'staff': 'Staff',
+      'finances': 'Financiën'
+    }
+    
+    const evidenceKey = evidenceKeyMap[stepId]
+    return evidenceKey ? evidence[evidenceKey] : null
+  }
+
   // Bereken voortgang
   const completedSteps = Object.values(wizardData).filter(step => step.completed).length
   const progressPercentage = (completedSteps / STEPS.length) * 100
 
   const currentStepData = STEPS[currentStep]
   const currentWizardData = wizardData[currentStepData?.id] || { current: '', desired: '', completed: false }
+  const currentEvidence = getEvidenceForStep(currentStepData?.id)
 
   return (
     <div className="max-w-6xl mx-auto p-6">
@@ -663,10 +695,10 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
             </div>
           )}
 
-          {/* Tekstvelden - alleen feitelijke situatie */}
-          <div className="mb-6">
-            {/* Feitelijke situatie */}
-            <div>
+          {/* Tekstvelden met evidence - grid layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            {/* Feitelijke situatie - 2/3 breedte */}
+            <div className="lg:col-span-2">
               <label className="block text-sm font-semibold text-gray-700 mb-3">
                 📊 Feitelijke Situatie
               </label>
@@ -679,51 +711,94 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
                 placeholder="Beschrijf de huidige feitelijke situatie..."
                 className="w-full h-40 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
               />
+
+              {/* Gewenste situatie (optioneel) */}
+              <div className="mt-6">
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  🎯 Gewenste Situatie (Optioneel)
+                </label>
+                <p className="text-sm text-gray-600 mb-3">
+                  Beschrijf eventueel ook de gewenste toekomstige situatie voor dit onderdeel.
+                </p>
+                <textarea
+                  value={currentWizardData.desired}
+                  onChange={(e) => updateStepData(currentStepData.id, 'desired', e.target.value)}
+                  placeholder="Beschrijf de gewenste situatie (optioneel)..."
+                  className="w-full h-32 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+                />
+              </div>
+
+              {/* APA Self-check knop */}
+              <div className="mt-4">
+                <button
+                  onClick={checkAPA}
+                  disabled={isCheckingAPA}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${
+                    isCheckingAPA
+                      ? 'bg-gray-100 text-gray-500 border-gray-300 cursor-not-allowed'
+                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+                  }`}
+                  title="Controleer je bronvermeldingen en citaten volgens APA-richtlijnen"
+                >
+                  {isCheckingAPA ? (
+                    <div className="flex items-center space-x-2">
+                      <div className="animate-spin w-3 h-3 border border-gray-500 border-t-transparent rounded-full" />
+                      <span>Controleren...</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center space-x-2">
+                      <span>📝</span>
+                      <span>Self-check APA</span>
+                    </div>
+                  )}
+                </button>
+                <p className="text-xs text-gray-500 mt-1">
+                  Controleert bronvermeldingen en citaten in alle ingevulde stappen
+                </p>
+              </div>
             </div>
 
-            {/* Gewenste situatie (optioneel) */}
-            <div className="mt-6">
-              <label className="block text-sm font-semibold text-gray-700 mb-3">
-                🎯 Gewenste Situatie (Optioneel)
-              </label>
-              <p className="text-sm text-gray-600 mb-3">
-                Beschrijf eventueel ook de gewenste toekomstige situatie voor dit onderdeel.
-              </p>
-              <textarea
-                value={currentWizardData.desired}
-                onChange={(e) => updateStepData(currentStepData.id, 'desired', e.target.value)}
-                placeholder="Beschrijf de gewenste situatie (optioneel)..."
-                className="w-full h-32 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
-              />
-            </div>
-
-            {/* APA Self-check knop */}
-            <div className="mt-4">
-              <button
-                onClick={checkAPA}
-                disabled={isCheckingAPA}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${
-                  isCheckingAPA
-                    ? 'bg-gray-100 text-gray-500 border-gray-300 cursor-not-allowed'
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
-                }`}
-                title="Controleer je bronvermeldingen en citaten volgens APA-richtlijnen"
-              >
-                {isCheckingAPA ? (
-                  <div className="flex items-center space-x-2">
-                    <div className="animate-spin w-3 h-3 border border-gray-500 border-t-transparent rounded-full" />
-                    <span>Controleren...</span>
+            {/* Evidence sidebar - 1/3 breedte */}
+            <div className="lg:col-span-1">
+              {currentEvidence ? (
+                <aside className="bg-gray-50 p-4 text-sm border-l-4 border-primary/60 rounded-lg">
+                  <div className="flex items-center mb-3">
+                    <span className="text-lg mr-2">🎤</span>
+                    <b className="text-gray-800">Interview/Enquête-bevinding:</b>
                   </div>
-                ) : (
-                  <div className="flex items-center space-x-2">
-                    <span>📝</span>
-                    <span>Self-check APA</span>
+                  <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+                    {currentEvidence}
                   </div>
-                )}
-              </button>
-              <p className="text-xs text-gray-500 mt-1">
-                Controleert bronvermeldingen en citaten in alle ingevulde stappen
-              </p>
+                  <div className="mt-3 pt-3 border-t border-gray-200">
+                    <p className="text-xs text-gray-500">
+                      💡 Gebruik deze bevindingen als basis voor je analyse
+                    </p>
+                  </div>
+                </aside>
+              ) : (
+                <aside className="bg-blue-50 p-4 text-sm border-l-4 border-blue-300 rounded-lg">
+                  <div className="flex items-center mb-3">
+                    <span className="text-lg mr-2">💡</span>
+                    <b className="text-blue-800">Geen evidence beschikbaar</b>
+                  </div>
+                  <div className="text-blue-700">
+                    <p className="mb-2">
+                      Voor dit onderdeel zijn nog geen interview- of enquête-bevindingen beschikbaar.
+                    </p>
+                    <p className="text-xs">
+                      Ga naar de <strong>Evidence</strong> stap om interview-transcripten en enquête-data te uploaden voor AI-samenvatting.
+                    </p>
+                  </div>
+                  <div className="mt-3">
+                    <button
+                      onClick={() => window.location.href = `/evidence?id=${actualProjectId}`}
+                      className="text-xs text-blue-600 hover:text-blue-800 underline"
+                    >
+                      → Ga naar Evidence stap
+                    </button>
+                  </div>
+                </aside>
+              )}
             </div>
           </div>
 
