@@ -1,64 +1,82 @@
-import Head from 'next/head'
-import Link from 'next/link'
-import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react'
-import StepWizard from '../components/StepWizard'
+import { useState, useEffect } from "react";
+import Layout from "../components/Layout";
+import { saveProject, loadProject } from "../utils/storage";
 
-export default function Improve() {
-  const router = useRouter()
-  const [projectId, setProjectId] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+const S_ELEMENTS = [
+  "Strategy",
+  "Structure",
+  "Systems",
+  "Shared Values",
+  "Skills",
+  "Style",
+  "Staff",
+] as const;
 
+export default function ImprovePage() {
+  // ───────────────────────────── state & load ─────────────────────────────
+  const projectId =
+    typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search).get("id") ?? "improve-demo"
+      : "improve-demo";
+
+  const [fields, setFields] = useState<Record<string, string>>(
+    () =>
+      loadProject(projectId)?.data ?? // al opgeslagen?
+      Object.fromEntries(S_ELEMENTS.map((s) => [s, ""]))
+  );
+
+  // ─────────────────────────── autosave per wijziging ─────────────────────
   useEffect(() => {
-    // Check voor project parameter in URL
-    const { project } = router.query
-    if (project && typeof project === 'string') {
-      setProjectId(project)
-    }
-    setIsLoading(false)
-  }, [router.query])
+    saveProject(projectId, { flow: "improve", data: fields });
+  }, [fields, projectId]);
 
-  const handleSave = (data: any) => {
-    console.log('📊 Project data opgeslagen:', data)
+  // ──────────────────────────── helpers ───────────────────────────────────
+  function handleChange(key: string, value: string) {
+    setFields((f) => ({ ...f, [key]: value }));
   }
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Project laden...</p>
-        </div>
-      </div>
-    )
+  async function askCoach() {
+    const res = await fetch("/api/coach", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tekst: fields, stapId: "improve" }),
+    });
+    const { answer } = await res.json();
+    alert(answer); // eenvoudig: popup; later kun je dit mooier tonen
   }
 
+  // ─────────────────────────────── UI ─────────────────────────────────────
   return (
-    <>
-      <Head>
-        <title>Verbeter Bestaand Concept - Interne Analyse Coach</title>
-      </Head>
+    <Layout>
+      <h2 className="text-xl font-semibold mb-4">
+        Verbeter een bestaand concept
+      </h2>
 
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div className="container mx-auto px-4 py-8">
-          {/* Terug knop */}
-          <div className="mb-6">
-            <Link href="/" className="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors">
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              Terug naar hoofdmenu
-            </Link>
-          </div>
-
-          {/* StepWizard Component */}
-          <StepWizard 
-            projectId={projectId || undefined}
-            flow="improve"
-            onSave={handleSave}
+      {S_ELEMENTS.map((s) => (
+        <div key={s} className="mb-6">
+          <label className="font-medium block mb-2">{s}</label>
+          <textarea
+            value={fields[s]}
+            onChange={(e) => handleChange(s, e.target.value)}
+            placeholder={`Plak hier je huidige uitwerking voor '${s}'`}
+            className="w-full h-32 border rounded p-3"
           />
         </div>
-      </div>
-    </>
-  )
+      ))}
+
+      <button
+        onClick={askCoach}
+        className="btn-primary mt-4"
+      >
+        Vraag coach-feedback
+      </button>
+
+      <a
+        href="/"
+        className="inline-block mt-6 text-primary underline"
+      >
+        ← Terug naar start
+      </a>
+    </Layout>
+  );
 }
