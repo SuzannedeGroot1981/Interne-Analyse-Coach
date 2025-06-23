@@ -50,13 +50,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // logo niet gevonden → geen header
   }
 
-  /* ---------------- Word-document maken ------------------ */
-  const docxBuffer = await htmlToDocx(html, null, {
-    header: true,
-    footer: true,
-    pageNumber: true,
+  /* ------------ Word-document maken ------------- */
+  const options: any = {
+    header:      true,
+    footer:      true,
+    pageNumber:  true,
     headerHtml,
-  });
+  };
+
+  // cast naar 'any' zodat TypeScript niet meer klaagt
+  const docxBuffer = await htmlToDocx(html, null, options as any);
 
   res.setHeader(
     "Content-Type",
