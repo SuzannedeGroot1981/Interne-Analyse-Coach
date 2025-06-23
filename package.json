@@ -10,14 +10,14 @@
     "coaching",
     "typescript"
   ],
+  "engines": {
+    "node": "18.x"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
-  },
-  "engines": {
-    "node": "18.x"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
