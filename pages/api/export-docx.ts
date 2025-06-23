@@ -35,7 +35,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   });
   if (data?.Financiën) md += `## Financiën\n\n${data.Financiën}\n\n`;
 
-  const html = marked.parse(md);
+  // Fix: await the marked.parse() call since it returns a Promise<string>
+  const html = await marked.parse(md);
 
   /* ---------------- HL-logo in header -------------------- */
   const logoPath = path.resolve("./public/images/Logo_HL_Donkergroen_RGB.png");

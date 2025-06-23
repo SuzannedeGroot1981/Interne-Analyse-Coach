@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import { marked } from "marked";
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST")
     return res.status(405).json({ message: "Alleen POST" });
 
@@ -25,5 +26,6 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   });
   if (data?.Financiën) md += `## Financiën\n\n${data.Financiën}\n\n`;
 
+  // Fix: Return the markdown directly since this API returns markdown, not HTML
   res.json({ markdown: md });
 }
