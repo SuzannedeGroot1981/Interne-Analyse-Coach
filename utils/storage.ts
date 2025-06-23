@@ -10,7 +10,24 @@ export interface Project {
   data: any
 }
 
-export function listProjects(): Project[] {
+// Helper types voor backwards compatibility
+export interface ProjectSummary {
+  id: string
+  title: string
+  flow: 'start' | 'improve'
+  updatedAt: string
+}
+
+export interface ProjectData {
+  id: string
+  title: string
+  flow: 'start' | 'improve'
+  data: any
+  createdAt: string
+  updatedAt: string
+}
+
+export function listProjects(): ProjectSummary[] {
   if (typeof window === 'undefined') {
     console.warn('listProjects: localStorage niet beschikbaar op server-side')
     return []
@@ -18,9 +35,33 @@ export function listProjects(): Project[] {
   
   try {
     const stored = localStorage.getItem(KEY_LIST)
-    return stored ? JSON.parse(stored) : []
+    const rawProjects: Project[] = stored ? JSON.parse(stored) : []
+    
+    // Map Project[] to ProjectSummary[]
+    return rawProjects.map(project => ({
+      id: project.id,
+      title: project.data?.title || 'Untitled Project',
+      flow: project.data?.flow || 'start',
+      updatedAt: project.data?.updatedAt || new Date().toISOString()
+    }))
   } catch (error) {
     console.error('❌ Fout bij laden projectenlijst:', error)
+    return []
+  }
+}
+
+// Internal function to get raw projects for save/load operations
+function getRawProjects(): Project[] {
+  if (typeof window === 'undefined') {
+    console.warn('getRawProjects: localStorage niet beschikbaar op server-side')
+    return []
+  }
+  
+  try {
+    const stored = localStorage.getItem(KEY_LIST)
+    return stored ? JSON.parse(stored) : []
+  } catch (error) {
+    console.error('❌ Fout bij laden raw projectenlijst:', error)
     return []
   }
 }
@@ -32,7 +73,7 @@ export function saveProject(id: string, data: any): boolean {
   }
 
   try {
-    const list = listProjects()
+    const list = getRawProjects()
     const idx = list.findIndex(p => p.id === id)
     
     if (idx > -1) {
@@ -57,7 +98,7 @@ export function loadProject(id: string): any {
   }
 
   try {
-    const project = listProjects().find(p => p.id === id)
+    const project = getRawProjects().find(p => p.id === id)
     if (project) {
       console.log('📖 Project geladen:', id)
       return project.data
@@ -121,7 +162,7 @@ export function deleteProject(id: string): boolean {
   }
 
   try {
-    const list = listProjects()
+    const list = getRawProjects()
     const filteredList = list.filter(p => p.id !== id)
     localStorage.setItem(KEY_LIST, JSON.stringify(filteredList))
     
@@ -141,23 +182,6 @@ export function deleteProject(id: string): boolean {
 // Maak nieuw project ID (eenvoudige implementatie)
 export function createProjectId(): string {
   return `iac_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-}
-
-// Helper types voor backwards compatibility
-export interface ProjectSummary {
-  id: string
-  title: string
-  flow: 'start' | 'improve'
-  updatedAt: string
-}
-
-export interface ProjectData {
-  id: string
-  title: string
-  flow: 'start' | 'improve'
-  data: any
-  createdAt: string
-  updatedAt: string
 }
 
 // Backwards compatibility functies
@@ -188,7 +212,7 @@ export function cleanupOldProjects(maxAge: number = 30): number {
     const cutoffDate = new Date()
     cutoffDate.setDate(cutoffDate.getDate() - maxAge)
     
-    const projects = listProjects()
+    const projects = getRawProjects()
     let deletedCount = 0
     
     projects.forEach(project => {
