@@ -35,25 +35,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   });
   if (data?.Financiën) md += `## Financiën\n\n${data.Financiën}\n\n`;
 
-  /* ---------- MARKDOWN ➜ HTML (altijd string!) ------ */
-  const parsed = await marked.parse(md);
-  const html = typeof parsed === "string" ? parsed : String(parsed);
+  // Fix: await the marked.parse() call since it returns a Promise<string>
+  const html = await marked.parse(md);
 
-  /* ---------- HL-logo in header (optioneel) --------- */
+  /* ---------------- HL-logo in header -------------------- */
   const logoPath = path.resolve("./public/images/Logo_HL_Donkergroen_RGB.png");
   let headerHtml = "";
   try {
     const buf = await fs.readFile(logoPath);
-    headerHtml = `<img src="data:image/png;base64,${buf.toString("base64")}" height="35"/>`;
+    headerHtml = `<img src="data:image/png;base64,${buf.toString(
+      "base64"
+    )}" height="35"/>`;
   } catch {
     // logo niet gevonden → geen header
   }
 
-  /* ---------- HTML ➜ DOCX  -------------------------- */
+  /* ------------ Word-document maken ------------- */
   const options: any = {
-    header: true,
-    footer: true,
-    pageNumber: true,
+    header:      true,
+    footer:      true,
+    pageNumber:  true,
     headerHtml,
   };
 
