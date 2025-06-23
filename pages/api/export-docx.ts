@@ -52,10 +52,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   /* ------------ Word-document maken ------------- */
   const docxBuffer = await htmlToDocx(html, null, {
-    header: true,
-    footer: true,
-    pageNumber: true,
-    headerHtml,
+    header: {
+      has: true,
+      html: headerHtml,
+    },
+    footer: {
+      has: true,
+      pageNumber: true,
+    },
   });
 
   res.setHeader(
