@@ -36,6 +36,7 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "@types/html-to-docx": "^1.8.0",
     "@types/node": "^22.10.2",
     "@types/papaparse": "^5.3.14",
     "@types/react": "^18.3.18",
