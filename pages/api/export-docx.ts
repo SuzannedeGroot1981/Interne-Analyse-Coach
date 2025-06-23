@@ -35,8 +35,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   });
   if (data?.Financiën) md += `## Financiën\n\n${data.Financiën}\n\n`;
 
-  // Fix: await the marked.parse() call since it returns a Promise<string>
-  const html = await marked.parse(md);
+  // Convert markdown to HTML
+  const html: string = await marked.parse(md);
 
   /* ---------------- HL-logo in header -------------------- */
   const logoPath = path.resolve("./public/images/Logo_HL_Donkergroen_RGB.png");
@@ -51,15 +51,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   /* ------------ Word-document maken ------------- */
-  const options: any = {
-    header:      true,
-    footer:      true,
-    pageNumber:  true,
+  const docxBuffer = await htmlToDocx(html, null, {
+    header: true,
+    footer: true,
+    pageNumber: true,
     headerHtml,
-  };
-
-  // cast naar 'any' zodat TypeScript niet meer klaagt
-  const docxBuffer = await htmlToDocx(html, null, options as any);
+  });
 
   res.setHeader(
     "Content-Type",
