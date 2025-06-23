@@ -35,32 +35,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   });
   if (data?.Financiën) md += `## Financiën\n\n${data.Financiën}\n\n`;
 
-  // Convert markdown to HTML
-  const html: string = await marked.parse(md);
+  /* ---------- MARKDOWN ➜ HTML (altijd string!) ------ */
+  const parsed = await marked.parse(md);
+  const html = typeof parsed === "string" ? parsed : String(parsed);
 
-  /* ---------------- HL-logo in header -------------------- */
+  /* ---------- HL-logo in header (optioneel) --------- */
   const logoPath = path.resolve("./public/images/Logo_HL_Donkergroen_RGB.png");
   let headerHtml = "";
   try {
     const buf = await fs.readFile(logoPath);
-    headerHtml = `<img src="data:image/png;base64,${buf.toString(
-      "base64"
-    )}" height="35"/>`;
+    headerHtml = `<img src="data:image/png;base64,${buf.toString("base64")}" height="35"/>`;
   } catch {
     // logo niet gevonden → geen header
   }
 
-  /* ------------ Word-document maken ------------- */
-  const docxBuffer = await htmlToDocx(html, null, {
-    header: {
-      has: true,
-      html: headerHtml,
-    },
-    footer: {
-      has: true,
-      pageNumber: true,
-    },
-  });
+  /* ---------- HTML ➜ DOCX  -------------------------- */
+  const options: any = {
+    header: true,
+    footer: true,
+    pageNumber: true,
+    headerHtml,
+  };
+
+  // cast naar 'any' zodat TypeScript niet meer klaagt
+  const docxBuffer = await htmlToDocx(html, null, options as any);
 
   res.setHeader(
     "Content-Type",
