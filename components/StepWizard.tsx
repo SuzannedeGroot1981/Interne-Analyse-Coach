@@ -32,9 +32,9 @@ const STEPS = [
     title: 'Strategy',
     subtitle: 'Strategie & Richting',
     icon: '🎯',
-    description: 'De langetermijnvisie, missie en strategische doelstellingen van de organisatie.',
+    description: 'De langetermijnvisie, missie en strategische doelstellingen van de zorgorganisatie. Focus op interne strategische keuzes en prioriteiten.',
     questions: {
-      current: 'Beschrijf de huidige strategie van je organisatie. Wat zijn de belangrijkste doelstellingen en hoe worden deze nagestreefd?'
+      current: 'Beschrijf de huidige strategie van je zorgorganisatie. Wat zijn de belangrijkste interne doelstellingen en hoe worden deze nagestreefd? Gebruik concrete voorbeelden en citeer interview/enquête resultaten.'
     }
   },
   {
@@ -42,9 +42,9 @@ const STEPS = [
     title: 'Structure',
     subtitle: 'Organisatiestructuur',
     icon: '🏗️',
-    description: 'De manier waarop de organisatie is georganiseerd, rapportagelijnen en besluitvorming.',
+    description: 'De interne organisatiestructuur: hiërarchie, afdelingen, rapportagelijnen en besluitvormingsprocessen binnen de zorgorganisatie.',
     questions: {
-      current: 'Hoe is je organisatie momenteel gestructureerd? Beschrijf de hiërarchie, afdelingen en rapportagelijnen.'
+      current: 'Analyseer de huidige organisatiestructuur. Beschrijf hiërarchie, afdelingen, rapportagelijnen en besluitvorming. Ondersteun met organogram indien beschikbaar en interview bevindingen.'
     }
   },
   {
@@ -52,9 +52,9 @@ const STEPS = [
     title: 'Systems',
     subtitle: 'Systemen & Processen',
     icon: '⚙️',
-    description: 'De procedures, processen en systemen die het dagelijkse werk ondersteunen.',
+    description: 'Interne procedures, processen, IT-systemen en werkwijzen die het dagelijkse zorgwerk ondersteunen en faciliteren.',
     questions: {
-      current: 'Welke systemen en processen gebruikt je organisatie nu? Hoe verlopen de belangrijkste werkprocessen?'
+      current: 'Beschrijf de belangrijkste interne systemen en processen. Hoe verlopen zorgprocessen, administratieve procedures en IT-ondersteuning? Analyseer effectiviteit op basis van medewerker feedback.'
     }
   },
   {
@@ -62,9 +62,9 @@ const STEPS = [
     title: 'Shared Values',
     subtitle: 'Gedeelde Waarden',
     icon: '💎',
-    description: 'De kernwaarden, cultuur en normen die de organisatie definiëren.',
+    description: 'De kernwaarden, organisatiecultuur en normen die de zorgorganisatie intern definiëren en verbinden.',
     questions: {
-      current: 'Wat zijn de huidige waarden en cultuur van je organisatie? Hoe uit zich dit in het dagelijkse gedrag?'
+      current: 'Analyseer de gedeelde waarden en cultuur. Hoe leven medewerkers deze waarden na in de dagelijkse zorgverlening? Gebruik concrete voorbeelden uit interviews en observaties.'
     }
   },
   {
@@ -72,9 +72,9 @@ const STEPS = [
     title: 'Skills',
     subtitle: 'Vaardigheden & Competenties',
     icon: '🎓',
-    description: 'De kennis, vaardigheden en competenties die aanwezig zijn in de organisatie.',
+    description: 'De interne kennis, vaardigheden en competenties van medewerkers en teams binnen de zorgorganisatie.',
     questions: {
-      current: 'Welke vaardigheden en competenties zijn er momenteel aanwezig? Waar ligt de expertise van je team?'
+      current: 'Inventariseer de aanwezige vaardigheden en competenties. Waar liggen de sterke punten van je zorgteams? Identificeer kennislacunes op basis van competentiematrix en medewerkergesprekken.'
     }
   },
   {
@@ -82,9 +82,9 @@ const STEPS = [
     title: 'Style',
     subtitle: 'Leiderschapsstijl',
     icon: '👑',
-    description: 'De leiderschapsstijl en managementaanpak binnen de organisatie.',
+    description: 'De interne leiderschapsstijl en managementaanpak van leidinggevenden binnen de zorgorganisatie.',
     questions: {
-      current: 'Hoe wordt er momenteel leiding gegeven? Wat kenmerkt de huidige managementstijl?'
+      current: 'Analyseer de leiderschapsstijl van management en teamleiders. Hoe wordt er intern leiding gegeven? Ondersteun met voorbeelden uit leiderschapssessies en medewerkerfeedback.'
     }
   },
   {
@@ -92,9 +92,9 @@ const STEPS = [
     title: 'Staff',
     subtitle: 'Personeel & Mensen',
     icon: '👥',
-    description: 'De mensen in de organisatie, hun rollen en hoe ze worden ontwikkeld.',
+    description: 'Het interne personeelsbestand: rollen, ontwikkeling, motivatie en welzijn van medewerkers in de zorgorganisatie.',
     questions: {
-      current: 'Hoe ziet je huidige personeelsbestand eruit? Wat kenmerkt je team en medewerkers?'
+      current: 'Beschrijf het personeelsbestand en teamsamenstelling. Hoe worden medewerkers ontwikkeld en gemotiveerd? Analyseer op basis van HR-data en medewerkertevredenheidsonderzoek.'
     }
   },
   {
@@ -102,9 +102,9 @@ const STEPS = [
     title: 'Financiën',
     subtitle: 'Financiële Situatie',
     icon: '💰',
-    description: 'De financiële gezondheid, budgetten en economische aspecten van de organisatie.',
+    description: 'De interne financiële gezondheid: rentabiliteit, liquiditeit, solvabiliteit en budgetbeheersing van de zorgorganisatie.',
     questions: {
-      current: 'Hoe is de huidige financiële situatie? Beschrijf budgetten, kosten en inkomsten.'
+      current: 'Analyseer de financiële gezondheid met focus op rentabiliteit, liquiditeit en solvabiliteit. Hoe verhouden kosten zich tot opbrengsten? Verbind financiële prestaties aan andere 7S-elementen.'
     },
     hasFileUpload: true // Speciale markering voor financiën stap
   }
@@ -772,7 +772,7 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
                       ? 'bg-gray-100 text-gray-500 border-gray-300 cursor-not-allowed'
                       : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
                   }`}
-                  title="Controleer je bronvermeldingen en citaten volgens APA-richtlijnen"
+                  title="Hogeschool Leiden APA 7e editie controle voor zorgmanagement studenten"
                 >
                   {isCheckingAPA ? (
                     <div className="flex items-center space-x-2">
@@ -782,12 +782,12 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
                   ) : (
                     <div className="flex items-center space-x-2">
                       <span>📝</span>
-                      <span>Self-check APA</span>
+                      <span>APA Self-check (HL)</span>
                     </div>
                   )}
                 </button>
                 <p className="text-xs text-gray-500 mt-1">
-                  Controleert bronvermeldingen en citaten in alle ingevulde stappen
+                  Controleert APA 7e editie bronvermeldingen volgens HL-richtlijnen
                 </p>
               </div>
             </div>
@@ -799,14 +799,14 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
                 <aside className="bg-gray-50 p-4 text-sm border-l-4 border-primary/60 rounded-lg">
                   <div className="flex items-center mb-3">
                     <span className="text-lg mr-2">🎤</span>
-                    <b className="text-gray-800">Interview/Enquête-bevinding:</b>
+                    <b className="text-gray-800">Evidence uit onderzoek:</b>
                   </div>
                   <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
                     {currentEvidence}
                   </div>
                   <div className="mt-3 pt-3 border-t border-gray-200">
                     <p className="text-xs text-gray-500">
-                      💡 Gebruik deze bevindingen als basis voor je analyse en citeer ze expliciet in je tekst
+                      💡 <strong>Verplicht:</strong> Verwerk deze onderzoeksbevindingen in je analyse en citeer expliciet volgens APA-richtlijnen
                     </p>
                   </div>
                 </aside>
@@ -814,14 +814,14 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
                 <aside className="bg-blue-50 p-4 text-sm border-l-4 border-blue-300 rounded-lg">
                   <div className="flex items-center mb-3">
                     <span className="text-lg mr-2">💡</span>
-                    <b className="text-blue-800">Geen interview evidence beschikbaar</b>
+                    <b className="text-blue-800">Geen onderzoeksevidence beschikbaar</b>
                   </div>
                   <div className="text-blue-700">
                     <p className="mb-2">
-                      Voor dit onderdeel zijn nog geen interview- of enquête-bevindingen beschikbaar.
+                      Voor dit 7S-element zijn nog geen interview- of enquête-bevindingen beschikbaar.
                     </p>
                     <p className="text-xs">
-                      Ga naar de <strong>Evidence</strong> stap om interview-transcripten en enquête-data te uploaden voor AI-samenvatting.
+                      <strong>Aanbeveling:</strong> Upload interview-transcripten en enquête-data in de Evidence stap voor een complete analyse.
                     </p>
                   </div>
                   <div className="mt-3">
@@ -829,7 +829,7 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
                       onClick={() => window.location.href = `/evidence?id=${actualProjectId}`}
                       className="text-xs text-blue-600 hover:text-blue-800 underline"
                     >
-                      → Ga naar Evidence stap
+                      → Upload onderzoeksmateriaal
                     </button>
                   </div>
                 </aside>

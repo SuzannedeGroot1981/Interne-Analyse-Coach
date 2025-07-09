@@ -29,18 +29,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const system = `
-Je bent APA-specialist. Controleer uitsluitend bronvermeldingen en citaten
-volgens APA (7e ed.). Geef een bullet-list met fouten of 'OK' als alles correct is.
+Je bent APA-specialist voor Hogeschool Leiden studenten Management in de Zorg.
+Controleer uitsluitend bronvermeldingen en citaten volgens APA 7e editie.
 
-Controleer specifiek op:
+**Specifieke controle voor HBO-niveau:**
 - Correcte in-text citaties: (Auteur, jaar) of (Auteur, jaar, p. X)
-- Juiste interpunctie en spaties
-- Consistente schrijfwijze van auteursnamen
-- Correcte gebruik van & vs. en bij meerdere auteurs
-- Juiste formatting van directe citaten
-- Aanwezigheid van paginanummers bij directe citaten
+- Juiste interpunctie en spaties in citaten
+- Consistente schrijfwijze van auteursnamen  
+- Correct gebruik van & vs. en bij meerdere auteurs
+- Juiste formatting van directe citaten met paginanummers
+- Aanwezigheid van paginanummers bij directe citaten (verplicht)
+- Nederlandse vs. Engelse citeerconventies (consistent toepassen)
 
-Geef alleen concrete APA-fouten terug, geen algemene schrijfadviezen.`;
+**Feedback format:**
+- Geef concrete bullet-list met fouten
+- Vermeld regelnummer/locatie waar mogelijk
+- Geef correcte versie als voorbeeld
+- Return 'OK' alleen als alles volledig correct is
+
+**Focus uitsluitend op APA-technische aspecten, geen inhoudelijke feedback.**`;
 
     const body = {
       contents: [{ parts: [{ text: system + "\n\n" + markdown }] }],
