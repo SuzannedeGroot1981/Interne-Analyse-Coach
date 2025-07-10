@@ -730,9 +730,9 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
                   APA Controle Resultaten - {currentStepData.title}
                 </h5>
                 <div className="bg-hl-wit rounded-lg p-4 border border-hl-zand">
-                  <pre className="whitespace-pre-wrap text-sm text-gray-700 leading-relaxed font-gantari">
-                    {apaResults[currentStepData.id]}
-                  </pre>
+                  <div className="whitespace-pre-wrap text-sm text-gray-700 leading-relaxed font-gantari">
+                    {formatAPAResultsWithIcons(apaResults[currentStepData.id])}
+                  </div>
                 </div>
                 <div className="flex justify-end mt-3">
                   <button
@@ -865,6 +865,122 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
           </div>
         </div>
       )}
+    </div>
+  )
+}
+// Helper functie om APA resultaten met iconen te formatteren
+function formatAPAResultsWithIcons(text: string): JSX.Element {
+  const lines = text.split('\n')
+  
+  return (
+    <div className="space-y-2">
+      {lines.map((line, index) => {
+        // Score lijn
+        if (line.includes('APA Score:')) {
+          const scoreMatch = line.match(/(\d+)\/100/)
+          const score = scoreMatch ? parseInt(scoreMatch[1]) : 0
+          return (
+            <div key={index} className="flex items-center space-x-2 text-lg font-semibold">
+              <span className="material-symbols-sharp hl-icon-primary hl-icon-md">analytics</span>
+              <span className="text-hl-donkergroen">{line.replace(/\*\*/g, '')}</span>
+            </div>
+          )
+        }
+        
+        // Status lijnen
+        if (line.includes('Uitstekend!')) {
+          return (
+            <div key={index} className="flex items-center space-x-2 text-green-700">
+              <span className="material-symbols-sharp text-green-600 hl-icon-md">celebration</span>
+              <span className="font-semibold">{line.replace(/\*\*/g, '')}</span>
+            </div>
+          )
+        }
+        
+        if (line.includes('Goed!')) {
+          return (
+            <div key={index} className="flex items-center space-x-2 text-green-700">
+              <span className="material-symbols-sharp text-green-600 hl-icon-md">check_circle</span>
+              <span className="font-semibold">{line.replace(/\*\*/g, '')}</span>
+            </div>
+          )
+        }
+        
+        if (line.includes('Redelijk.')) {
+          return (
+            <div key={index} className="flex items-center space-x-2 text-hl-geel">
+              <span className="material-symbols-sharp text-yellow-600 hl-icon-md">warning</span>
+              <span className="font-semibold">{line.replace(/\*\*/g, '')}</span>
+            </div>
+          )
+        }
+        
+        if (line.includes('Aandacht vereist.')) {
+          return (
+            <div key={index} className="flex items-center space-x-2 text-red-700">
+              <span className="material-symbols-sharp text-red-600 hl-icon-md">error</span>
+              <span className="font-semibold">{line.replace(/\*\*/g, '')}</span>
+            </div>
+          )
+        }
+        
+        // Sectie headers
+        if (line.includes('Kritieke Issues')) {
+          return (
+            <div key={index} className="flex items-center space-x-2 text-red-700 font-semibold mt-4">
+              <span className="material-symbols-sharp text-red-600 hl-icon-md">priority_high</span>
+              <span>{line.replace(/\*\*/g, '')}</span>
+            </div>
+          )
+        }
+        
+        if (line.includes('Waarschuwingen')) {
+          return (
+            <div key={index} className="flex items-center space-x-2 text-yellow-700 font-semibold mt-4">
+              <span className="material-symbols-sharp text-yellow-600 hl-icon-md">warning</span>
+              <span>{line.replace(/\*\*/g, '')}</span>
+            </div>
+          )
+        }
+        
+        if (line.includes('Verbetervoorstellen')) {
+          return (
+            <div key={index} className="flex items-center space-x-2 text-hl-donkergroen font-semibold mt-4">
+              <span className="material-symbols-sharp hl-icon-primary hl-icon-md">lightbulb</span>
+              <span>{line.replace(/\*\*/g, '')}</span>
+            </div>
+          )
+        }
+        
+        if (line.includes('Correct uitgevoerd')) {
+          return (
+            <div key={index} className="flex items-center space-x-2 text-green-700 font-semibold mt-4">
+              <span className="material-symbols-sharp text-green-600 hl-icon-md">task_alt</span>
+              <span>{line.replace(/\*\*/g, '')}</span>
+            </div>
+          )
+        }
+        
+        if (line.includes('APA 7e editie richtlijnen')) {
+          return (
+            <div key={index} className="flex items-center space-x-2 text-hl-donkergroen font-semibold mt-4 pt-2 border-t border-hl-zand">
+              <span className="material-symbols-sharp hl-icon-primary hl-icon-md">menu_book</span>
+              <span>{line.replace(/\*\*/g, '')}</span>
+            </div>
+          )
+        }
+        
+        // Gewone lijnen
+        if (line.trim()) {
+          return (
+            <div key={index} className="text-gray-700 ml-6">
+              {line.replace(/\*\*/g, '')}
+            </div>
+          )
+        }
+        
+        return <div key={index} className="h-2"></div>
+      })}
     </div>
   )
 }

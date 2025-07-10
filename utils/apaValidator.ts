@@ -200,20 +200,20 @@ export function validateAPA(text: string): APAResult {
 }
 
 export function formatAPAResults(result: APAResult): string {
-  let output = `📊 **APA Score: ${result.score}/100**\n\n`
+  let output = `**APA Score: ${result.score}/100**\n\n`
   
   if (result.score >= 90) {
-    output += `🎉 **Uitstekend!** Je APA-stijl is bijna perfect.\n\n`
+    output += `**Uitstekend!** Je APA-stijl is bijna perfect.\n\n`
   } else if (result.score >= 75) {
-    output += `✅ **Goed!** Je APA-stijl is grotendeels correct.\n\n`
+    output += `**Goed!** Je APA-stijl is grotendeels correct.\n\n`
   } else if (result.score >= 60) {
-    output += `⚠️ **Redelijk.** Er zijn enkele verbeterpunten voor je APA-stijl.\n\n`
+    output += `**Redelijk.** Er zijn enkele verbeterpunten voor je APA-stijl.\n\n`
   } else {
-    output += `❌ **Aandacht vereist.** Je APA-stijl heeft belangrijke verbeteringen nodig.\n\n`
+    output += `**Aandacht vereist.** Je APA-stijl heeft belangrijke verbeteringen nodig.\n\n`
   }
 
   if (result.criticalIssues.length > 0) {
-    output += `🚨 **Kritieke Issues (${result.criticalIssues.length}):**\n`
+    output += `**Kritieke Issues (${result.criticalIssues.length}):**\n`
     result.criticalIssues.forEach((issue, index) => {
       output += `${index + 1}. ${issue}\n`
     })
@@ -221,7 +221,7 @@ export function formatAPAResults(result: APAResult): string {
   }
 
   if (result.warningIssues.length > 0) {
-    output += `⚠️ **Waarschuwingen (${result.warningIssues.length}):**\n`
+    output += `**Waarschuwingen (${result.warningIssues.length}):**\n`
     result.warningIssues.forEach((issue, index) => {
       output += `${index + 1}. ${issue}\n`
     })
@@ -229,7 +229,7 @@ export function formatAPAResults(result: APAResult): string {
   }
 
   if (result.suggestions.length > 0) {
-    output += `💡 **Verbetervoorstellen:**\n`
+    output += `**Verbetervoorstellen:**\n`
     result.suggestions.slice(0, 3).forEach((suggestion, index) => {
       output += `${index + 1}. ${suggestion}\n`
     })
@@ -237,13 +237,13 @@ export function formatAPAResults(result: APAResult): string {
   }
 
   if (result.passedChecks.length > 0) {
-    output += `✅ **Correct uitgevoerd (${result.passedChecks.length}):**\n`
+    output += `**Correct uitgevoerd (${result.passedChecks.length}):**\n`
     result.passedChecks.slice(0, 3).forEach((check, index) => {
       output += `${index + 1}. ${check}\n`
     })
   }
 
-  output += `\n📚 **APA 7e editie richtlijnen voor Hogeschool Leiden**`
+  output += `\n**APA 7e editie richtlijnen voor Hogeschool Leiden**`
 
   return output
 }
