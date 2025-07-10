@@ -1,12 +1,12 @@
 import type { AppProps } from 'next/app'
+import { useRouter } from 'next/router'
 import '../styles/globals.css'
 
 export default function App({ Component, pageProps }: AppProps) {
-  // Check if this is the home page
-  const isHomePage = Component.name === 'Home'
+  const router = useRouter()
   
   // Don't wrap home page in Layout to avoid double header
-  if (isHomePage) {
+  if (router.pathname === '/') {
     return <Component {...pageProps} />
   }
   
