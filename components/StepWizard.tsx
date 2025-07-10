@@ -730,9 +730,9 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
           )}
 
           {/* Tekstvelden met evidence en document samenvatting - grid layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+          <div className={`grid gap-6 mb-6 ${currentStepData.id === 'strategy' ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-3'}`}>
             {/* Strategy: gecombineerd veld, andere stappen: gescheiden velden */}
-            <div className="lg:col-span-2">
+            <div className={currentStepData.id === 'strategy' ? '' : 'lg:col-span-2'}>
               {currentStepData.id === 'strategy' ? (
                 // Strategy: één gecombineerd veld
                 <>
@@ -814,89 +814,91 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
             </div>
 
             {/* Evidence & Document Summary sidebar - 1/3 breedte */}
-            <div className="lg:col-span-1 space-y-4">
-              {/* Evidence sectie */}
-              {currentEvidence ? (
-                <aside className="bg-gray-50 p-4 text-sm border-l-4 border-primary/60 rounded-lg">
-                  <div className="flex items-center mb-3">
-                    <span className="text-lg mr-2">🎤</span>
-                    <b className="text-gray-800">Evidence uit onderzoek:</b>
-                  </div>
-                  <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
-                    {currentEvidence}
-                  </div>
-                  <div className="mt-3 pt-3 border-t border-gray-200">
-                    <p className="text-xs text-gray-500">
-                      💡 <strong>Verplicht:</strong> Verwerk deze onderzoeksbevindingen in je analyse en citeer expliciet volgens APA-richtlijnen
-                    </p>
-                  </div>
-                </aside>
-              ) : (
-                <aside className="bg-blue-50 p-4 text-sm border-l-4 border-blue-300 rounded-lg">
-                  <div className="flex items-center mb-3">
-                    <span className="text-lg mr-2">💡</span>
-                    <b className="text-blue-800">Geen onderzoeksevidence beschikbaar</b>
-                  </div>
-                  <div className="text-blue-700">
-                    <p className="mb-2">
-                      Voor dit 7S-element zijn nog geen interview- of enquête-bevindingen beschikbaar.
-                    </p>
-                    <p className="text-xs">
-                      <strong>Aanbeveling:</strong> Upload interview-transcripten en enquête-data in de Evidence stap voor een complete analyse.
-                    </p>
-                  </div>
-                  <div className="mt-3">
-                    <button
-                      onClick={() => window.location.href = `/evidence?id=${actualProjectId}`}
-                      className="text-xs text-blue-600 hover:text-blue-800 underline"
-                    >
-                      → Upload onderzoeksmateriaal
-                    </button>
-                  </div>
-                </aside>
-              )}
+            {currentStepData.id !== 'strategy' && (
+              <div className="lg:col-span-1 space-y-4">
+                {/* Evidence sectie */}
+                {currentEvidence ? (
+                  <aside className="bg-gray-50 p-4 text-sm border-l-4 border-primary/60 rounded-lg">
+                    <div className="flex items-center mb-3">
+                      <span className="text-lg mr-2">🎤</span>
+                      <b className="text-gray-800">Evidence uit onderzoek:</b>
+                    </div>
+                    <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+                      {currentEvidence}
+                    </div>
+                    <div className="mt-3 pt-3 border-t border-gray-200">
+                      <p className="text-xs text-gray-500">
+                        💡 <strong>Verplicht:</strong> Verwerk deze onderzoeksbevindingen in je analyse en citeer expliciet volgens APA-richtlijnen
+                      </p>
+                    </div>
+                  </aside>
+                ) : (
+                  <aside className="bg-blue-50 p-4 text-sm border-l-4 border-blue-300 rounded-lg">
+                    <div className="flex items-center mb-3">
+                      <span className="text-lg mr-2">💡</span>
+                      <b className="text-blue-800">Geen onderzoeksevidence beschikbaar</b>
+                    </div>
+                    <div className="text-blue-700">
+                      <p className="mb-2">
+                        Voor dit 7S-element zijn nog geen interview- of enquête-bevindingen beschikbaar.
+                      </p>
+                      <p className="text-xs">
+                        <strong>Aanbeveling:</strong> Upload interview-transcripten en enquête-data in de Evidence stap voor een complete analyse.
+                      </p>
+                    </div>
+                    <div className="mt-3">
+                      <button
+                        onClick={() => window.location.href = `/evidence?id=${actualProjectId}`}
+                        className="text-xs text-blue-600 hover:text-blue-800 underline"
+                      >
+                        → Upload onderzoeksmateriaal
+                      </button>
+                    </div>
+                  </aside>
+                )}
 
-              {/* Document samenvatting sectie */}
-              {currentDocumentSummary ? (
-                <aside className="bg-green-50 p-4 text-sm border-l-4 border-green-500/60 rounded-lg">
-                  <div className="flex items-center mb-3">
-                    <span className="text-lg mr-2">📄</span>
-                    <b className="text-gray-800">Document Samenvatting:</b>
-                  </div>
-                  <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
-                    {currentDocumentSummary}
-                  </div>
-                  <div className="mt-3 pt-3 border-t border-gray-200">
-                    <p className="text-xs text-gray-500">
-                      📚 Gebaseerd op geüploade documenten uit de bronneninventarisatie
-                    </p>
-                  </div>
-                </aside>
-              ) : (
-                <aside className="bg-gray-50 p-4 text-sm border-l-4 border-gray-300 rounded-lg">
-                  <div className="flex items-center mb-3">
-                    <span className="text-lg mr-2">📄</span>
-                    <b className="text-gray-800">Geen document samenvatting</b>
-                  </div>
-                  <div className="text-gray-700">
-                    <p className="mb-2">
-                      Voor dit onderdeel zijn nog geen documenten geüpload en samengevat.
-                    </p>
-                    <p className="text-xs">
-                      Ga naar de <strong>Bronneninventarisatie</strong> om documenten te uploaden en samen te vatten.
-                    </p>
-                  </div>
-                  <div className="mt-3">
-                    <button
-                      onClick={() => window.location.href = `/sources?id=${actualProjectId}`}
-                      className="text-xs text-gray-600 hover:text-gray-800 underline"
-                    >
-                      → Ga naar Bronneninventarisatie
-                    </button>
-                  </div>
-                </aside>
-              )}
-            </div>
+                {/* Document samenvatting sectie */}
+                {currentDocumentSummary ? (
+                  <aside className="bg-green-50 p-4 text-sm border-l-4 border-green-500/60 rounded-lg">
+                    <div className="flex items-center mb-3">
+                      <span className="text-lg mr-2">📄</span>
+                      <b className="text-gray-800">Document Samenvatting:</b>
+                    </div>
+                    <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+                      {currentDocumentSummary}
+                    </div>
+                    <div className="mt-3 pt-3 border-t border-gray-200">
+                      <p className="text-xs text-gray-500">
+                        📚 Gebaseerd op geüploade documenten uit de bronneninventarisatie
+                      </p>
+                    </div>
+                  </aside>
+                ) : (
+                  <aside className="bg-gray-50 p-4 text-sm border-l-4 border-gray-300 rounded-lg">
+                    <div className="flex items-center mb-3">
+                      <span className="text-lg mr-2">📄</span>
+                      <b className="text-gray-800">Geen document samenvatting</b>
+                    </div>
+                    <div className="text-gray-700">
+                      <p className="mb-2">
+                        Voor dit onderdeel zijn nog geen documenten geüpload en samengevat.
+                      </p>
+                      <p className="text-xs">
+                        Ga naar de <strong>Bronneninventarisatie</strong> om documenten te uploaden en samen te vatten.
+                      </p>
+                    </div>
+                    <div className="mt-3">
+                      <button
+                        onClick={() => window.location.href = `/sources?id=${actualProjectId}`}
+                        className="text-xs text-gray-600 hover:text-gray-800 underline"
+                      >
+                        → Ga naar Bronneninventarisatie
+                      </button>
+                    </div>
+                  </aside>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Coach feedback sectie */}
