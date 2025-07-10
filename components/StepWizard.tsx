@@ -731,23 +731,60 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
 
           {/* Tekstvelden met evidence en document samenvatting - grid layout */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-            {/* Feitelijke situatie - 2/3 breedte */}
+            {/* Strategy: gecombineerd veld, andere stappen: gescheiden velden */}
             <div className="lg:col-span-2">
-              <label className="block text-sm font-semibold text-gray-700 mb-3">
-                📊 Feitelijke Situatie
-              </label>
-              <p className="text-sm text-gray-600 mb-3">
-                {currentStepData.questions.current}
-              </p>
-              <textarea
-                value={currentWizardData.current}
-                onChange={(e) => updateStepData(currentStepData.id, 'current', e.target.value)}
-                placeholder="Beschrijf de huidige feitelijke situatie..."
-                className="w-full h-40 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
-              />
+              {currentStepData.id === 'strategy' ? (
+                // Strategy: één gecombineerd veld
+                <>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">
+                    🎯 Strategy Analyse
+                  </label>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Beschrijf de huidige strategische situatie van je zorgorganisatie. Wat zijn de belangrijkste interne doelstellingen en hoe worden deze nagestreefd? Gebruik concrete voorbeelden en citeer interview/enquête resultaten. Je kunt ook de gewenste toekomstige strategische richting beschrijven.
+                  </p>
+                  <textarea
+                    value={currentWizardData.current}
+                    onChange={(e) => updateStepData(currentStepData.id, 'current', e.target.value)}
+                    placeholder="Beschrijf de huidige strategische situatie en eventueel de gewenste strategische richting..."
+                    className="w-full h-64 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+                  />
+                </>
+              ) : (
+                // Andere stappen: gescheiden velden
+                <>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">
+                    📊 Feitelijke Situatie
+                  </label>
+                  <p className="text-sm text-gray-600 mb-3">
+                    {currentStepData.questions.current}
+                  </p>
+                  <textarea
+                    value={currentWizardData.current}
+                    onChange={(e) => updateStepData(currentStepData.id, 'current', e.target.value)}
+                    placeholder="Beschrijf de huidige feitelijke situatie..."
+                    className="w-full h-40 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+                  />
 
-              {/* Gewenste situatie (optioneel) */}
-              <div className="mt-6">
+                  {/* Gewenste situatie (optioneel) */}
+                  <div className="mt-6">
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">
+                      🎯 Gewenste Situatie (Optioneel)
+                    </label>
+                    <p className="text-sm text-gray-600 mb-3">
+                      Beschrijf eventueel ook de gewenste toekomstige situatie voor dit onderdeel.
+                    </p>
+                    <textarea
+                      value={currentWizardData.desired}
+                      onChange={(e) => updateStepData(currentStepData.id, 'desired', e.target.value)}
+                      placeholder="Beschrijf de gewenste situatie (optioneel)..."
+                      className="w-full h-32 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* APA Self-check knop - voor alle stappen */}
+              <div className="mt-4">
                 <label className="block text-sm font-semibold text-gray-700 mb-3">
                   🎯 Gewenste Situatie (Optioneel)
                 </label>
@@ -761,9 +798,6 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
                   className="w-full h-32 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
                 />
               </div>
-
-              {/* APA Self-check knop */}
-              <div className="mt-4">
                 <button
                   onClick={checkAPA}
                   disabled={isCheckingAPA}
