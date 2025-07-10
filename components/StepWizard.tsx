@@ -5,6 +5,7 @@ import { saveProject, loadProject, createProjectId } from '../utils/storage'
 import FinanceDropzone from './FinanceDropzone'
 import ProjectActions from './ProjectActions'
 import { useRouter } from 'next/router'
+import { validateAPA, formatAPAResults, getStepSpecificTips } from '../utils/apaValidator'
 
 // Types voor stap data
 interface StepData {
@@ -126,9 +127,6 @@ export default function StepWizard({ projectId, flow, onSave }: StepWizardProps)
   const [isCheckingAPA, setIsCheckingAPA] = useState<{ [stepId: string]: boolean }>({})
   const [evidence, setEvidence] = useState<any>(null) // Voor evidence data
   const [sources, setSources] = useState<any>(null) // Voor sources data
-
-  // Import APA validator
-  const { validateAPA, formatAPAResults, getStepSpecificTips } = require('../utils/apaValidator')
 
   // Vereenvoudigde initialisatie zonder evidence/sources
   useEffect(() => {
