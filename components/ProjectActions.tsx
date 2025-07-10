@@ -341,7 +341,7 @@ export default function ProjectActions({ projectId, projectData, wizardData, cla
       {/* Hoofdacties - prominente weergave */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Word Export Card */}
-        <div className="bg-gradient-to-br from-hl-lichtgroen to-hl-wit rounded-xl border border-hl-donkergroen p-6 hover:shadow-lg transition-all duration-200">
+        <div className="bg-gradient-to-br from-hl-lichtgroen to-hl-wit rounded-xl p-6 hover:shadow-lg transition-all duration-200">
           <div className="flex items-center mb-4">
             <div className="w-12 h-12 bg-hl-donkergroen rounded-lg flex items-center justify-center mr-4">
               <span className="material-symbols-sharp text-hl-wit hl-icon-lg">description</span>
@@ -376,7 +376,7 @@ export default function ProjectActions({ projectId, projectData, wizardData, cla
         </div>
 
         {/* Project Opslaan Card */}
-        <div className="bg-gradient-to-br from-hl-geel to-hl-wit rounded-xl border border-hl-donkerpaars p-6 hover:shadow-lg transition-all duration-200">
+        <div className="bg-gradient-to-br from-hl-geel to-hl-wit rounded-xl p-6 hover:shadow-lg transition-all duration-200">
           <div className="flex items-center mb-4">
             <div className="w-12 h-12 bg-hl-donkerpaars rounded-lg flex items-center justify-center mr-4">
               <span className="material-symbols-sharp text-hl-wit hl-icon-lg">save</span>
@@ -449,7 +449,7 @@ export default function ProjectActions({ projectId, projectData, wizardData, cla
       )}
 
       {/* Project Import sectie - minder prominent */}
-      <div className="bg-hl-zand rounded-xl border border-hl-donkergroen p-6">
+      <div className="bg-hl-zand rounded-xl p-6">
         <h3 className="text-lg font-semibold text-hl-donkergroen mb-4 flex items-center font-gantari">
           <span className="material-symbols-sharp hl-icon-primary hl-icon-md mr-2">file_upload</span>
           Project Importeren
@@ -513,7 +513,7 @@ export default function ProjectActions({ projectId, projectData, wizardData, cla
       </div>
 
       {/* Help sectie - compacter */}
-      <div className="bg-hl-lichtgroen border border-hl-donkergroen rounded-lg p-4">
+      <div className="bg-hl-lichtgroen rounded-lg p-4">
         <h4 className="text-sm font-semibold text-hl-donkergroen mb-2 flex items-center font-gantari">
           <span className="material-symbols-sharp hl-icon-primary hl-icon-sm mr-2">help</span>
           Hulp & Tips
