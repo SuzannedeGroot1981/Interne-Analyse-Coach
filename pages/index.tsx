@@ -1,13 +1,21 @@
+import Head from 'next/head'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
+import StepWizard from '../components/StepWizard'
+import DocumentReviewStep from '../components/DocumentReviewStep'
+import { homeLink } from '../utils/nav'
 import { listProjects, getOrCreateUserId, deleteProject, loadProject, type ProjectSummary } from '../utils/storage'
 import { v4 as uuid } from 'uuid'
 import { setActive, saveProject, clearActive } from '../utils/storage'
 
 export default function Home() {
+  const router = useRouter()
   const [projects, setProjects] = useState<ProjectSummary[]>([])
   const [userId, setUserId] = useState<string>('')
   const [isLoading, setIsLoading] = useState(true)
+  const [projectId, setProjectId] = useState<string | null>(null)
+  const [activeView, setActiveView] = useState<'home' | 'improve'>('home')
 
   // Nieuwe project functie
   function newProject() {
@@ -17,6 +25,15 @@ export default function Home() {
     saveProject(id, { flow: "new", meta: { orgLevel: "Organisatie" } })
     window.location.href = `/sources?id=${id}`
   }
+
+  // Check voor project parameter in URL
+  useEffect(() => {
+    const { id } = router.query
+    if (id && typeof id === 'string') {
+      setProjectId(id)
+      setActiveView('improve')
+    }
+  }, [router.query])
 
   // Laad projecten bij component mount
   useEffect(() => {
@@ -79,200 +96,267 @@ export default function Home() {
     }
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <div className="container mx-auto px-4 py-16">
-        {/* Header */}
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-primary rounded-full mb-8">
-            <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-          </div>
-          
-          <h1 className="text-6xl font-bold text-gray-800 mb-6">
-            Welkom bij de Interne Analyse Coach
-          </h1>
-          
-          <p className="text-xl text-primary font-medium mb-8 max-w-2xl mx-auto">
-            Jouw AI-gestuurde assistent voor diepgaande interne analyses en het verbeteren van concepten.
-          </p>
+  const handleSave = (data: any) => {
+    console.log('📊 Project data opgeslagen:', data)
+  }
 
-          {/* User ID Display (voor debugging) */}
-          {userId && (
-            <div className="text-xs text-gray-400 mb-4">
-              Gebruiker-ID: {userId.slice(0, 8)}...{userId.slice(-4)}
+  // Als we in improve view zijn, toon de StepWizard
+  if (activeView === 'improve') {
+    return (
+      <>
+        <Head>
+          <title>Verbeter Bestaand Concept - Interne Analyse Coach</title>
+          <meta name="description" content="AI-gestuurde tool voor interne analyses en conceptverbetering" />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <link rel="icon" href="/favicon.ico" />
+        </Head>
+
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+          {/* Minimale header met alleen terug knop */}
+          <div className="bg-white shadow-sm border-b border-gray-200">
+            <div className="container mx-auto px-4">
+              <div className="flex items-center justify-between h-16">
+                {/* Terug knop */}
+                <button 
+                  onClick={() => setActiveView('home')}
+                  className="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors"
+                >
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                  </svg>
+                  Terug naar hoofdmenu
+                </button>
+
+                {/* Logo (klein) */}
+                <div className="flex items-center space-x-2">
+                  <img
+                    src="/images/Logo_HL_Donkergroen_RGB.png"
+                    alt="Hogeschool Leiden"
+                    className="h-6 w-auto opacity-60"
+                  />
+                  <span className="text-sm text-gray-500 hidden sm:block">
+                    Interne Analyse Coach
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="container mx-auto px-4 py-8">
+            {/* Document Review Component */}
+            <DocumentReviewStep />
+          </div>
+        </div>
+      </>
+    )
+  }
+
+  // Standaard home view
+  return (
+    <>
+      <Head>
+        <title>Interne Analyse Coach - Hogeschool Leiden</title>
+        <meta name="description" content="AI-gestuurde tool voor interne analyses en conceptverbetering" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="container mx-auto px-4 py-16">
+          {/* Header */}
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-primary rounded-full mb-8">
+              <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+            
+            <h1 className="text-6xl font-bold text-gray-800 mb-6">
+              Welkom bij de Interne Analyse Coach
+            </h1>
+            
+            <p className="text-xl text-primary font-medium mb-8 max-w-2xl mx-auto">
+              Jouw AI-gestuurde assistent voor diepgaande interne analyses en het verbeteren van bestaande concepten.
+            </p>
+
+            {/* User ID Display (voor debugging) */}
+            {userId && (
+              <div className="text-xs text-gray-400 mb-4">
+                Gebruiker-ID: {userId.slice(0, 8)}...{userId.slice(-4)}
+              </div>
+            )}
+          </div>
+
+          {/* Recente Projecten Sectie */}
+          {!isLoading && projects.length > 0 && (
+            <div className="max-w-4xl mx-auto mb-16">
+              <div className="bg-white rounded-2xl shadow-xl p-8">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold text-gray-800 flex items-center">
+                    <svg className="w-6 h-6 text-primary mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 00-2 2v2a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2" />
+                    </svg>
+                    Jouw Projecten
+                  </h2>
+                  <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                    {projects.length} project{projects.length !== 1 ? 'en' : ''}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {projects.slice(0, 6).map((project) => (
+                    <div
+                      key={project.id}
+                      className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200 group"
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center space-x-2">
+                          <div className={`w-3 h-3 rounded-full ${
+                            project.flow === 'start' 
+                              ? 'bg-green-500' 
+                              : 'bg-blue-500'
+                          }`} />
+                          <span className={`text-xs font-medium px-2 py-1 rounded ${
+                            project.flow === 'start' 
+                              ? 'bg-green-100 text-green-700' 
+                              : 'bg-blue-100 text-blue-700'
+                          }`}>
+                            {project.flow === 'start' ? 'Nieuwe Analyse' : 'Verbeter Concept'}
+                          </span>
+                        </div>
+                        <button
+                          onClick={() => handleDeleteProject(project.id)}
+                          className="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 transition-all text-sm"
+                          title="Verwijder project"
+                        >
+                          ×
+                        </button>
+                      </div>
+                      
+                      <h3 className="font-semibold text-gray-800 mb-2 line-clamp-2">
+                        {project.title}
+                      </h3>
+                      
+                      <p className="text-xs text-gray-500 mb-3">
+                        {formatDate(project.updatedAt)}
+                      </p>
+                      
+                      <Link href={`/sources?id=${project.id}`}>
+                        <button className="w-full text-sm py-2 px-3 rounded transition-colors bg-gray-100 hover:bg-primary hover:text-white text-gray-700">
+                          Verder werken
+                        </button>
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+
+                {projects.length > 6 && (
+                  <div className="text-center mt-6">
+                    <button className="text-primary hover:text-green-700 text-sm font-medium">
+                      Bekijk alle {projects.length} projecten →
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           )}
-        </div>
 
-        {/* Recente Projecten Sectie */}
-        {!isLoading && projects.length > 0 && (
-          <div className="max-w-4xl mx-auto mb-16">
-            <div className="bg-white rounded-2xl shadow-xl p-8">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-800 flex items-center">
-                  <svg className="w-6 h-6 text-primary mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 00-2 2v2a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2" />
-                  </svg>
-                  Jouw Projecten
-                </h2>
-                <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-                  {projects.length} project{projects.length !== 1 ? 'en' : ''}
-                </span>
+          {/* Loading State */}
+          {isLoading && (
+            <div className="max-w-4xl mx-auto mb-16">
+              <div className="bg-white rounded-2xl shadow-xl p-8">
+                <div className="flex items-center justify-center space-x-3">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                  <span className="text-gray-600">Projecten laden...</span>
+                </div>
               </div>
+            </div>
+          )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {projects.slice(0, 6).map((project) => (
-                  <div
-                    key={project.id}
-                    className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200 group"
-                  >
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center space-x-2">
-                        <div className={`w-3 h-3 rounded-full ${
-                          project.flow === 'start' 
-                            ? 'bg-green-500' 
-                            : 'bg-blue-500'
-                        }`} />
-                        <span className={`text-xs font-medium px-2 py-1 rounded ${
-                          project.flow === 'start' 
-                            ? 'bg-green-100 text-green-700' 
-                            : 'bg-blue-100 text-blue-700'
-                        }`}>
-                          {project.flow === 'start' ? 'Nieuwe Analyse' : 'Verbeter Concept'}
-                        </span>
-                      </div>
-                      <button
-                        onClick={() => handleDeleteProject(project.id)}
-                        className="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 transition-all text-sm"
-                        title="Verwijder project"
-                      >
-                        ×
-                      </button>
-                    </div>
-                    
-                    <h3 className="font-semibold text-gray-800 mb-2 line-clamp-2">
-                      {project.title}
-                    </h3>
-                    
-                    <p className="text-xs text-gray-500 mb-3">
-                      {formatDate(project.updatedAt)}
-                    </p>
-                    
-                    <Link href={`/sources?id=${project.id}`}>
-                      <button className="w-full text-sm py-2 px-3 rounded transition-colors bg-gray-100 hover:bg-primary hover:text-white text-gray-700">
-                        Verder werken
-                      </button>
-                    </Link>
+          {/* Main Action Button - Check een concept versie */}
+          <div className="max-w-4xl mx-auto">
+            <div className="max-w-2xl mx-auto">
+              
+              {/* Check een concept versie */}
+              <div className="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+                <div className="text-center mb-6">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
+                    <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
                   </div>
-                ))}
-              </div>
-
-              {projects.length > 6 && (
-                <div className="text-center mt-6">
-                  <button className="text-primary hover:text-green-700 text-sm font-medium">
-                    Bekijk alle {projects.length} projecten →
-                  </button>
+                  <h2 className="text-2xl font-bold text-gray-800 mb-3">
+                    Check een Concept Versie
+                  </h2>
+                  <p className="text-gray-600 mb-6">
+                    Upload je bestaande analyse of concept en laat AI helpen bij het identificeren van verbeterpunten en optimalisaties.
+                  </p>
                 </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Loading State */}
-        {isLoading && (
-          <div className="max-w-4xl mx-auto mb-16">
-            <div className="bg-white rounded-2xl shadow-xl p-8">
-              <div className="flex items-center justify-center space-x-3">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-                <span className="text-gray-600">Projecten laden...</span>
+                
+                <button
+                  onClick={() => setActiveView('improve')}
+                  className="btn-secondary w-full py-4 px-6 text-lg font-semibold rounded-xl transition-all duration-200 transform hover:scale-105"
+                >
+                  Check een concept versie
+                </button>
               </div>
+
             </div>
           </div>
-        )}
 
-        {/* Main Action Buttons - Nieuwe workflow */}
-        <div className="max-w-4xl mx-auto">
-          <div className="max-w-2xl mx-auto">
+          {/* Features Section */}
+          <div className="mt-20 max-w-6xl mx-auto">
+            <h3 className="text-3xl font-bold text-center text-gray-800 mb-12">
+              Functies van de Interne Analyse Coach
+            </h3>
             
-            {/* Check een concept versie */}
-            <div className="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
-              <div className="text-center mb-6">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
-                  <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="text-center p-6">
+                <div className="inline-flex items-center justify-center w-12 h-12 bg-purple-100 rounded-full mb-4">
+                  <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                 </div>
-                <h2 className="text-2xl font-bold text-gray-800 mb-3">
-                  Check een Concept Versie
-                </h2>
-                <p className="text-gray-600 mb-6">
-                  Upload je bestaande analyse of concept en laat AI helpen bij het identificeren van verbeterpunten en optimalisaties.
+                <h4 className="text-lg font-semibold text-gray-800 mb-2">AI-Gedreven Analyse</h4>
+                <p className="text-gray-600 text-sm">
+                  Gebruik geavanceerde AI om diepgaande inzichten te krijgen in je organisatie en processen.
                 </p>
               </div>
               
-              <Link href="/improve">
-                <button className="btn-secondary w-full py-4 px-6 text-lg font-semibold rounded-xl transition-all duration-200 transform hover:scale-105">
-                  Check een concept versie
-                </button>
-              </Link>
+              <div className="text-center p-6">
+                <div className="inline-flex items-center justify-center w-12 h-12 bg-orange-100 rounded-full mb-4">
+                  <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h4 className="text-lg font-semibold text-gray-800 mb-2">Gestructureerde Aanpak</h4>
+                <p className="text-gray-600 text-sm">
+                  Volg een bewezen methodologie voor effectieve interne analyses en verbeteringen.
+                </p>
+              </div>
+              
+              <div className="text-center p-6">
+                <div className="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-full mb-4">
+                  <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 12l2 2 4-4" />
+                  </svg>
+                </div>
+                <h4 className="text-lg font-semibold text-gray-800 mb-2">Praktische Resultaten</h4>
+                <p className="text-gray-600 text-sm">
+                  Krijg concrete aanbevelingen en actiepunten die direct toepasbaar zijn in je organisatie.
+                </p>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Features Section */}
-        <div className="mt-20 max-w-6xl mx-auto">
-          <h3 className="text-3xl font-bold text-center text-gray-800 mb-12">
-            Functies van de Interne Analyse Coach
-          </h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center p-6">
-              <div className="inline-flex items-center justify-center w-12 h-12 bg-purple-100 rounded-full mb-4">
-                <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-              </div>
-              <h4 className="text-lg font-semibold text-gray-800 mb-2">AI-Gedreven Analyse</h4>
-              <p className="text-gray-600 text-sm">
-                Gebruik geavanceerde AI om diepgaande inzichten te krijgen in je organisatie en processen.
-              </p>
-            </div>
-            
-            <div className="text-center p-6">
-              <div className="inline-flex items-center justify-center w-12 h-12 bg-orange-100 rounded-full mb-4">
-                <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h4 className="text-lg font-semibold text-gray-800 mb-2">Gestructureerde Aanpak</h4>
-              <p className="text-gray-600 text-sm">
-                Volg een bewezen methodologie voor effectieve interne analyses en verbeteringen.
-              </p>
-            </div>
-            
-            <div className="text-center p-6">
-              <div className="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-full mb-4">
-                <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 12l2 2 4-4" />
-                </svg>
-              </div>
-              <h4 className="text-lg font-semibold text-gray-800 mb-2">Praktische Resultaten</h4>
-              <p className="text-gray-600 text-sm">
-                Krijg concrete aanbevelingen en actiepunten die direct toepasbaar zijn in je organisatie.
-              </p>
-            </div>
+          {/* Footer */}
+          <div className="text-center mt-16">
+            <p className="text-gray-500 text-sm">
+              Powered by AI • Interne Analyse Coach • Professionele Organisatie-ontwikkeling
+            </p>
           </div>
-        </div>
-
-        {/* Footer */}
-        <div className="text-center mt-16">
-          <p className="text-gray-500 text-sm">
-            Powered by AI • Interne Analyse Coach • Professionele Organisatie-ontwikkeling
-          </p>
         </div>
       </div>
-    </div>
+    </>
   )
 }
