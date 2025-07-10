@@ -208,6 +208,12 @@ export default function StepWizard({ projectId, flow, onSave }: StepWizardProps)
     autoSave(newData)
 
     console.log('💰 Financiële data toegevoegd aan wizard:', {
+      fileName: financeData.fileName,
+      rows: financeData.summary.totalRows,
+      columns: financeData.summary.totalColumns
+    })
+  }
+
   // APA Check functie per stap
   const checkAPAForStep = (stepId: string) => {
     const stepData = wizardData[stepId]
@@ -253,11 +259,6 @@ export default function StepWizard({ projectId, flow, onSave }: StepWizardProps)
     }, 1000) // 1 seconde processing tijd
   }
 
-      fileName: financeData.fileName,
-      rows: financeData.summary.totalRows,
-      columns: financeData.summary.totalColumns
-    })
-  }
 
   // Markeer stap als voltooid
   const markStepCompleted = (stepId: string) => {
