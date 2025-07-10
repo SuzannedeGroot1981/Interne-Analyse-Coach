@@ -125,7 +125,6 @@ export default function StepWizard({ projectId, flow, onSave }: StepWizardProps)
   const [isCheckingAPA, setIsCheckingAPA] = useState(false)
   const [evidence, setEvidence] = useState<any>(null) // Voor evidence data
   const [sources, setSources] = useState<any>(null) // Voor sources data
-  const [apaResults, setApaResults] = useState<any>(null) // Voor lokale APA resultaten
 
   // Vereenvoudigde initialisatie zonder evidence/sources
   useEffect(() => {
@@ -236,63 +235,6 @@ export default function StepWizard({ projectId, flow, onSave }: StepWizardProps)
     return lastQuotaError > oneHourAgo
   }
 
-  // Lokale APA Self-check functie
-  const checkAPA = async () => {
-    setIsCheckingAPA(true)
-    setApaResults(null)
-    
-    try {
-      console.log('📝 Start APA self-check...', {
-        projectId: actualProjectId,
-        stepsWithContent: Object.keys(wizardData).filter(key => wizardData[key].current.trim()).length
-      })
-
-      // Verzamel alle S-teksten
-      let allText = ''
-      STEPS.forEach(step => {
-        const stepData = wizardData[step.id]
-        if (stepData && stepData.current.trim()) {
-          allText += `## ${step.title}\n\n${stepData.current}\n\n`
-          if (stepData.desired && stepData.desired.trim()) {
-            allText += `### Gewenste situatie\n\n${stepData.desired}\n\n`
-          }
-        }
-      })
-
-      if (!allText.trim()) {
-        alert('Geen tekst gevonden om te controleren. Vul eerst enkele stappen in.')
-        return
-      }
-
-      // Gebruik lokale APA validator
-      const { validateAPA, generateAPASummary } = await import('../utils/apaValidator')
-      const result = validateAPA(allText)
-      
-      console.log('✅ APA check voltooid:', {
-        textLength: allText.length,
-        issuesFound: result.summary.totalIssues,
-        errors: result.summary.errors,
-        warnings: result.summary.warnings
-      })
-
-      // Sla resultaten op voor weergave
-      setApaResults(result)
-      
-      // Toon korte samenvatting
-      const summary = generateAPASummary(result)
-      if (result.isValid) {
-        alert(summary)
-      } else {
-        alert(`${summary}\n\n💡 Bekijk de gedetailleerde resultaten hieronder voor specifieke verbeterpunten.`)
-      }
-
-    } catch (error) {
-      console.error('❌ APA check fout:', error)
-      alert(`Fout bij APA controle: ${error instanceof Error ? error.message : 'Onbekende fout'}\n\nProbeer het later opnieuw.`)
-    } finally {
-      setIsCheckingAPA(false)
-    }
-  }
 
   // Vraag coach feedback (placeholder voor AI integratie)
   const requestCoachFeedback = async (stepId: string) => {
@@ -526,63 +468,6 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
     return placeholders[stepId as keyof typeof placeholders] || 'Beschrijf de huidige situatie en eventueel de gewenste toekomstige situatie...'
   }
 
-// Helper functie om APA resultaten te formatteren voor tekstveld
-function formatAPAResults(results: any): string {
-  if (results.isValid) {
-    return `✅ APA CHECK RESULTATEN - GEEN PROBLEMEN GEVONDEN
-
-Je bronvermeldingen en citaten lijken correct te zijn volgens APA 7e editie richtlijnen.
-
-📊 SAMENVATTING:
-• Totaal gecontroleerd: ${results.summary.totalIssues === 0 ? 'Alle elementen OK' : '0 problemen'}
-• Fouten: ${results.summary.errors}
-• Waarschuwingen: ${results.summary.warnings}  
-• Suggesties: ${results.summary.suggestions}
-
-💡 TIP: Blijf consequent deze APA-stijl toepassen in je hele document.`
-  }
-
-  let output = `📝 APA CHECK RESULTATEN - ${results.summary.totalIssues} AANDACHTSPUNT(EN) GEVONDEN
-
-📊 SAMENVATTING:
-• Totaal problemen: ${results.summary.totalIssues}
-• Fouten (rood): ${results.summary.errors}
-• Waarschuwingen (geel): ${results.summary.warnings}
-• Suggesties (blauw): ${results.summary.suggestions}
-
-📋 GEDETAILLEERDE RESULTATEN:
-`
-
-  results.issues.forEach((issue: any, index: number) => {
-    const icon = issue.severity === 'error' ? '❌' : issue.severity === 'warning' ? '⚠️' : '💡'
-    const lineInfo = issue.line ? ` (regel ${issue.line})` : ''
-    
-    output += `
-${index + 1}. ${icon} ${issue.message}${lineInfo}
-`
-    
-    if (issue.suggestion) {
-      output += `   💡 Suggestie: ${issue.suggestion}
-`
-    }
-  })
-
-  output += `
-
-🎯 VOLGENDE STAPPEN:
-1. Bekijk elk aandachtspunt hierboven
-2. Pas de suggesties toe in je tekst
-3. Run de check opnieuw om voortgang te zien
-4. Herhaal tot alle problemen zijn opgelost
-
-📚 HULP NODIG?
-• APA 7e editie handleiding: https://apastyle.apa.org/
-• Hogeschool Leiden APA-gids: Vraag je docent
-• Citatie-tools: Mendeley, Zotero, EndNote`
-
-  return output
-}
-
   return (
     <div className="max-w-6xl mx-auto p-6">
       {/* API Quota Warning Banner */}
@@ -744,67 +629,6 @@ ${index + 1}. ${icon} ${issue.message}${lineInfo}
                 className="w-full h-64 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
               />
 
-              {/* APA Self-check knop */}
-              <div className="mt-6">
-                <button
-                  onClick={checkAPA}
-                  disabled={isCheckingAPA}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${
-                    isCheckingAPA
-                      ? 'bg-gray-100 text-gray-500 border-gray-300 cursor-not-allowed'
-                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
-                  }`}
-                  title="Hogeschool Leiden APA 7e editie controle voor zorgmanagement studenten"
-                >
-                  {isCheckingAPA ? (
-                    <div className="flex items-center space-x-2">
-                      <div className="animate-spin w-3 h-3 border border-gray-500 border-t-transparent rounded-full" />
-                      <span>Controleren...</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center space-x-2">
-                      <span>📝</span>
-                      <span>Lokale APA Check</span>
-                    </div>
-                  )}
-                </button>
-                <p className="text-xs text-gray-500 mt-1">
-                  Lokale controle van APA 7e editie bronvermeldingen (werkt offline)
-                </p>
-              </div>
-              
-              {/* APA Resultaten Tekstveld */}
-              {apaResults && (
-                <div className="mt-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {apaResults.isValid ? '✅' : '📝'} APA Check Resultaten
-                  </label>
-                  <textarea
-                    value={formatAPAResults(apaResults)}
-                    readOnly
-                    className={`w-full h-48 p-3 border rounded-lg text-sm font-mono resize-none ${
-                      apaResults.isValid 
-                        ? 'bg-green-50 border-green-300 text-green-800' 
-                        : 'bg-orange-50 border-orange-300 text-orange-800'
-                    }`}
-                    placeholder="APA check resultaten verschijnen hier..."
-                  />
-                  <div className="flex justify-between items-center mt-2">
-                    <p className="text-xs text-gray-500">
-                      {apaResults.isValid 
-                        ? 'Geen problemen gevonden - je APA-citaties zijn correct!' 
-                        : `${apaResults.summary.totalIssues} aandachtspunt(en) gevonden`
-                      }
-                    </p>
-                    <button
-                      onClick={() => setApaResults(null)}
-                      className="text-xs text-gray-600 hover:text-gray-800 underline"
-                    >
-                      Resultaten wissen
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
 
