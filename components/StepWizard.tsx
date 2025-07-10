@@ -661,7 +661,7 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
                 Upload Financiële Data (Optioneel)
               </h3>
               <p className="text-gray-600 mb-4 font-gantari">
-                Upload een CSV of Excel bestand met financiële gegevens zoals budgetten, kosten, inkomsten of andere financiële data om je analyse te verrijken.
+                Upload een CSV, Excel, PDF of JPG bestand met financiële gegevens zoals budgetten, kosten, inkomsten, balansen, resultatenrekeningen of andere financiële data om je analyse te verrijken.
               </p>
               <FinanceDropzone 
                 onDataLoaded={handleFinanceDataUpload}

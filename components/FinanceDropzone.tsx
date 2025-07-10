@@ -143,20 +143,35 @@ export default function FinanceDropzone({ onDataLoaded, className = '' }: Financ
         rows: financeData.summary.totalRows
       })
 
-      // Converteer data naar base64 voor API
-      const dataString = JSON.stringify(financeData.data)
-      const base64Data = btoa(dataString)
+      // Bepaal het bestandstype en bereid data voor
+      let requestData
+      const fileExtension = financeData.fileName.toLowerCase().split('.').pop()
+      
+      if (fileExtension === 'pdf' || fileExtension === 'jpg' || fileExtension === 'jpeg') {
+        // Voor PDF en afbeeldingen: stuur het originele bestand
+        requestData = {
+          fileName: financeData.fileName,
+          fileType: fileExtension === 'pdf' ? 'application/pdf' : 'image/jpeg',
+          isImageOrPDF: true,
+          note: 'Bestand vereist AI-analyse voor financiële gegevens extractie'
+        }
+      } else {
+        // Voor CSV/Excel: converteer data naar base64 zoals voorheen
+        const dataString = JSON.stringify(financeData.data)
+        const base64Data = btoa(dataString)
+        requestData = {
+          fileData: base64Data,
+          fileName: financeData.fileName,
+          fileType: financeData.fileName.endsWith('.csv') ? 'text/csv' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        }
+      }
 
       const response = await fetch('/api/parse-fin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          fileData: base64Data,
-          fileName: financeData.fileName,
-          fileType: financeData.fileName.endsWith('.csv') ? 'text/csv' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        }),
+        body: JSON.stringify(requestData),
       })
 
       if (!response.ok) {
