@@ -716,7 +716,7 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
                 ) : (
                   <div className="flex items-center space-x-2">
                     <span className="material-symbols-sharp hl-icon-primary hl-icon-sm">fact_check</span>
-                    <span>APA Check {currentStepData.title}</span>
+                    <span>APA Check</span>
                   </div>
                 )}
               </button>
