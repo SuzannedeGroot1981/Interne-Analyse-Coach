@@ -749,9 +749,6 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
               </div>
             )}
             
-            <p className="text-xs text-gray-500 mt-2 font-gantari">
-              Lokale APA 7e editie controle volgens Hogeschool Leiden richtlijnen voor {currentStepData.subtitle.toLowerCase()}
-            </p>
           </div>
           {/* Coach feedback sectie */}
           {currentWizardData.feedback && (
