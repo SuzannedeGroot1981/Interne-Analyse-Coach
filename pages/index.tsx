@@ -79,26 +79,7 @@ export default function Home() {
                 Welkom bij de Interne Analyse Coach
               </h1>
               <p className="text-xl md:text-2xl mb-8 text-green-100">
-                Verbeter je organisatieconcepten met AI-gestuurde feedback en systematische analyse
-              </p>
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 mb-8">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-                  <div>
-                    <div className="text-3xl font-bold mb-2">7S</div>
-                    <div className="text-sm text-green-100">McKinsey Model</div>
-                  </div>
-                  <div>
-                    <div className="text-3xl font-bold mb-2">AI</div>
-                    <div className="text-sm text-green-100">Coach Feedback</div>
-                  </div>
-                  <div>
-                    <div className="text-3xl font-bold mb-2">📊</div>
-                    <div className="text-sm text-green-100">Financiële Analyse</div>
-                  </div>
-                </div>
-              </div>
-              <p className="text-lg text-green-100">
-                Start direct met het uploaden van je bestaande concept of begin een nieuwe analyse
+                Jouw AI-coach bij het schrijven van interne analyses volgens het 7S-model van McKinsey
               </p>
             </div>
           </div>
