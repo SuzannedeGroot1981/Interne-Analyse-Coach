@@ -109,40 +109,28 @@ export default function Home() {
                   <p className="text-sm text-gray-600">Krijg gedetailleerde feedback per 7S-element</p>
                 </div>
                 <div className="text-center">
+                  <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-2xl">🔧</span>
+                  </div>
+                  <h3 className="font-semibold text-gray-800 mb-2">3. Verbeter</h3>
+                  <p className="text-sm text-gray-600">Pas verbetervoorstellen toe</p>
+                </div>
+                <div className="text-center">
                   <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <span className="text-2xl">📊</span>
                   </div>
-                  <h3 className="font-semibold text-gray-800 mb-2">3. Exporteer</h3>
+                  <h3 className="font-semibold text-gray-800 mb-2">4. Exporteer</h3>
                   <p className="text-sm text-gray-600">Download je verbeterde analyse</p>
                 </div>
               </div>
             </div>
 
-            {/* Document Review Component */}
-            <div className="bg-white rounded-xl shadow-lg p-8">
-              <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold text-gray-800 mb-4">
-                  Start je Document Review
-                </h2>
-                <p className="text-gray-600 max-w-2xl mx-auto">
-                  Upload je document hieronder om te beginnen met de AI-analyse volgens het 7S-model.
-                </p>
-              </div>
-              
-              {/* Document Review Component zou hier komen */}
-              <div className="text-center py-12 border-2 border-dashed border-gray-300 rounded-lg">
-                <div className="text-4xl mb-4">📄</div>
-                <h3 className="text-lg font-semibold text-gray-700 mb-2">
-                  Document Review Tool
-                </h3>
-                <p className="text-gray-500 mb-6">
-                  Upload je DOCX of Markdown bestand voor AI-analyse
-                </p>
-                <button className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-green-700 transition-colors">
-                  📁 Selecteer Document
-                </button>
-              </div>
-            </div>
+            {/* StepWizard Component */}
+            <StepWizard 
+              projectId={projectId || undefined}
+              flow="improve"
+              onSave={handleSave}
+            />
           </div>
         </div>
 
