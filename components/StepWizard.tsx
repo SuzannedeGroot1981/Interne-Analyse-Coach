@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { saveProject, loadProject, createProjectId } from '../utils/storage'
 import FinanceDropzone from './FinanceDropzone'
 import ProjectActions from './ProjectActions'
-import { useRouter } from 'next/router'
 
 // Types voor stap data
 interface StepData {
