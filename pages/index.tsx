@@ -26,13 +26,13 @@ export default function Home() {
             </h1>
             
             <p className="text-xl text-primary font-medium mb-8 max-w-2xl mx-auto">
-              Krijg professionele AI-feedback op je interne analyse volgens het 7S-model
+              Upload je interne analyse concept en krijg professionele AI-feedback volgens het 7S-model
             </p>
 
             <p className="text-gray-600 mb-12 max-w-3xl mx-auto">
               Speciaal ontwikkeld voor HBO-studenten Management in de Zorg aan Hogeschool Leiden. 
-              Upload je document of vul handmatig de 7S-elementen in voor constructieve feedback 
-              met focus op sterke punten, verbeterpunten en APA-richtlijnen.
+              Krijg constructieve feedback op je interne organisatie-analyse met focus op sterke punten, 
+              verbeterpunten en APA-richtlijnen.
             </p>
           </div>
 
@@ -46,17 +46,17 @@ export default function Home() {
                   </svg>
                 </div>
                 <h2 className="text-2xl font-bold text-gray-800 mb-3">
-                  Start je Analyse Feedback
+                  Upload je Concept voor Feedback
                 </h2>
                 <p className="text-gray-600 mb-6">
-                  Upload je bestaande document of vul handmatig de 7S-elementen in. 
-                  Krijg gedetailleerde AI-feedback op inhoud, structuur en APA-richtlijnen.
+                  Upload je interne analyse document en krijg gedetailleerde AI-feedback op inhoud, 
+                  structuur, 7S-model toepassing en APA-richtlijnen.
                 </p>
               </div>
               
               <Link href="/improve">
                 <button className="btn-secondary w-full py-4 px-6 text-lg font-semibold rounded-xl transition-all duration-200 transform hover:scale-105">
-                  🚀 Start Feedback Sessie
+                  📄 Upload Document voor Feedback
                 </button>
               </Link>
             </div>
@@ -87,9 +87,9 @@ export default function Home() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                 </div>
-                <h4 className="text-lg font-semibold text-gray-800 mb-2">Flexibele Invoermethoden</h4>
+                <h4 className="text-lg font-semibold text-gray-800 mb-2">Concrete Verbeterpunten</h4>
                 <p className="text-gray-600 text-sm">
-                  Upload documenten of vul handmatig in - beide methoden geven gedetailleerde feedback.
+                  Specifieke suggesties voor verbetering van inhoud, structuur en academische kwaliteit.
                 </p>
               </div>
               
@@ -127,8 +127,8 @@ export default function Home() {
                 <div>
                   <h4 className="font-semibold mb-2">📄 Ondersteunde formaten:</h4>
                   <ul className="text-sm space-y-1">
-                    <li>• Document upload: Word (.docx) en Markdown (.md)</li>
-                    <li>• Handmatige invoer: 7S-elementen formulier</li>
+                    <li>• Word documenten (.docx)</li>
+                    <li>• Markdown bestanden (.md)</li>
                     <li>• Maximaal 10MB bestandsgrootte</li>
                     <li>• Nederlandse en Engelse teksten</li>
                   </ul>
