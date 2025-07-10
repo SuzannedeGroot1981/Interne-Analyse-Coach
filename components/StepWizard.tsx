@@ -760,8 +760,20 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
               <div className="text-hl-donkergroen text-sm whitespace-pre-line font-gantari">
                 {currentWizardData.feedback}
               </div>
-              <div className="mt-2 text-xs text-gray-500 font-gantari">
-                Tekens: {currentWizardData.feedback.length} • Woorden: {currentWizardData.feedback.split(/\s+/).length}
+              <div className="flex items-center justify-between mt-3">
+                <div className="text-xs text-gray-500 font-gantari">
+                  Tekens: {currentWizardData.feedback.length} • Woorden: {currentWizardData.feedback.split(/\s+/).length}
+                </div>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(currentWizardData.feedback)
+                    alert('Coach feedback gekopieerd naar clipboard!')
+                  }}
+                  className="text-xs text-hl-donkergroen hover:text-hl-donkerpaars flex items-center space-x-1 font-gantari"
+                >
+                  <span className="material-symbols-sharp hl-icon-sm">content_copy</span>
+                  <span>Kopieer resultaten</span>
+                </button>
               </div>
             </div>
           )}
