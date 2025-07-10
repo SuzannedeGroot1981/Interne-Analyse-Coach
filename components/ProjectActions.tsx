@@ -351,8 +351,8 @@ export default function ProjectActions({ projectId, projectData, wizardData, apa
 
   return (
     <div className={`space-y-6 ${className}`}>
-      {/* Hoofdacties - prominente weergave */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Hoofdactie - Word Export */}
+      <div className="max-w-md mx-auto">
         {/* Word Export Card */}
         <div className="bg-gradient-to-br from-hl-lichtgroen to-hl-wit rounded-xl p-6 hover:shadow-lg transition-all duration-200">
           <div className="flex items-center mb-4">
@@ -366,7 +366,7 @@ export default function ProjectActions({ projectId, projectData, wizardData, apa
           </div>
           
           <p className="text-sm text-hl-donkergroen mb-4 font-gantari">
-            Exporteer je complete analyse als professioneel Word document met HL-logo en alle coach feedback.
+            Exporteer je complete analyse als professioneel Word document met HL-logo, alle coach feedback en APA check resultaten.
           </p>
           
           <button
@@ -383,41 +383,6 @@ export default function ProjectActions({ projectId, projectData, wizardData, apa
               <>
                 <span className="material-symbols-sharp hl-icon-white hl-icon-sm">download</span>
                 <span>Download Word</span>
-              </>
-            )}
-          </button>
-        </div>
-
-        {/* Project Opslaan Card */}
-        <div className="bg-gradient-to-br from-hl-geel to-hl-wit rounded-xl p-6 hover:shadow-lg transition-all duration-200">
-          <div className="flex items-center mb-4">
-            <div className="w-12 h-12 bg-hl-donkerpaars rounded-lg flex items-center justify-center mr-4">
-              <span className="material-symbols-sharp text-hl-wit hl-icon-lg">save</span>
-            </div>
-            <div>
-              <h3 className="text-lg font-bold text-hl-donkerpaars font-gantari">Project Backup</h3>
-              <p className="text-sm text-hl-donkerpaars font-gantari">Opslaan & delen</p>
-            </div>
-          </div>
-          
-          <p className="text-sm text-hl-donkerpaars mb-4 font-gantari">
-            Sla je volledige project op als JSON bestand voor backup of om te delen met anderen.
-          </p>
-          
-          <button
-            onClick={downloadProject}
-            disabled={isExportingJson || (!projectData && !projectId)}
-            className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-hl-donkerpaars text-hl-wit rounded-lg hover:bg-hl-donkergroen disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold font-gantari"
-          >
-            {isExportingJson ? (
-              <>
-                <span className="material-symbols-sharp hl-icon-white hl-icon-sm animate-spin">progress_activity</span>
-                <span>Opslaan...</span>
-              </>
-            ) : (
-              <>
-                <span className="material-symbols-sharp hl-icon-white hl-icon-sm">cloud_download</span>
-                <span>Opslaan Project</span>
               </>
             )}
           </button>
@@ -461,70 +426,6 @@ export default function ProjectActions({ projectId, projectData, wizardData, apa
         </div>
       )}
 
-      {/* Project Import sectie - minder prominent */}
-      <div className="bg-hl-zand rounded-xl p-6">
-        <h3 className="text-lg font-semibold text-hl-donkergroen mb-4 flex items-center font-gantari">
-          <span className="material-symbols-sharp hl-icon-primary hl-icon-md mr-2">file_upload</span>
-          Project Importeren
-        </h3>
-        
-        <p className="text-sm text-hl-donkergroen mb-4 font-gantari">
-          Laad een eerder geëxporteerd project bestand (.json) om verder te werken aan een bestaande analyse.
-        </p>
-        
-        <div className="relative inline-block">
-          <input
-            type="file"
-            accept=".json"
-            onChange={importProject}
-            disabled={isImporting}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
-            id="project-import"
-          />
-          <label
-            htmlFor="project-import"
-            className={`flex items-center justify-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 cursor-pointer font-gantari ${
-              isImporting
-                ? 'bg-hl-lichtgroen text-hl-donkergroen cursor-not-allowed'
-                : 'bg-hl-donkergroen text-hl-wit hover:bg-hl-donkerpaars hover:shadow-md'
-            }`}
-          >
-            {isImporting ? (
-              <>
-                <span className="material-symbols-sharp hl-icon-sm animate-spin">progress_activity</span>
-                <span>Importeren...</span>
-              </>
-            ) : (
-              <>
-                <span className="material-symbols-sharp hl-icon-white hl-icon-sm">upload_file</span>
-                <span>Selecteer JSON bestand</span>
-              </>
-            )}
-          </label>
-        </div>
-
-        {/* Status messages */}
-        {importError && (
-          <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-3">
-            <div className="flex items-center space-x-2">
-              <span className="material-symbols-sharp text-red-500 hl-icon-sm">error</span>
-              <span className="text-red-700 text-sm font-medium font-gantari">Import Fout</span>
-            </div>
-            <p className="text-red-600 text-sm mt-1 font-gantari">{importError}</p>
-          </div>
-        )}
-
-        {importSuccess && (
-          <div className="mt-4 bg-hl-lichtgroen border border-hl-donkergroen rounded-lg p-3">
-            <div className="flex items-center space-x-2">
-              <span className="material-symbols-sharp text-hl-donkergroen hl-icon-sm">check_circle</span>
-              <span className="text-hl-donkergroen text-sm font-medium font-gantari">Import Succesvol</span>
-            </div>
-            <p className="text-hl-donkergroen text-sm mt-1 font-gantari">{importSuccess}</p>
-          </div>
-        )}
-      </div>
-
       {/* Help sectie - compacter */}
       <div className="bg-hl-lichtgroen rounded-lg p-4">
         <h4 className="text-sm font-semibold text-hl-donkergroen mb-2 flex items-center font-gantari">
@@ -534,15 +435,7 @@ export default function ProjectActions({ projectId, projectData, wizardData, apa
         <div className="text-xs text-hl-donkergroen space-y-1 font-gantari">
           <p className="flex items-start space-x-2">
             <span className="material-symbols-sharp hl-icon-primary hl-icon-sm mt-0.5">description</span>
-            <span><strong>Word Document:</strong> Bevat alle stappen, coach feedback en professionele HL-opmaak</span>
-          </p>
-          <p className="flex items-start space-x-2">
-            <span className="material-symbols-sharp hl-icon-primary hl-icon-sm mt-0.5">save</span>
-            <span><strong>Project Backup:</strong> JSON bestand voor veilige opslag en delen met teamleden</span>
-          </p>
-          <p className="flex items-start space-x-2">
-            <span className="material-symbols-sharp hl-icon-primary hl-icon-sm mt-0.5">file_upload</span>
-            <span><strong>Import:</strong> Laad eerder opgeslagen projecten om verder te werken</span>
+            <span><strong>Word Document:</strong> Bevat alle stappen, coach feedback, APA check resultaten en professionele HL-opmaak</span>
           </p>
         </div>
       </div>
