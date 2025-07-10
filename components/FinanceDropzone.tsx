@@ -205,6 +205,10 @@ export default function FinanceDropzone({ onDataLoaded, className = '' }: Financ
         financeData = await processCSV(file)
       } else if (file.name.toLowerCase().endsWith('.xlsx') || file.name.toLowerCase().endsWith('.xls')) {
         financeData = await processExcel(file)
+      } else if (file.name.toLowerCase().endsWith('.pdf')) {
+        financeData = await processPDF(file)
+      } else if (file.name.toLowerCase().endsWith('.jpg') || file.name.toLowerCase().endsWith('.jpeg')) {
+        financeData = await processImage(file)
       } else {
         throw new Error('Niet ondersteund bestandsformaat')
       }
@@ -236,7 +240,9 @@ export default function FinanceDropzone({ onDataLoaded, className = '' }: Financ
     accept: {
       'text/csv': ['.csv'],
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
-      'application/vnd.ms-excel': ['.xls']
+      'application/vnd.ms-excel': ['.xls'],
+      'application/pdf': ['.pdf'],
+      'image/jpeg': ['.jpg', '.jpeg']
     },
     maxFiles: 1,
     maxSize: 10 * 1024 * 1024, // 10MB
@@ -325,7 +331,7 @@ export default function FinanceDropzone({ onDataLoaded, className = '' }: Financ
                   📊 Drop je financiële bestand hier
                 </p>
                 <p className="text-sm text-gray-500">
-                  CSV of Excel bestanden worden ondersteund
+                  CSV, Excel, PDF en JPG bestanden worden ondersteund
                 </p>
               </div>
             ) : (
@@ -334,10 +340,10 @@ export default function FinanceDropzone({ onDataLoaded, className = '' }: Financ
                   💰 Upload Financiële Data
                 </p>
                 <p className="text-sm text-gray-500 mt-1">
-                  Sleep een CSV of Excel bestand hierheen, of klik om te selecteren
+                  Sleep een CSV, Excel, PDF of JPG bestand hierheen, of klik om te selecteren
                 </p>
                 <p className="text-xs text-gray-400 mt-2">
-                  Ondersteunde formaten: .csv, .xlsx, .xls (max 10MB)
+                  Ondersteunde formaten: .csv, .xlsx, .xls, .pdf, .jpg, .jpeg (max 10MB)
                 </p>
               </div>
             )}
