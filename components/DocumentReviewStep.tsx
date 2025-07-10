@@ -400,6 +400,8 @@ export default function DocumentReviewStep({ className = '' }: DocumentReviewSte
               <li>• Gebruik concrete voorbeelden en data</li>
               <li>• Beschrijf zowel sterke als zwakke punten</li>
               <li>• Focus op interne organisatie-aspecten</li>
+              <li>• Vraag eerst per element feedback, dan overall</li>
+              <li>• Gebruik feedback om je tekst te verbeteren</li>
             </ul>
           </div>
         </div>
