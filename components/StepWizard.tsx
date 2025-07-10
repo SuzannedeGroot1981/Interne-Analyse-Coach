@@ -585,6 +585,36 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
   const currentEvidence = getEvidenceForStep(currentStepData?.id)
   const currentDocumentSummary = getDocumentSummaryForStep(currentStepData?.id)
 
+  // Helper functie voor stap-specifieke beschrijvingen
+  const getStepDescription = (stepId: string): string => {
+    const descriptions = {
+      'strategy': 'Beschrijf de huidige strategische situatie van je zorgorganisatie. Wat zijn de belangrijkste interne doelstellingen en hoe worden deze nagestreefd? Gebruik concrete voorbeelden en citeer interview/enquête resultaten. Je kunt ook de gewenste toekomstige strategische richting beschrijven.',
+      'structure': 'Analyseer de huidige organisatiestructuur. Beschrijf hiërarchie, afdelingen, rapportagelijnen en besluitvorming. Ondersteun met organogram indien beschikbaar en interview bevindingen. Je kunt ook gewenste structuurveranderingen beschrijven.',
+      'systems': 'Beschrijf de belangrijkste interne systemen en processen. Hoe verlopen zorgprocessen, administratieve procedures en IT-ondersteuning? Analyseer effectiviteit op basis van medewerker feedback. Beschrijf ook gewenste systeemverbeteringen.',
+      'shared-values': 'Analyseer de gedeelde waarden en cultuur. Hoe leven medewerkers deze waarden na in de dagelijkse zorgverlening? Gebruik concrete voorbeelden uit interviews en observaties. Beschrijf ook gewenste cultuurontwikkeling.',
+      'skills': 'Inventariseer de aanwezige vaardigheden en competenties. Waar liggen de sterke punten van je zorgteams? Identificeer kennislacunes op basis van competentiematrix en medewerkergesprekken. Beschrijf ook gewenste competentieontwikkeling.',
+      'style': 'Analyseer de leiderschapsstijl van management en teamleiders. Hoe wordt er intern leiding gegeven? Ondersteun met voorbeelden uit leiderschapssessies en medewerkerfeedback. Beschrijf ook gewenste leiderschapsontwikkeling.',
+      'staff': 'Beschrijf het personeelsbestand en teamsamenstelling. Hoe worden medewerkers ontwikkeld en gemotiveerd? Analyseer op basis van HR-data en medewerkertevredenheidsonderzoek. Beschrijf ook gewenste personeelsontwikkeling.',
+      'finances': 'Analyseer de financiële gezondheid met focus op rentabiliteit, liquiditeit en solvabiliteit. Hoe verhouden kosten zich tot opbrengsten? Verbind financiële prestaties aan andere 7S-elementen. Beschrijf ook gewenste financiële doelstellingen.'
+    }
+    return descriptions[stepId as keyof typeof descriptions] || 'Beschrijf de huidige situatie en eventueel de gewenste toekomstige situatie voor dit onderdeel.'
+  }
+
+  // Helper functie voor stap-specifieke placeholders
+  const getStepPlaceholder = (stepId: string): string => {
+    const placeholders = {
+      'strategy': 'Beschrijf de huidige strategische situatie en eventueel de gewenste strategische richting...',
+      'structure': 'Beschrijf de huidige organisatiestructuur en eventueel gewenste structuurveranderingen...',
+      'systems': 'Beschrijf de huidige systemen en processen en eventueel gewenste verbeteringen...',
+      'shared-values': 'Beschrijf de huidige waarden en cultuur en eventueel gewenste cultuurontwikkeling...',
+      'skills': 'Beschrijf de huidige vaardigheden en competenties en eventueel gewenste ontwikkeling...',
+      'style': 'Beschrijf de huidige leiderschapsstijl en eventueel gewenste leiderschapsontwikkeling...',
+      'staff': 'Beschrijf het huidige personeelsbestand en eventueel gewenste personeelsontwikkeling...',
+      'finances': 'Beschrijf de huidige financiële situatie en eventueel gewenste financiële doelstellingen...'
+    }
+    return placeholders[stepId as keyof typeof placeholders] || 'Beschrijf de huidige situatie en eventueel de gewenste toekomstige situatie...'
+  }
+
   return (
     <div className="max-w-6xl mx-auto p-6">
       {/* API Quota Warning Banner */}
@@ -730,60 +760,23 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
           )}
 
           {/* Tekstvelden met evidence en document samenvatting - grid layout */}
-          <div className={`grid gap-6 mb-6 ${currentStepData.id === 'strategy' ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-3'}`}>
-            {/* Strategy: gecombineerd veld, andere stappen: gescheiden velden */}
-            <div className={currentStepData.id === 'strategy' ? '' : 'lg:col-span-2'}>
-              {currentStepData.id === 'strategy' ? (
-                // Strategy: één gecombineerd veld
-                <>
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    🎯 Strategy Analyse
-                  </label>
-                  <p className="text-sm text-gray-600 mb-3">
-                    Beschrijf de huidige strategische situatie van je zorgorganisatie. Wat zijn de belangrijkste interne doelstellingen en hoe worden deze nagestreefd? Gebruik concrete voorbeelden en citeer interview/enquête resultaten. Je kunt ook de gewenste toekomstige strategische richting beschrijven.
-                  </p>
-                  <textarea
-                    value={currentWizardData.current}
-                    onChange={(e) => updateStepData(currentStepData.id, 'current', e.target.value)}
-                    placeholder="Beschrijf de huidige strategische situatie en eventueel de gewenste strategische richting..."
-                    className="w-full h-64 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
-                  />
-                </>
-              ) : (
-                // Andere stappen: gescheiden velden
-                <>
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    📊 Feitelijke Situatie
-                  </label>
-                  <p className="text-sm text-gray-600 mb-3">
-                    {currentStepData.questions.current}
-                  </p>
-                  <textarea
-                    value={currentWizardData.current}
-                    onChange={(e) => updateStepData(currentStepData.id, 'current', e.target.value)}
-                    placeholder="Beschrijf de huidige feitelijke situatie..."
-                    className="w-full h-40 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
-                  />
+          <div className="grid gap-6 mb-6 grid-cols-1">
+            {/* Alle stappen: één gecombineerd veld */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-3">
+                {currentStepData.icon} {currentStepData.title} Analyse
+              </label>
+              <p className="text-sm text-gray-600 mb-3">
+                {getStepDescription(currentStepData.id)}
+              </p>
+              <textarea
+                value={currentWizardData.current}
+                onChange={(e) => updateStepData(currentStepData.id, 'current', e.target.value)}
+                placeholder={getStepPlaceholder(currentStepData.id)}
+                className="w-full h-64 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+              />
 
-                  {/* Gewenste situatie (optioneel) */}
-                  <div className="mt-6">
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">
-                      🎯 Gewenste Situatie (Optioneel)
-                    </label>
-                    <p className="text-sm text-gray-600 mb-3">
-                      Beschrijf eventueel ook de gewenste toekomstige situatie voor dit onderdeel.
-                    </p>
-                    <textarea
-                      value={currentWizardData.desired}
-                      onChange={(e) => updateStepData(currentStepData.id, 'desired', e.target.value)}
-                      placeholder="Beschrijf de gewenste situatie (optioneel)..."
-                      className="w-full h-32 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
-                    />
-                  </div>
-                </>
-              )}
-
-              {/* APA Self-check knop - voor alle stappen */}
+              {/* APA Self-check knop */}
               <div className="mt-6">
                 <button
                   onClick={checkAPA}
@@ -812,92 +805,90 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
                 </p>
               </div>
             </div>
+          </div>
 
-            {/* Evidence & Document Summary sidebar - 1/3 breedte */}
-            {currentStepData.id !== 'strategy' && (
-              <div className="lg:col-span-1 space-y-4">
-                {/* Evidence sectie */}
-                {currentEvidence ? (
-                  <aside className="bg-gray-50 p-4 text-sm border-l-4 border-primary/60 rounded-lg">
-                    <div className="flex items-center mb-3">
-                      <span className="text-lg mr-2">🎤</span>
-                      <b className="text-gray-800">Evidence uit onderzoek:</b>
-                    </div>
-                    <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
-                      {currentEvidence}
-                    </div>
-                    <div className="mt-3 pt-3 border-t border-gray-200">
-                      <p className="text-xs text-gray-500">
-                        💡 <strong>Verplicht:</strong> Verwerk deze onderzoeksbevindingen in je analyse en citeer expliciet volgens APA-richtlijnen
-                      </p>
-                    </div>
-                  </aside>
-                ) : (
-                  <aside className="bg-blue-50 p-4 text-sm border-l-4 border-blue-300 rounded-lg">
-                    <div className="flex items-center mb-3">
-                      <span className="text-lg mr-2">💡</span>
-                      <b className="text-blue-800">Geen onderzoeksevidence beschikbaar</b>
-                    </div>
-                    <div className="text-blue-700">
-                      <p className="mb-2">
-                        Voor dit 7S-element zijn nog geen interview- of enquête-bevindingen beschikbaar.
-                      </p>
-                      <p className="text-xs">
-                        <strong>Aanbeveling:</strong> Upload interview-transcripten en enquête-data in de Evidence stap voor een complete analyse.
-                      </p>
-                    </div>
-                    <div className="mt-3">
-                      <button
-                        onClick={() => window.location.href = `/evidence?id=${actualProjectId}`}
-                        className="text-xs text-blue-600 hover:text-blue-800 underline"
-                      >
-                        → Upload onderzoeksmateriaal
-                      </button>
-                    </div>
-                  </aside>
-                )}
+          {/* Evidence & Document Summary - nu onder het tekstveld */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            {/* Evidence sectie */}
+            {currentEvidence ? (
+              <aside className="bg-gray-50 p-4 text-sm border-l-4 border-primary/60 rounded-lg">
+                <div className="flex items-center mb-3">
+                  <span className="text-lg mr-2">🎤</span>
+                  <b className="text-gray-800">Evidence uit onderzoek:</b>
+                </div>
+                <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+                  {currentEvidence}
+                </div>
+                <div className="mt-3 pt-3 border-t border-gray-200">
+                  <p className="text-xs text-gray-500">
+                    💡 <strong>Verplicht:</strong> Verwerk deze onderzoeksbevindingen in je analyse en citeer expliciet volgens APA-richtlijnen
+                  </p>
+                </div>
+              </aside>
+            ) : (
+              <aside className="bg-blue-50 p-4 text-sm border-l-4 border-blue-300 rounded-lg">
+                <div className="flex items-center mb-3">
+                  <span className="text-lg mr-2">💡</span>
+                  <b className="text-blue-800">Geen onderzoeksevidence beschikbaar</b>
+                </div>
+                <div className="text-blue-700">
+                  <p className="mb-2">
+                    Voor dit 7S-element zijn nog geen interview- of enquête-bevindingen beschikbaar.
+                  </p>
+                  <p className="text-xs">
+                    <strong>Aanbeveling:</strong> Upload interview-transcripten en enquête-data in de Evidence stap voor een complete analyse.
+                  </p>
+                </div>
+                <div className="mt-3">
+                  <button
+                    onClick={() => window.location.href = `/evidence?id=${actualProjectId}`}
+                    className="text-xs text-blue-600 hover:text-blue-800 underline"
+                  >
+                    → Upload onderzoeksmateriaal
+                  </button>
+                </div>
+              </aside>
+            )}
 
-                {/* Document samenvatting sectie */}
-                {currentDocumentSummary ? (
-                  <aside className="bg-green-50 p-4 text-sm border-l-4 border-green-500/60 rounded-lg">
-                    <div className="flex items-center mb-3">
-                      <span className="text-lg mr-2">📄</span>
-                      <b className="text-gray-800">Document Samenvatting:</b>
-                    </div>
-                    <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
-                      {currentDocumentSummary}
-                    </div>
-                    <div className="mt-3 pt-3 border-t border-gray-200">
-                      <p className="text-xs text-gray-500">
-                        📚 Gebaseerd op geüploade documenten uit de bronneninventarisatie
-                      </p>
-                    </div>
-                  </aside>
-                ) : (
-                  <aside className="bg-gray-50 p-4 text-sm border-l-4 border-gray-300 rounded-lg">
-                    <div className="flex items-center mb-3">
-                      <span className="text-lg mr-2">📄</span>
-                      <b className="text-gray-800">Geen document samenvatting</b>
-                    </div>
-                    <div className="text-gray-700">
-                      <p className="mb-2">
-                        Voor dit onderdeel zijn nog geen documenten geüpload en samengevat.
-                      </p>
-                      <p className="text-xs">
-                        Ga naar de <strong>Bronneninventarisatie</strong> om documenten te uploaden en samen te vatten.
-                      </p>
-                    </div>
-                    <div className="mt-3">
-                      <button
-                        onClick={() => window.location.href = `/sources?id=${actualProjectId}`}
-                        className="text-xs text-gray-600 hover:text-gray-800 underline"
-                      >
-                        → Ga naar Bronneninventarisatie
-                      </button>
-                    </div>
-                  </aside>
-                )}
-              </div>
+            {/* Document samenvatting sectie */}
+            {currentDocumentSummary ? (
+              <aside className="bg-green-50 p-4 text-sm border-l-4 border-green-500/60 rounded-lg">
+                <div className="flex items-center mb-3">
+                  <span className="text-lg mr-2">📄</span>
+                  <b className="text-gray-800">Document Samenvatting:</b>
+                </div>
+                <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+                  {currentDocumentSummary}
+                </div>
+                <div className="mt-3 pt-3 border-t border-gray-200">
+                  <p className="text-xs text-gray-500">
+                    📚 Gebaseerd op geüploade documenten uit de bronneninventarisatie
+                  </p>
+                </div>
+              </aside>
+            ) : (
+              <aside className="bg-gray-50 p-4 text-sm border-l-4 border-gray-300 rounded-lg">
+                <div className="flex items-center mb-3">
+                  <span className="text-lg mr-2">📄</span>
+                  <b className="text-gray-800">Geen document samenvatting</b>
+                </div>
+                <div className="text-gray-700">
+                  <p className="mb-2">
+                    Voor dit onderdeel zijn nog geen documenten geüpload en samengevat.
+                  </p>
+                  <p className="text-xs">
+                    Ga naar de <strong>Bronneninventarisatie</strong> om documenten te uploaden en samen te vatten.
+                  </p>
+                </div>
+                <div className="mt-3">
+                  <button
+                    onClick={() => window.location.href = `/sources?id=${actualProjectId}`}
+                    className="text-xs text-gray-600 hover:text-gray-800 underline"
+                  >
+                    → Ga naar Bronneninventarisatie
+                  </button>
+                </div>
+              </aside>
             )}
           </div>
 
