@@ -9,8 +9,7 @@ interface DocumentReviewStepProps {
 
 interface SevenSData {
   [key: string]: {
-    current: string
-    desired: string
+    content: string
     feedback?: string
   }
 }
@@ -93,12 +92,12 @@ export default function DocumentReviewStep({ className = '' }: DocumentReviewSte
   }
 
   // Update 7S data
-  const updateSevenSData = (elementId: string, field: 'current' | 'desired', value: string) => {
+  const updateSevenSData = (elementId: string, value: string) => {
     setSevenSData(prev => ({
       ...prev,
       [elementId]: {
         ...prev[elementId],
-        [field]: value
+        content: value
       }
     }))
   }
@@ -113,11 +112,8 @@ export default function DocumentReviewStep({ className = '' }: DocumentReviewSte
       
       allElements.forEach(element => {
         const data = sevenSData[element.id]
-        if (data?.current) {
-          combinedText += `## ${element.title}\n\n${data.current}\n\n`
-          if (data.desired) {
-            combinedText += `### Gewenste situatie\n\n${data.desired}\n\n`
-          }
+        if (data?.content) {
+          combinedText += `## ${element.title}\n\n${data.content}\n\n`
         }
       })
 
@@ -169,30 +165,66 @@ export default function DocumentReviewStep({ className = '' }: DocumentReviewSte
       
       <p className="text-gray-600 mb-4">{element.description}</p>
       
-      {/* Huidige situatie */}
-      <div className="mb-4">
+      {/* Analyse tekstveld */}
+      <div>
         <label className="block text-sm font-semibold text-gray-700 mb-2">
-          📊 Huidige Situatie *
+          📝 Analyse & Beschrijving
         </label>
+        <p className="text-xs text-gray-500 mb-3">
+          Beschrijf de huidige situatie en eventueel de gewenste toekomstige situatie voor dit element
+        </p>
         <textarea
-          value={sevenSData[element.id]?.current || ''}
-          onChange={(e) => updateSevenSData(element.id, 'current', e.target.value)}
-          placeholder={element.placeholder}
-          className="w-full h-32 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+          value={sevenSData[element.id]?.content || ''}
+          onChange={(e) => updateSevenSData(element.id, e.target.value)}
+          placeholder={`${element.placeholder}\n\nOptioneel: Beschrijf ook de gewenste toekomstige situatie...`}
+          className="w-full h-40 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
         />
       </div>
 
-      {/* Gewenste situatie (optioneel) */}
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
-          🎯 Gewenste Situatie (Optioneel)
-        </label>
-        <textarea
-          value={sevenSData[element.id]?.desired || ''}
-          onChange={(e) => updateSevenSData(element.id, 'desired', e.target.value)}
-          placeholder="Beschrijf de gewenste toekomstige situatie voor dit element..."
-          className="w-full h-24 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
-        />
+      {/* Individuele feedback knop en display */}
+      <div className="mt-4">
+        <button
+          onClick={() => generateElementFeedback(element.id)}
+          disabled={!sevenSData[element.id]?.content?.trim() || isGeneratingFeedback}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            !sevenSData[element.id]?.content?.trim() || isGeneratingFeedback
+              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              : 'bg-blue-600 text-white hover:bg-blue-700'
+          }`}
+        >
+          {isGeneratingFeedback ? (
+            <div className="flex items-center space-x-2">
+              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600"></div>
+              <span>Analyseren...</span>
+            </div>
+          ) : (
+            <div className="flex items-center space-x-2">
+              <span>🤖</span>
+              <span>Vraag Feedback</span>
+            </div>
+          )}
+        </button>
+
+        {/* Element feedback display */}
+        {sevenSData[element.id]?.feedback && (
+          <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="text-sm font-semibold text-blue-800 flex items-center">
+                <span className="mr-2">💡</span>
+                AI Feedback voor {element.title}
+              </h4>
+              <button
+                onClick={() => hideElementFeedback(element.id)}
+                className="text-blue-600 hover:text-blue-800 text-xs"
+              >
+                Verberg
+              </button>
+            </div>
+            <div className="text-blue-700 text-sm whitespace-pre-line">
+              {sevenSData[element.id].feedback}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
