@@ -42,10 +42,13 @@ export default function ProjectActions({ projectId, projectData, wizardData, cla
     STEPS.forEach(step => {
       const stepData = wizardData[step.id]
       if (stepData) {
-        // Gebruik de gecombineerde analyse tekst
+        // Combineer current en desired situatie
         let content = ''
-        if (stepData.analysis) {
-          content = stepData.analysis
+        if (stepData.current) {
+          content += `**Huidige situatie:**\n${stepData.current}\n\n`
+        }
+        if (stepData.desired) {
+          content += `**Gewenste situatie:**\n${stepData.desired}`
         }
         
         if (content) {
@@ -97,12 +100,16 @@ export default function ProjectActions({ projectId, projectData, wizardData, cla
 
       STEPS.forEach(step => {
         const stepData = wizardData[step.id]
-        if (stepData && stepData.analysis) {
+        if (stepData && (stepData.current || stepData.desired)) {
           markdown += `## ${step.icon} ${step.title}\n\n`
           markdown += `*${step.description}*\n\n`
           
-          if (stepData.analysis) {
-            markdown += `### 📊 Analyse\n\n${stepData.analysis}\n\n`
+          if (stepData.current) {
+            markdown += `### 📊 Huidige Situatie\n\n${stepData.current}\n\n`
+          }
+          
+          if (stepData.desired) {
+            markdown += `### 🎯 Gewenste Situatie\n\n${stepData.desired}\n\n`
           }
           
           if (stepData.feedback) {

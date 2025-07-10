@@ -77,7 +77,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Parse request body
-    const { userPrompt, stepTitle, analysis, projectId } = req.body
+    const { userPrompt, stepTitle, currentSituation, desiredSituation, projectId } = req.body
 
     // Input validatie
     if (!userPrompt || typeof userPrompt !== 'string') {
@@ -119,7 +119,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     }
 
-    const userText = analysis || "";
+    const userText = currentSituation || "";
 
     // Construeer de volledige prompt met evidence
     let fullPrompt = SYSTEM_PROMPT;
@@ -135,8 +135,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       fullPrompt += `7S-Element: ${stepTitle}\n\n`
     }
     
-    if (analysis) {
-      fullPrompt += `Analyse tekst:\n${analysis}\n\n`
+    if (currentSituation) {
+      fullPrompt += `Huidige situatie:\n${currentSituation}\n\n`
+    }
+    
+    if (desiredSituation) {
+      fullPrompt += `Gewenste situatie:\n${desiredSituation}\n\n`
     }
     
     fullPrompt += `Vraag van de gebruiker:\n${userPrompt}`
