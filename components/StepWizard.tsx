@@ -32,7 +32,7 @@ const STEPS = [
     id: 'strategy',
     title: 'Strategy',
     subtitle: 'Strategie & Richting',
-    icon: 'target_on',
+    icon: 'route',
     description: 'De langetermijnvisie, missie en strategische doelstellingen van de zorgorganisatie. Focus op interne strategische keuzes en prioriteiten.',
     questions: {
       current: 'Beschrijf de huidige strategie van je zorgorganisatie. Wat zijn de belangrijkste interne doelstellingen en hoe worden deze nagestreefd? Gebruik concrete voorbeelden en citeer interview/enquête resultaten.'
