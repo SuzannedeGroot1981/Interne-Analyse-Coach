@@ -63,25 +63,10 @@ export default function Home() {
                   alt="Hogeschool Leiden Logo"
                   className="h-8 w-auto"
                 />
-                <div>
-                  <h1 className="text-lg font-bold text-primary">
-                    Interne-Analyse-Coach
-                  </h1>
-                  <p className="text-xs text-gray-600">
-                    AI-gestuurde organisatie-ontwikkeling
-                  </p>
-                </div>
+                <h1 className="text-lg font-bold text-primary">
+                  Interne-Analyse-Coach
+                </h1>
               </div>
-
-              {/* Navigatie */}
-              <nav className="hidden md:flex items-center space-x-6">
-                <Link 
-                  href="/sources" 
-                  className="text-gray-600 hover:text-primary transition-colors text-sm font-medium"
-                >
-                  Nieuwe Analyse
-                </Link>
-              </nav>
             </div>
           </div>
         </div>
