@@ -1,5 +1,6 @@
 import Head from 'next/head'
 import Image from 'next/image'
+import Link from 'next/link'
 import { ReactNode } from 'react'
 
 interface LayoutProps {
@@ -51,9 +52,18 @@ export default function Layout({ children, title = 'Interne Analyse Coach' }: La
 
               {/* Navigation (optioneel voor later) */}
               <nav className="hidden md:flex items-center space-x-6">
-                <span className="text-gray-600 text-sm font-medium">
-                  Document Feedback Tool
-                </span>
+                <Link 
+                  href="/start" 
+                  className="text-gray-600 hover:text-primary transition-colors text-sm font-medium"
+                >
+                  Nieuwe Analyse
+                </Link>
+                <Link 
+                  href="/improve" 
+                  className="text-gray-600 hover:text-primary transition-colors text-sm font-medium"
+                >
+                  Verbeter Concept
+                </Link>
               </nav>
             </div>
           </div>
