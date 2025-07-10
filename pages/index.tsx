@@ -99,7 +99,8 @@ export default function Home() {
                     <span className="material-symbols-sharp hl-icon-primary hl-icon-lg">description</span>
                   </div>
                   <h3 className="font-gantari font-semibold text-hl-donkergroen mb-2">1. Upload Document</h3>
-                  <p className="text-sm text-gray-600 font-gantari">Upload je bestaande analyse of concept</p>
+                  <h3 className="font-gantari font-semibold text-hl-donkergroen mb-2">Schrijf je analyse</h3>
+                  <p className="text-sm text-gray-600 font-gantari">Vul de 7S-secties in met je onderzoek</p>
                 </div>
                 <div className="text-center">
                   <div className="w-12 h-12 bg-hl-geel rounded-full flex items-center justify-center mx-auto mb-4">
