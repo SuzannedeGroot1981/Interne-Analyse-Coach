@@ -453,7 +453,7 @@ export default function ProjectActions({ projectId, projectData, wizardData, cla
             ) : (
               <>
                 <span>📦</span>
-                <span>Download Project</span>
+                <span>Opslaan Project</span>
               </>
             )}
           </button>
@@ -523,7 +523,7 @@ export default function ProjectActions({ projectId, projectData, wizardData, cla
         <div className="text-xs text-gray-600 space-y-1">
           <p><strong>📊 Genereer Rapport:</strong> Maakt een volledig overzicht van alle stappen met coach feedback</p>
           <p><strong>📄 Download Word:</strong> Exporteert je analyse als professioneel Word document met HL-logo</p>
-          <p><strong>📦 Download Project:</strong> Slaat je volledige project op als JSON bestand voor backup of delen</p>
+          <p><strong>📦 Opslaan Project:</strong> Slaat je volledige project op als JSON bestand voor backup of delen</p>
           <p><strong>📥 Project Importeren:</strong> Laadt een eerder geëxporteerd JSON project bestand in</p>
         </div>
       </div>
