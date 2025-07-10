@@ -91,7 +91,7 @@ export default function Home() {
             {/* Instructies sectie */}
             <div className="hl-card mb-8">
               <h2 className="text-2xl font-bold text-hl-donkergroen mb-6 text-center font-gantari">
-                Hoe werkt de Interne Analyse Coach?
+                Hoe werkt het?
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="text-center">
