@@ -338,19 +338,28 @@ export default function ProjectActions({ projectId, projectData, wizardData, cla
 
   return (
     <div className={`space-y-6 ${className}`}>
-      {/* Export & Rapporten sectie */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-          <span className="mr-2">📄</span>
-          Export & Rapporten
-        </h3>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          {/* Download Word */}
+      {/* Hoofdacties - prominente weergave */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Word Export Card */}
+        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200 p-6 hover:shadow-lg transition-all duration-200">
+          <div className="flex items-center mb-4">
+            <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mr-4">
+              <span className="text-2xl text-white">📄</span>
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-blue-900">Word Document</h3>
+              <p className="text-sm text-blue-700">Professioneel rapport</p>
+            </div>
+          </div>
+          
+          <p className="text-sm text-blue-800 mb-4">
+            Exporteer je complete analyse als professioneel Word document met HL-logo en alle coach feedback.
+          </p>
+          
           <button
             onClick={downloadWord}
             disabled={isExportingWord || !wizardData}
-            className="flex items-center justify-center space-x-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold"
           >
             {isExportingWord ? (
               <>
@@ -366,14 +375,45 @@ export default function ProjectActions({ projectId, projectData, wizardData, cla
           </button>
         </div>
 
-        <p className="text-sm text-gray-600 mb-4">
-          <strong>Tip:</strong> Word export bevat professionele opmaak met HL-logo en alle ingevulde stappen met coach feedback.
-        </p>
+        {/* Project Opslaan Card */}
+        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl border border-green-200 p-6 hover:shadow-lg transition-all duration-200">
+          <div className="flex items-center mb-4">
+            <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mr-4">
+              <span className="text-2xl text-white">📦</span>
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-green-900">Project Backup</h3>
+              <p className="text-sm text-green-700">Opslaan & delen</p>
+            </div>
+          </div>
+          
+          <p className="text-sm text-green-800 mb-4">
+            Sla je volledige project op als JSON bestand voor backup of om te delen met anderen.
+          </p>
+          
+          <button
+            onClick={downloadProject}
+            disabled={isExportingJson || (!projectData && !projectId)}
+            className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold"
+          >
+            {isExportingJson ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                <span>Opslaan...</span>
+              </>
+            ) : (
+              <>
+                <span>📦</span>
+                <span>Opslaan Project</span>
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
-      {/* Volledig rapport weergave */}
+      {/* Volledig rapport weergave - alleen tonen als er een rapport is */}
       {fullReport && (
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-800 flex items-center">
               <span className="mr-2">📋</span>
@@ -407,68 +447,46 @@ export default function ProjectActions({ projectId, projectData, wizardData, cla
         </div>
       )}
 
-      {/* Project Beheer sectie */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
+      {/* Project Import sectie - minder prominent */}
+      <div className="bg-gray-50 rounded-xl border border-gray-200 p-6">
         <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-          <span className="mr-2">💾</span>
-          Project Beheer
+          <span className="mr-2">📥</span>
+          Project Importeren
         </h3>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Download JSON */}
-          <button
-            onClick={downloadProject}
-            disabled={isExportingJson || (!projectData && !projectId)}
-            className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
-              isExportingJson
-                ? 'bg-green-100 text-green-700 cursor-not-allowed'
-                : 'bg-green-600 text-white hover:bg-green-700 hover:shadow-lg'
+        <p className="text-sm text-gray-600 mb-4">
+          Laad een eerder geëxporteerd project bestand (.json) om verder te werken aan een bestaande analyse.
+        </p>
+        
+        <div className="relative inline-block">
+          <input
+            type="file"
+            accept=".json"
+            onChange={importProject}
+            disabled={isImporting}
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+            id="project-import"
+          />
+          <label
+            htmlFor="project-import"
+            className={`flex items-center justify-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 cursor-pointer ${
+              isImporting
+                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                : 'bg-gray-600 text-white hover:bg-gray-700 hover:shadow-md'
             }`}
           >
-            {isExportingJson ? (
+            {isImporting ? (
               <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600"></div>
-                <span>Exporteren...</span>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500"></div>
+                <span>Importeren...</span>
               </>
             ) : (
               <>
-                <span>📦</span>
-                <span>Opslaan Project</span>
+                <span>📥</span>
+                <span>Selecteer JSON bestand</span>
               </>
             )}
-          </button>
-
-          {/* Import Project */}
-          <div className="relative">
-            <input
-              type="file"
-              accept=".json"
-              onChange={importProject}
-              disabled={isImporting}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
-              id="project-import"
-            />
-            <label
-              htmlFor="project-import"
-              className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 cursor-pointer ${
-                isImporting
-                  ? 'bg-purple-100 text-purple-700 cursor-not-allowed'
-                  : 'bg-purple-600 text-white hover:bg-purple-700 hover:shadow-lg'
-              }`}
-            >
-              {isImporting ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600"></div>
-                  <span>Importeren...</span>
-                </>
-              ) : (
-                <>
-                  <span>📥</span>
-                  <span>Project Importeren</span>
-                </>
-              )}
-            </label>
-          </div>
+          </label>
         </div>
 
         {/* Status messages */}
@@ -497,13 +515,16 @@ export default function ProjectActions({ projectId, projectData, wizardData, cla
         )}
       </div>
 
-      {/* Instructies */}
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-        <h4 className="text-sm font-semibold text-gray-700 mb-2">💡 Instructies</h4>
-        <div className="text-xs text-gray-600 space-y-1">
-          <p><strong>📄 Download Word:</strong> Exporteert je analyse als professioneel Word document met HL-logo</p>
-          <p><strong>📦 Opslaan Project:</strong> Slaat je volledige project op als JSON bestand voor backup of delen</p>
-          <p><strong>📥 Project Importeren:</strong> Laadt een eerder geëxporteerd JSON project bestand in</p>
+      {/* Help sectie - compacter */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <h4 className="text-sm font-semibold text-blue-800 mb-2 flex items-center">
+          <span className="mr-2">💡</span>
+          Hulp & Tips
+        </h4>
+        <div className="text-xs text-blue-700 space-y-1">
+          <p><strong>Word Document:</strong> Bevat alle stappen, coach feedback en professionele opmaak</p>
+          <p><strong>Project Backup:</strong> JSON bestand voor veilige opslag en delen met teamleden</p>
+          <p><strong>Import:</strong> Laad eerder opgeslagen projecten om verder te werken</p>
         </div>
       </div>
     </div>
