@@ -149,7 +149,7 @@ Geef je feedback volgens de gevraagde structuur.`
       ],
       generationConfig: {
         temperature: 0.4, // Aangepast naar 0.4 voor consistente review feedback
-        maxOutputTokens: 1000,
+        maxOutputTokens: 1500,
         topP: 0.8,
         topK: 40
       }
@@ -229,7 +229,7 @@ async function handleFixRequest(
       ],
       generationConfig: {
         temperature: 0.6, // Hogere temperature voor creatieve tekstverbetering
-        maxOutputTokens: 1500,
+        maxOutputTokens: 2000,
         topP: 0.9,
         topK: 40
       }

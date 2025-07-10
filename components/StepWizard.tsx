@@ -585,6 +585,9 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
 
         {/* Stappen navigatie */}
         <div className="grid grid-cols-4 md:grid-cols-8 gap-2">
+          <div className="mt-2 text-xs text-gray-500 font-gantari">
+            Tekens: {apaResults[currentStepData.id].length} • Woorden: {apaResults[currentStepData.id].split(/\s+/).length}
+          </div>
           {STEPS.map((step, index) => (
             <button
               key={step.id}
@@ -759,6 +762,9 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
               </h3>
               <div className="text-hl-donkergroen text-sm whitespace-pre-line font-gantari">
                 {currentWizardData.feedback}
+              </div>
+              <div className="mt-2 text-xs text-gray-500 font-gantari">
+                Tekens: {currentWizardData.feedback.length} • Woorden: {currentWizardData.feedback.split(/\s+/).length}
               </div>
             </div>
           )}
