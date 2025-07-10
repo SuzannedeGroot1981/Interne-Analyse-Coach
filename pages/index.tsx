@@ -98,7 +98,6 @@ export default function Home() {
                   <div className="w-12 h-12 bg-hl-lichtgroen rounded-full flex items-center justify-center mx-auto mb-4">
                     <span className="material-symbols-sharp hl-icon-primary hl-icon-lg">edit</span>
                   </div>
-                  <h3 className="font-gantari font-semibold text-hl-donkergroen mb-2">Schrijf je analyse</h3>
                   <h3 className="font-gantari font-semibold text-hl-donkergroen mb-2">1. Schrijf je analyse</h3>
                   <p className="text-sm text-gray-600 font-gantari">Vul de 7S-secties in met je onderzoek</p>
                 </div>
