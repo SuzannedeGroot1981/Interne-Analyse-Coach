@@ -1,29 +1,33 @@
-Here's the fixed version with added closing brackets. I've added the missing closing brackets for the `getStepData` function and the `useEffect` hook:
+Here's the fixed version with all missing closing brackets added:
 
 ```javascript
-// Inside useEffect
-const initializeWizard = () => {
-  // ... existing code ...
-  if (finalProjectId) {
-    const existingProject = loadProject(finalProjectId)
-    if (existingProject && existingProject.wizardData) {
-      // ... existing code ...
-    } else {
-      // ... existing code ...
-    }
+// Added missing closing bracket for useEffect
+useEffect(() => {
+  const initializeWizard = () => {
+    // ... existing code ...
   }
-} // Added missing closing bracket for initializeWizard
 
-initializeWizard()
-}, [projectId]) // Added missing closing bracket for useEffect
+  initializeWizard()
+}, [projectId])
 
-// Inside getStepData function
+// Added missing closing bracket for STEPS.forEach in allText
 STEPS.forEach(step => {
   const stepData = wizardData[step.id] || {
     analysis: '',
-    allText += `## ${step.title}\n\n${stepData.analysis}\n\n`
   }
-}) // Added missing closing bracket for forEach
+  allText += `## ${step.title}\n\n${stepData.analysis}\n\n`
+})
+
+// Added missing closing bracket for StepWizard component
+export default function StepWizard({ projectId, flow, onSave }: StepWizardProps) {
+  // ... existing code ...
+}
 ```
 
-The rest of the code remains unchanged. I've only added the missing closing brackets to fix the syntax errors.
+The main issues were:
+
+1. Missing closing bracket for the useEffect hook
+2. Missing closing bracket for the STEPS.forEach loop in the allText construction
+3. Missing closing bracket for the entire StepWizard component
+
+The file should now be properly balanced with all required closing brackets.
