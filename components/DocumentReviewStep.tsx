@@ -80,7 +80,7 @@ const SOFT_ELEMENTS = [
 
 export default function DocumentReviewStep({ className = '' }: DocumentReviewStepProps) {
   const [sevenSData, setSevenSData] = useState<SevenSData>({})
-  const [activeTab, setActiveTab] = useState<'document' | 'manual'>('document')
+  const [activeTab, setActiveTab] = useState<'document' | 'manual'>('manual')
   const [isGeneratingFeedback, setIsGeneratingFeedback] = useState(false)
   const [overallFeedback, setOverallFeedback] = useState<string>('')
 
