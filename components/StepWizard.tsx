@@ -126,68 +126,23 @@ export default function StepWizard({ projectId, flow, onSave }: StepWizardProps)
   const [evidence, setEvidence] = useState<any>(null) // Voor evidence data
   const [sources, setSources] = useState<any>(null) // Voor sources data
 
-  // Initialiseer wizard data
+  // Vereenvoudigde initialisatie zonder evidence/sources
   useEffect(() => {
-    const initializeWizard = () => {
-      // Haal project ID uit URL parameter als niet meegegeven
-      let finalProjectId = projectId
-      if (!finalProjectId) {
-        const urlParams = new URLSearchParams(window.location.search)
-        const idFromUrl = urlParams.get('id')
-        if (idFromUrl) {
-          finalProjectId = idFromUrl
-          setActualProjectId(idFromUrl)
-        } else {
-          // Maak nieuw project ID als er geen is
-          finalProjectId = createProjectId()
-          setActualProjectId(finalProjectId)
-        }
+    // Maak nieuw project ID als er geen is
+    let finalProjectId = projectId || createProjectId()
+    setActualProjectId(finalProjectId)
+
+    // Initialiseer lege wizard data
+    const initialData: WizardData = {}
+    STEPS.forEach(step => {
+      initialData[step.id] = {
+        current: '',
+        desired: '',
+        completed: false
       }
-
-      // Probeer bestaand project te laden
-      if (finalProjectId) {
-        const existingProject = loadProject(finalProjectId)
-        if (existingProject && existingProject.wizardData) {
-          setWizardData(existingProject.wizardData)
-          setCurrentProjectData(existingProject)
-          setProjectMeta(existingProject.meta || {})
-          
-          // Laad evidence data als beschikbaar
-          if (existingProject.evidence) {
-            setEvidence(existingProject.evidence)
-            console.log('📋 Evidence data geladen:', {
-              hasEvidence: !!existingProject.evidence,
-              evidenceKeys: Object.keys(existingProject.evidence || {})
-            })
-          }
-
-          // Laad sources data als beschikbaar
-          if (existingProject.sources) {
-            setSources(existingProject.sources)
-            console.log('📚 Sources data geladen:', {
-              hasSources: !!existingProject.sources,
-              sourcesKeys: Object.keys(existingProject.sources || {})
-            })
-          }
-          
-          console.log('📖 Bestaande wizard data geladen')
-        } else {
-          // Initialiseer lege wizard data
-          const initialData: WizardData = {}
-          STEPS.forEach(step => {
-            initialData[step.id] = {
-              current: '',
-              desired: '',
-              completed: false
-            }
-          })
-          setWizardData(initialData)
-          console.log('🆕 Nieuwe wizard data geïnitialiseerd')
-        }
-      }
-    }
-
-    initializeWizard()
+    })
+    setWizardData(initialData)
+    console.log('🆕 Wizard data geïnitialiseerd')
   }, [projectId])
 
   // Auto-save functionaliteit
@@ -387,7 +342,7 @@ Je kunt altijd later terugkomen voor AI feedback wanneer de quota is gereset!`
         stepTitle: step?.title,
         currentSituation: stepData.current,
         desiredSituation: stepData.desired,
-        projectId: actualProjectId // Toegevoegd voor evidence lookup
+        projectId: actualProjectId
       }
 
       // Voeg financiële data toe als beschikbaar
@@ -428,8 +383,7 @@ Je kunt altijd later terugkomen voor AI feedback wanneer de quota is gereset!`
       console.log('🤖 Coach feedback ontvangen:', {
         stepTitle: step?.title,
         feedbackLength: data.feedback.length,
-        wordCount: data.wordCount,
-        evidenceUsed: data.evidenceUsed
+        wordCount: data.wordCount
       })
 
     } catch (error) {
@@ -536,54 +490,12 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
     }
   }
 
-  // Helper functie om evidence voor huidige stap te krijgen
-  const getEvidenceForStep = (stepId: string) => {
-    if (!evidence) return null
-    
-    // Map step IDs naar evidence keys
-    const evidenceKeyMap: { [key: string]: string } = {
-      'strategy': 'Strategy',
-      'structure': 'Structure', 
-      'systems': 'Systems',
-      'shared-values': 'Shared Values',
-      'skills': 'Skills',
-      'style': 'Style',
-      'staff': 'Staff',
-      'finances': 'Financiën'
-    }
-    
-    const evidenceKey = evidenceKeyMap[stepId]
-    return evidenceKey ? evidence[evidenceKey] : null
-  }
-
-  // Helper functie om document samenvatting voor huidige stap te krijgen
-  const getDocumentSummaryForStep = (stepId: string) => {
-    if (!sources) return null
-    
-    // Map step IDs naar sources keys
-    const sourcesKeyMap: { [key: string]: string } = {
-      'strategy': 'Strategy',
-      'structure': 'Structure', 
-      'systems': 'Systems',
-      'shared-values': 'Shared Values',
-      'skills': 'Skills',
-      'style': 'Style',
-      'staff': 'Staff',
-      'finances': 'Financiën'
-    }
-    
-    const sourcesKey = sourcesKeyMap[stepId]
-    return sourcesKey && sources[sourcesKey] ? sources[sourcesKey].summary : null
-  }
-
   // Bereken voortgang
   const completedSteps = Object.values(wizardData).filter(step => step.completed).length
   const progressPercentage = (completedSteps / STEPS.length) * 100
 
   const currentStepData = STEPS[currentStep]
   const currentWizardData = wizardData[currentStepData?.id] || { current: '', desired: '', completed: false }
-  const currentEvidence = getEvidenceForStep(currentStepData?.id)
-  const currentDocumentSummary = getDocumentSummaryForStep(currentStepData?.id)
 
   // Helper functie voor stap-specifieke beschrijvingen
   const getStepDescription = (stepId: string): string => {
@@ -805,91 +717,6 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
                 </p>
               </div>
             </div>
-          </div>
-
-          {/* Evidence & Document Summary - nu onder het tekstveld */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            {/* Evidence sectie */}
-            {currentEvidence ? (
-              <aside className="bg-gray-50 p-4 text-sm border-l-4 border-primary/60 rounded-lg">
-                <div className="flex items-center mb-3">
-                  <span className="text-lg mr-2">🎤</span>
-                  <b className="text-gray-800">Evidence uit onderzoek:</b>
-                </div>
-                <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
-                  {currentEvidence}
-                </div>
-                <div className="mt-3 pt-3 border-t border-gray-200">
-                  <p className="text-xs text-gray-500">
-                    💡 <strong>Verplicht:</strong> Verwerk deze onderzoeksbevindingen in je analyse en citeer expliciet volgens APA-richtlijnen
-                  </p>
-                </div>
-              </aside>
-            ) : (
-              <aside className="bg-blue-50 p-4 text-sm border-l-4 border-blue-300 rounded-lg">
-                <div className="flex items-center mb-3">
-                  <span className="text-lg mr-2">💡</span>
-                  <b className="text-blue-800">Geen onderzoeksevidence beschikbaar</b>
-                </div>
-                <div className="text-blue-700">
-                  <p className="mb-2">
-                    Voor dit 7S-element zijn nog geen interview- of enquête-bevindingen beschikbaar.
-                  </p>
-                  <p className="text-xs">
-                    <strong>Aanbeveling:</strong> Upload interview-transcripten en enquête-data in de Evidence stap voor een complete analyse.
-                  </p>
-                </div>
-                <div className="mt-3">
-                  <button
-                    onClick={() => window.location.href = `/evidence?id=${actualProjectId}`}
-                    className="text-xs text-blue-600 hover:text-blue-800 underline"
-                  >
-                    → Upload onderzoeksmateriaal
-                  </button>
-                </div>
-              </aside>
-            )}
-
-            {/* Document samenvatting sectie */}
-            {currentDocumentSummary ? (
-              <aside className="bg-green-50 p-4 text-sm border-l-4 border-green-500/60 rounded-lg">
-                <div className="flex items-center mb-3">
-                  <span className="text-lg mr-2">📄</span>
-                  <b className="text-gray-800">Document Samenvatting:</b>
-                </div>
-                <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
-                  {currentDocumentSummary}
-                </div>
-                <div className="mt-3 pt-3 border-t border-gray-200">
-                  <p className="text-xs text-gray-500">
-                    📚 Gebaseerd op geüploade documenten uit de bronneninventarisatie
-                  </p>
-                </div>
-              </aside>
-            ) : (
-              <aside className="bg-gray-50 p-4 text-sm border-l-4 border-gray-300 rounded-lg">
-                <div className="flex items-center mb-3">
-                  <span className="text-lg mr-2">📄</span>
-                  <b className="text-gray-800">Geen document samenvatting</b>
-                </div>
-                <div className="text-gray-700">
-                  <p className="mb-2">
-                    Voor dit onderdeel zijn nog geen documenten geüpload en samengevat.
-                  </p>
-                  <p className="text-xs">
-                    Ga naar de <strong>Bronneninventarisatie</strong> om documenten te uploaden en samen te vatten.
-                  </p>
-                </div>
-                <div className="mt-3">
-                  <button
-                    onClick={() => window.location.href = `/sources?id=${actualProjectId}`}
-                    className="text-xs text-gray-600 hover:text-gray-800 underline"
-                  >
-                    → Ga naar Bronneninventarisatie
-                  </button>
-                </div>
-              </aside>
-            )}
           </div>
 
           {/* Coach feedback sectie */}
