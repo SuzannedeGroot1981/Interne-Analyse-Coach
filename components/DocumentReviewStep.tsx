@@ -428,12 +428,12 @@ export default function DocumentReviewStep({ className = '' }: DocumentReviewSte
           <div>
             <h4 className="font-medium text-gray-800 mb-2">✍️ Handmatige Invoer</h4>
             <ul className="space-y-1">
-              <li>• Vul minimaal 3-4 elementen in voor feedback</li>
+              <li>• Vul minimaal 3-4 elementen in voor overall feedback</li>
               <li>• Gebruik concrete voorbeelden en data</li>
-              <li>• Beschrijf zowel sterke als zwakke punten</li>
+              <li>• Beschrijf huidige én gewenste situatie per element</li>
               <li>• Focus op interne organisatie-aspecten</li>
-              <li>• Vraag eerst per element feedback, dan overall</li>
-              <li>• Gebruik feedback om je tekst te verbeteren</li>
+              <li>• Combineer element-feedback met overall feedback</li>
+              <li>• Itereer: feedback → verbeteren → nieuwe feedback</li>
             </ul>
           </div>
         </div>
