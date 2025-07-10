@@ -187,9 +187,6 @@ export default function Home() {
                 <p className="text-gray-500 text-sm">
                   Interne-Analyse-Coach • Powered by AI
                 </p>
-                <p className="text-gray-400 text-xs">
-                  Professionele organisatie-ontwikkeling
-                </p>
               </div>
             </div>
           </div>
