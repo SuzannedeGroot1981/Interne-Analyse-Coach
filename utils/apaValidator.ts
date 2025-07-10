@@ -55,27 +55,6 @@ export function validateAPA(text: string): APAValidationResult {
   const issues: APAIssue[] = []
   const lines = text.split('\n')
   
-  // Controleer minimale tekstlengte
-  if (text.trim().length < 20) {
-    issues.push({
-      type: 'format',
-      severity: 'warning',
-      message: 'Tekst is te kort voor een grondige APA-controle',
-      suggestion: 'Voeg meer tekst toe voor een betere analyse'
-    })
-    
-    return {
-      isValid: false,
-      issues,
-      summary: {
-        totalIssues: issues.length,
-        errors: 0,
-        warnings: 1,
-        suggestions: 0
-      }
-    }
-  }
-  
   // 1. Controleer in-text citaties
   checkInTextCitations(text, lines, issues)
   
@@ -103,7 +82,7 @@ export function validateAPA(text: string): APAValidationResult {
   }
   
   return {
-    isValid: summary.errors === 0 && summary.warnings === 0,
+    isValid: summary.errors === 0,
     issues,
     summary
   }
@@ -193,7 +172,7 @@ function checkReferenceList(text: string, lines: string[], issues: APAIssue[]): 
   // Zoek naar referentielijst sectie
   const referenceSection = text.match(/(?:referenties|literatuur|bronnen)[\s\S]*$/i)
   
-  if (!referenceSection && text.length > 500) {
+  if (!referenceSection) {
     issues.push({
       type: 'reference',
       severity: 'warning',
@@ -203,26 +182,24 @@ function checkReferenceList(text: string, lines: string[], issues: APAIssue[]): 
     return
   }
   
-  if (referenceSection) {
-    const refText = referenceSection[0]
-    const refLines = refText.split('\n')
-    
-    // Check elke referentie
-    refLines.forEach((line, index) => {
-      if (line.trim() && !line.match(/^(referenties|literatuur|bronnen)/i)) {
-        // Check voor basis APA format
-        if (!line.match(/^[A-Z][a-z]+,\s*[A-Z]\..*\(\d{4}[a-z]?\)/)) {
-          issues.push({
-            type: 'reference',
-            severity: 'error',
-            message: `Incorrecte referentie format: ${line.substring(0, 50)}...`,
-            line: lines.length - refLines.length + index + 1,
-            suggestion: 'Gebruik format: Auteur, A. A. (jaar). Titel. Uitgever.'
-          })
-        }
+  const refText = referenceSection[0]
+  const refLines = refText.split('\n')
+  
+  // Check elke referentie
+  refLines.forEach((line, index) => {
+    if (line.trim() && !line.match(/^(referenties|literatuur|bronnen)/i)) {
+      // Check voor basis APA format
+      if (!line.match(/^[A-Z][a-z]+,\s*[A-Z]\..*\(\d{4}[a-z]?\)/)) {
+        issues.push({
+          type: 'reference',
+          severity: 'error',
+          message: `Incorrecte referentie format: ${line.substring(0, 50)}...`,
+          line: lines.length - refLines.length + index + 1,
+          suggestion: 'Gebruik format: Auteur, A. A. (jaar). Titel. Uitgever.'
+        })
       }
-    })
-  }
+    }
+  })
 }
 
 function checkDutchConventions(text: string, lines: string[], issues: APAIssue[]): void {
