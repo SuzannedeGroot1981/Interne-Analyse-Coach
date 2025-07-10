@@ -697,7 +697,6 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
           <div className="mb-6">
             <div className="flex items-center justify-between mb-3">
               <h4 className="text-sm font-semibold text-hl-donkergroen font-gantari">
-                <span className="material-symbols-sharp hl-icon-primary hl-icon-sm mr-2">fact_check</span>
               </h4>
               <button
                 onClick={() => checkAPAForStep(currentStepData.id)}
