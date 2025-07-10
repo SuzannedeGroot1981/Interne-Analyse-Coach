@@ -793,7 +793,7 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
                 ) : (
                   <>
                     <span className="material-symbols-sharp hl-icon-white hl-icon-sm">psychology</span>
-                    <span>Vraag coach-feedback</span>
+                    <span>Vraag feedback</span>
                   </>
                 )}
               </button>
