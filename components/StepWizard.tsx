@@ -526,6 +526,63 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
     return placeholders[stepId as keyof typeof placeholders] || 'Beschrijf de huidige situatie en eventueel de gewenste toekomstige situatie...'
   }
 
+// Helper functie om APA resultaten te formatteren voor tekstveld
+function formatAPAResults(results: any): string {
+  if (results.isValid) {
+    return `✅ APA CHECK RESULTATEN - GEEN PROBLEMEN GEVONDEN
+
+Je bronvermeldingen en citaten lijken correct te zijn volgens APA 7e editie richtlijnen.
+
+📊 SAMENVATTING:
+• Totaal gecontroleerd: ${results.summary.totalIssues === 0 ? 'Alle elementen OK' : '0 problemen'}
+• Fouten: ${results.summary.errors}
+• Waarschuwingen: ${results.summary.warnings}  
+• Suggesties: ${results.summary.suggestions}
+
+💡 TIP: Blijf consequent deze APA-stijl toepassen in je hele document.`
+  }
+
+  let output = `📝 APA CHECK RESULTATEN - ${results.summary.totalIssues} AANDACHTSPUNT(EN) GEVONDEN
+
+📊 SAMENVATTING:
+• Totaal problemen: ${results.summary.totalIssues}
+• Fouten (rood): ${results.summary.errors}
+• Waarschuwingen (geel): ${results.summary.warnings}
+• Suggesties (blauw): ${results.summary.suggestions}
+
+📋 GEDETAILLEERDE RESULTATEN:
+`
+
+  results.issues.forEach((issue: any, index: number) => {
+    const icon = issue.severity === 'error' ? '❌' : issue.severity === 'warning' ? '⚠️' : '💡'
+    const lineInfo = issue.line ? ` (regel ${issue.line})` : ''
+    
+    output += `
+${index + 1}. ${icon} ${issue.message}${lineInfo}
+`
+    
+    if (issue.suggestion) {
+      output += `   💡 Suggestie: ${issue.suggestion}
+`
+    }
+  })
+
+  output += `
+
+🎯 VOLGENDE STAPPEN:
+1. Bekijk elk aandachtspunt hierboven
+2. Pas de suggesties toe in je tekst
+3. Run de check opnieuw om voortgang te zien
+4. Herhaal tot alle problemen zijn opgelost
+
+📚 HULP NODIG?
+• APA 7e editie handleiding: https://apastyle.apa.org/
+• Hogeschool Leiden APA-gids: Vraag je docent
+• Citatie-tools: Mendeley, Zotero, EndNote`
+
+  return output
+}
+
   return (
     <div className="max-w-6xl mx-auto p-6">
       {/* API Quota Warning Banner */}
@@ -715,95 +772,41 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
                   Lokale controle van APA 7e editie bronvermeldingen (werkt offline)
                 </p>
               </div>
-            </div>
-          </div>
-
-          {/* APA Resultaten sectie */}
-          {apaResults && (
-            <div className={`mb-6 rounded-lg border p-4 ${
-              apaResults.isValid 
-                ? 'bg-green-50 border-green-200' 
-                : 'bg-orange-50 border-orange-200'
-            }`}>
-              <h3 className={`text-sm font-semibold mb-3 flex items-center ${
-                apaResults.isValid ? 'text-green-800' : 'text-orange-800'
-              }`}>
-                <span className="mr-2">{apaResults.isValid ? '✅' : '📝'}</span>
-                Lokale APA Check Resultaten
-              </h3>
               
-              {apaResults.isValid ? (
-                <p className="text-green-700 text-sm">
-                  Geen APA-problemen gevonden! Je bronvermeldingen en citaten lijken correct te zijn.
-                </p>
-              ) : (
-                <div className="space-y-3">
-                  {/* Samenvatting */}
-                  <div className="text-orange-700 text-sm">
-                    <p className="font-medium mb-2">
-                      {apaResults.summary.totalIssues} aandachtspunt(en) gevonden:
+              {/* APA Resultaten Tekstveld */}
+              {apaResults && (
+                <div className="mt-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {apaResults.isValid ? '✅' : '📝'} APA Check Resultaten
+                  </label>
+                  <textarea
+                    value={formatAPAResults(apaResults)}
+                    readOnly
+                    className={`w-full h-48 p-3 border rounded-lg text-sm font-mono resize-none ${
+                      apaResults.isValid 
+                        ? 'bg-green-50 border-green-300 text-green-800' 
+                        : 'bg-orange-50 border-orange-300 text-orange-800'
+                    }`}
+                    placeholder="APA check resultaten verschijnen hier..."
+                  />
+                  <div className="flex justify-between items-center mt-2">
+                    <p className="text-xs text-gray-500">
+                      {apaResults.isValid 
+                        ? 'Geen problemen gevonden - je APA-citaties zijn correct!' 
+                        : `${apaResults.summary.totalIssues} aandachtspunt(en) gevonden`
+                      }
                     </p>
-                    <div className="grid grid-cols-3 gap-2 text-xs">
-                      {apaResults.summary.errors > 0 && (
-                        <span className="bg-red-100 text-red-700 px-2 py-1 rounded">
-                          ❌ {apaResults.summary.errors} fout(en)
-                        </span>
-                      )}
-                      {apaResults.summary.warnings > 0 && (
-                        <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded">
-                          ⚠️ {apaResults.summary.warnings} waarschuwing(en)
-                        </span>
-                      )}
-                      {apaResults.summary.suggestions > 0 && (
-                        <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded">
-                          💡 {apaResults.summary.suggestions} suggestie(s)
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {/* Gedetailleerde issues */}
-                  <details className="text-sm">
-                    <summary className="cursor-pointer text-orange-800 font-medium hover:text-orange-900">
-                      📋 Bekijk gedetailleerde resultaten ({apaResults.issues.length} items)
-                    </summary>
-                    <div className="mt-3 space-y-2 max-h-60 overflow-y-auto">
-                      {apaResults.issues.map((issue: any, index: number) => (
-                        <div key={index} className={`p-3 rounded border-l-4 text-xs ${
-                          issue.severity === 'error' 
-                            ? 'bg-red-50 border-red-400 text-red-700'
-                            : issue.severity === 'warning'
-                            ? 'bg-yellow-50 border-yellow-400 text-yellow-700'
-                            : 'bg-blue-50 border-blue-400 text-blue-700'
-                        }`}>
-                          <div className="font-medium mb-1">
-                            {issue.severity === 'error' ? '❌' : issue.severity === 'warning' ? '⚠️' : '💡'} 
-                            {issue.message}
-                            {issue.line && <span className="ml-2 text-gray-500">(regel {issue.line})</span>}
-                          </div>
-                          {issue.suggestion && (
-                            <div className="text-gray-600 italic">
-                              💡 {issue.suggestion}
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </details>
-                  
-                  {/* Reset knop */}
-                  <div className="flex justify-end">
                     <button
                       onClick={() => setApaResults(null)}
-                      className="text-xs text-orange-600 hover:text-orange-800 underline"
+                      className="text-xs text-gray-600 hover:text-gray-800 underline"
                     >
-                      Resultaten verbergen
+                      Resultaten wissen
                     </button>
                   </div>
                 </div>
               )}
             </div>
-          )}
+          </div>
 
           {/* Coach feedback sectie */}
           {currentWizardData.feedback && (
