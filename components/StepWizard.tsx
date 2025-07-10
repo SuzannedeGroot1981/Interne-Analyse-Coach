@@ -8,8 +8,7 @@ import { useRouter } from 'next/router'
 
 // Types voor stap data
 interface StepData {
-  current: string
-  desired: string
+  analysis: string
   feedback?: string
   completed: boolean
   financeData?: any // Voor financiële data uit uploads
@@ -34,7 +33,7 @@ const STEPS = [
     icon: '🎯',
     description: 'De langetermijnvisie, missie en strategische doelstellingen van de zorgorganisatie. Focus op interne strategische keuzes en prioriteiten.',
     questions: {
-      current: 'Beschrijf de huidige strategie van je zorgorganisatie. Wat zijn de belangrijkste interne doelstellingen en hoe worden deze nagestreefd? Gebruik concrete voorbeelden en citeer interview/enquête resultaten.'
+      current: 'Beschrijf de huidige strategie van je zorgorganisatie en eventueel de gewenste strategische richting. Wat zijn de belangrijkste interne doelstellingen en hoe worden deze nagestreefd? Gebruik concrete voorbeelden en citeer interview/enquête resultaten.'
     }
   },
   {
@@ -44,7 +43,7 @@ const STEPS = [
     icon: '🏗️',
     description: 'De interne organisatiestructuur: hiërarchie, afdelingen, rapportagelijnen en besluitvormingsprocessen binnen de zorgorganisatie.',
     questions: {
-      current: 'Analyseer de huidige organisatiestructuur. Beschrijf hiërarchie, afdelingen, rapportagelijnen en besluitvorming. Ondersteun met organogram indien beschikbaar en interview bevindingen.'
+      current: 'Analyseer de huidige organisatiestructuur en eventueel gewenste veranderingen. Beschrijf hiërarchie, afdelingen, rapportagelijnen en besluitvorming. Ondersteun met organogram indien beschikbaar en interview bevindingen.'
     }
   },
   {
@@ -54,7 +53,7 @@ const STEPS = [
     icon: '⚙️',
     description: 'Interne procedures, processen, IT-systemen en werkwijzen die het dagelijkse zorgwerk ondersteunen en faciliteren.',
     questions: {
-      current: 'Beschrijf de belangrijkste interne systemen en processen. Hoe verlopen zorgprocessen, administratieve procedures en IT-ondersteuning? Analyseer effectiviteit op basis van medewerker feedback.'
+      current: 'Beschrijf de belangrijkste interne systemen en processen, inclusief gewenste verbeteringen. Hoe verlopen zorgprocessen, administratieve procedures en IT-ondersteuning? Analyseer effectiviteit op basis van medewerker feedback.'
     }
   },
   {
@@ -64,7 +63,7 @@ const STEPS = [
     icon: '💎',
     description: 'De kernwaarden, organisatiecultuur en normen die de zorgorganisatie intern definiëren en verbinden.',
     questions: {
-      current: 'Analyseer de gedeelde waarden en cultuur. Hoe leven medewerkers deze waarden na in de dagelijkse zorgverlening? Gebruik concrete voorbeelden uit interviews en observaties.'
+      current: 'Analyseer de gedeelde waarden en cultuur, inclusief gewenste culturele ontwikkelingen. Hoe leven medewerkers deze waarden na in de dagelijkse zorgverlening? Gebruik concrete voorbeelden uit interviews en observaties.'
     }
   },
   {
@@ -74,7 +73,7 @@ const STEPS = [
     icon: '🎓',
     description: 'De interne kennis, vaardigheden en competenties van medewerkers en teams binnen de zorgorganisatie.',
     questions: {
-      current: 'Inventariseer de aanwezige vaardigheden en competenties. Waar liggen de sterke punten van je zorgteams? Identificeer kennislacunes op basis van competentiematrix en medewerkergesprekken.'
+      current: 'Inventariseer de aanwezige vaardigheden en competenties, inclusief gewenste ontwikkelingen. Waar liggen de sterke punten van je zorgteams? Identificeer kennislacunes op basis van competentiematrix en medewerkergesprekken.'
     }
   },
   {
@@ -84,7 +83,7 @@ const STEPS = [
     icon: '👑',
     description: 'De interne leiderschapsstijl en managementaanpak van leidinggevenden binnen de zorgorganisatie.',
     questions: {
-      current: 'Analyseer de leiderschapsstijl van management en teamleiders. Hoe wordt er intern leiding gegeven? Ondersteun met voorbeelden uit leiderschapssessies en medewerkerfeedback.'
+      current: 'Analyseer de leiderschapsstijl van management en teamleiders, inclusief gewenste leiderschapsontwikkeling. Hoe wordt er intern leiding gegeven? Ondersteun met voorbeelden uit leiderschapssessies en medewerkerfeedback.'
     }
   },
   {
@@ -94,7 +93,7 @@ const STEPS = [
     icon: '👥',
     description: 'Het interne personeelsbestand: rollen, ontwikkeling, motivatie en welzijn van medewerkers in de zorgorganisatie.',
     questions: {
-      current: 'Beschrijf het personeelsbestand en teamsamenstelling. Hoe worden medewerkers ontwikkeld en gemotiveerd? Analyseer op basis van HR-data en medewerkertevredenheidsonderzoek.'
+      current: 'Beschrijf het personeelsbestand en teamsamenstelling, inclusief gewenste personeelsontwikkeling. Hoe worden medewerkers ontwikkeld en gemotiveerd? Analyseer op basis van HR-data en medewerkertevredenheidsonderzoek.'
     }
   },
   {
@@ -104,7 +103,7 @@ const STEPS = [
     icon: '💰',
     description: 'De interne financiële gezondheid: rentabiliteit, liquiditeit, solvabiliteit en budgetbeheersing van de zorgorganisatie.',
     questions: {
-      current: 'Analyseer de financiële gezondheid met focus op rentabiliteit, liquiditeit en solvabiliteit. Hoe verhouden kosten zich tot opbrengsten? Verbind financiële prestaties aan andere 7S-elementen.'
+      current: 'Analyseer de financiële gezondheid met focus op rentabiliteit, liquiditeit en solvabiliteit, inclusief gewenste financiële doelstellingen. Hoe verhouden kosten zich tot opbrengsten? Verbind financiële prestaties aan andere 7S-elementen.'
     },
     hasFileUpload: true // Speciale markering voor financiën stap
   }
@@ -221,7 +220,7 @@ export default function StepWizard({ projectId, flow, onSave }: StepWizardProps)
   }
 
   // Update stap data
-  const updateStepData = (stepId: string, field: 'current' | 'desired', value: string) => {
+  const updateStepData = (stepId: string, field: 'analysis', value: string) => {
     const newData = {
       ...wizardData,
       [stepId]: {
@@ -260,7 +259,7 @@ export default function StepWizard({ projectId, flow, onSave }: StepWizardProps)
   // Markeer stap als voltooid
   const markStepCompleted = (stepId: string) => {
     const stepData = wizardData[stepId]
-    if (stepData && stepData.current.trim()) {
+    if (stepData && stepData.analysis.trim()) {
       const newData = {
         ...wizardData,
         [stepId]: {
@@ -292,12 +291,8 @@ export default function StepWizard({ projectId, flow, onSave }: StepWizardProps)
       // Verzamel alle S-teksten
       let allText = ''
       STEPS.forEach(step => {
-        const stepData = wizardData[step.id]
-        if (stepData && stepData.current.trim()) {
-          allText += `## ${step.title}\n\n${stepData.current}\n\n`
-          if (stepData.desired && stepData.desired.trim()) {
-            allText += `### Gewenste situatie\n\n${stepData.desired}\n\n`
-          }
+          analysis: '',
+          allText += `## ${step.title}\n\n${stepData.analysis}\n\n`
         }
       })
 
@@ -385,8 +380,7 @@ Je kunt altijd later terugkomen voor AI feedback wanneer de quota is gereset!`
       const requestBody = {
         userPrompt: `Geef feedback op mijn ${step?.title} analyse`,
         stepTitle: step?.title,
-        currentSituation: stepData.current,
-        desiredSituation: stepData.desired,
+        analysis: stepData.analysis,
         projectId: actualProjectId // Toegevoegd voor evidence lookup
       }
 
@@ -581,7 +575,7 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
   const progressPercentage = (completedSteps / STEPS.length) * 100
 
   const currentStepData = STEPS[currentStep]
-  const currentWizardData = wizardData[currentStepData?.id] || { current: '', desired: '', completed: false }
+  const currentWizardData = wizardData[currentStepData?.id] || { analysis: '', completed: false }
   const currentEvidence = getEvidenceForStep(currentStepData?.id)
   const currentDocumentSummary = getDocumentSummaryForStep(currentStepData?.id)
 
@@ -731,35 +725,23 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
 
           {/* Tekstvelden met evidence en document samenvatting - grid layout */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-            {/* Feitelijke situatie - 2/3 breedte */}
+            {/* Analyse tekstveld - 2/3 breedte */}
             <div className="lg:col-span-2">
               <label className="block text-sm font-semibold text-gray-700 mb-3">
-                📊 Feitelijke Situatie
+                📊 Interne Analyse
               </label>
               <p className="text-sm text-gray-600 mb-3">
                 {currentStepData.questions.current}
               </p>
               <textarea
-                value={currentWizardData.current}
-                onChange={(e) => updateStepData(currentStepData.id, 'current', e.target.value)}
-                placeholder="Beschrijf de huidige feitelijke situatie..."
-                className="w-full h-40 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+                value={currentWizardData.analysis}
+                onChange={(e) => updateStepData(currentStepData.id, 'analysis', e.target.value)}
+                placeholder="Beschrijf de huidige situatie en eventueel de gewenste toekomstige situatie voor dit 7S-element..."
+                className="w-full h-64 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
               />
-
-              {/* Gewenste situatie (optioneel) */}
-              <div className="mt-6">
-                <label className="block text-sm font-semibold text-gray-700 mb-3">
-                  🎯 Gewenste Situatie (Optioneel)
-                </label>
-                <p className="text-sm text-gray-600 mb-3">
-                  Beschrijf eventueel ook de gewenste toekomstige situatie voor dit onderdeel.
-                </p>
-                <textarea
-                  value={currentWizardData.desired}
-                  onChange={(e) => updateStepData(currentStepData.id, 'desired', e.target.value)}
-                  placeholder="Beschrijf de gewenste situatie (optioneel)..."
-                  className="w-full h-32 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
-                />
+              
+              <div className="mt-3 text-xs text-gray-500">
+                💡 <strong>Tip:</strong> Beschrijf eerst de huidige situatie, gevolgd door de gewenste toekomstige situatie (indien van toepassing). Gebruik duidelijke kopjes of alinea's om onderscheid te maken.
               </div>
 
               {/* APA Self-check knop */}
@@ -897,7 +879,7 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
               {/* Coach feedback knop */}
               <button
                 onClick={() => requestCoachFeedback(currentStepData.id)}
-                disabled={isLoading || !currentWizardData.current.trim()}
+                disabled={isLoading || !currentWizardData.analysis.trim()}
                 className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
                   apiQuotaExceeded && isQuotaErrorRecent()
                     ? 'bg-yellow-100 text-yellow-700 border border-yellow-200 hover:bg-yellow-200'
@@ -926,7 +908,7 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
               {/* Markeer als voltooid */}
               <button
                 onClick={() => markStepCompleted(currentStepData.id)}
-                disabled={!currentWizardData.current.trim()}
+                disabled={!currentWizardData.analysis.trim()}
                 className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
                   currentWizardData.completed
                     ? 'bg-green-100 text-green-700 border border-green-200'
