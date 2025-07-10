@@ -784,20 +784,7 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
               )}
 
               {/* APA Self-check knop - voor alle stappen */}
-              <div className="mt-4">
-                <label className="block text-sm font-semibold text-gray-700 mb-3">
-                  🎯 Gewenste Situatie (Optioneel)
-                </label>
-                <p className="text-sm text-gray-600 mb-3">
-                  Beschrijf eventueel ook de gewenste toekomstige situatie voor dit onderdeel.
-                </p>
-                <textarea
-                  value={currentWizardData.desired}
-                  onChange={(e) => updateStepData(currentStepData.id, 'desired', e.target.value)}
-                  placeholder="Beschrijf de gewenste situatie (optioneel)..."
-                  className="w-full h-32 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
-                />
-              </div>
+              <div className="mt-6">
                 <button
                   onClick={checkAPA}
                   disabled={isCheckingAPA}
