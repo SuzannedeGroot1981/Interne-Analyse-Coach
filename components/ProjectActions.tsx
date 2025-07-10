@@ -426,19 +426,6 @@ export default function ProjectActions({ projectId, projectData, wizardData, apa
         </div>
       )}
 
-      {/* Help sectie - compacter */}
-      <div className="bg-hl-lichtgroen rounded-lg p-4">
-        <h4 className="text-sm font-semibold text-hl-donkergroen mb-2 flex items-center font-gantari">
-          <span className="material-symbols-sharp hl-icon-primary hl-icon-sm mr-2">help</span>
-          Hulp & Tips
-        </h4>
-        <div className="text-xs text-hl-donkergroen space-y-1 font-gantari">
-          <p className="flex items-start space-x-2">
-            <span className="material-symbols-sharp hl-icon-primary hl-icon-sm mt-0.5">description</span>
-            <span><strong>Word Document:</strong> Bevat alle stappen, coach feedback, APA check resultaten en professionele HL-opmaak</span>
-          </p>
-        </div>
-      </div>
     </div>
   )
 }
