@@ -194,32 +194,8 @@ export default function Home() {
 
         {/* Main Action Buttons - Nieuwe workflow */}
         <div className="max-w-4xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="max-w-2xl mx-auto">
             
-            {/* Nieuw project - DIRECTE WORKFLOW */}
-            <div className="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
-              <div className="text-center mb-6">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-                  <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
-                </div>
-                <h2 className="text-2xl font-bold text-gray-800 mb-3">
-                  Nieuw Project
-                </h2>
-                <p className="text-gray-600 mb-6">
-                  Begin een volledig nieuwe interne analyse van je organisatie volgens het 7S-model met AI-ondersteuning.
-                </p>
-              </div>
-              
-              <button
-                onClick={newProject}
-                className="btn-primary w-full py-4 px-6 text-lg font-semibold rounded-xl transition-all duration-200 transform hover:scale-105"
-              >
-                Start nieuw project
-              </button>
-            </div>
-
             {/* Check een concept versie */}
             <div className="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
               <div className="text-center mb-6">
@@ -242,14 +218,13 @@ export default function Home() {
                 </button>
               </Link>
             </div>
-
           </div>
         </div>
 
         {/* Features Section */}
         <div className="mt-20 max-w-6xl mx-auto">
           <h3 className="text-3xl font-bold text-center text-gray-800 mb-12">
-            Wat kan de Interne Analyse Coach voor je doen?
+            Functies van de Interne Analyse Coach
           </h3>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
