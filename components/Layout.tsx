@@ -34,10 +34,10 @@ export default function Layout({ children, title = 'Interne Analyse Coach' }: La
                   priority
                 />
                 <div className="hidden sm:block">
-                  <h1 className="text-xl font-bold text-primary">
+                  <h1 className="text-xl font-bold text-primary font-gantari">
                     Interne-Analyse-Coach
                   </h1>
-                  <p className="text-xs text-gray-600">
+                  <p className="text-xs text-gray-600 font-gantari">
                     AI-gestuurde organisatie-ontwikkeling
                   </p>
                 </div>
@@ -45,7 +45,7 @@ export default function Layout({ children, title = 'Interne Analyse Coach' }: La
 
               {/* Mobile titel */}
               <div className="sm:hidden">
-                <h1 className="text-lg font-bold text-primary">
+                <h1 className="text-lg font-bold text-primary font-gantari">
                   IAC
                 </h1>
               </div>
@@ -54,13 +54,13 @@ export default function Layout({ children, title = 'Interne Analyse Coach' }: La
               <nav className="hidden md:flex items-center space-x-6">
                 <Link 
                   href="/start" 
-                  className="text-gray-600 hover:text-primary transition-colors text-sm font-medium"
+                  className="text-gray-600 hover:text-primary transition-colors text-sm font-medium font-gantari"
                 >
                   Nieuwe Analyse
                 </Link>
                 <Link 
                   href="/improve" 
-                  className="text-gray-600 hover:text-primary transition-colors text-sm font-medium"
+                  className="text-gray-600 hover:text-primary transition-colors text-sm font-medium font-gantari"
                 >
                   Verbeter Concept
                 </Link>
@@ -86,16 +86,16 @@ export default function Layout({ children, title = 'Interne Analyse Coach' }: La
                   height={20}
                   className="h-5 w-auto opacity-60"
                 />
-                <span className="text-gray-500 text-sm">
+                <span className="text-gray-500 text-sm font-gantari">
                   © 2024 Hogeschool Leiden
                 </span>
               </div>
               
               <div className="text-center md:text-right">
-                <p className="text-gray-500 text-sm">
+                <p className="text-gray-500 text-sm font-gantari">
                   Interne-Analyse-Coach • Powered by AI
                 </p>
-                <p className="text-gray-400 text-xs">
+                <p className="text-gray-400 text-xs font-gantari">
                   Professionele organisatie-ontwikkeling
                 </p>
               </div>

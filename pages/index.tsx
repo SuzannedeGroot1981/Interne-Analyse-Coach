@@ -75,10 +75,10 @@ export default function Home() {
         <div className="bg-gradient-to-r from-primary to-green-700 text-white py-16">
           <div className="container mx-auto px-4 text-center">
             <div className="max-w-4xl mx-auto">
-              <h1 className="text-4xl md:text-5xl font-bold mb-6">
+              <h1 className="text-4xl md:text-5xl font-bold mb-6 font-gantari">
                 Welkom bij de Interne Analyse Coach
               </h1>
-              <p className="text-xl md:text-2xl mb-8 text-green-100">
+              <p className="text-xl md:text-2xl mb-8 text-green-100 font-gantari font-medium">
                 Jouw AI-coach bij het schrijven van interne analyses volgens het 7S-model van McKinsey
               </p>
             </div>
@@ -90,7 +90,7 @@ export default function Home() {
           <div className="max-w-6xl mx-auto">
             {/* Instructies sectie */}
             <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
-              <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+              <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center font-gantari">
                 Hoe werkt de Interne Analyse Coach?
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -98,22 +98,22 @@ export default function Home() {
                   <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <span className="text-2xl">📄</span>
                   </div>
-                  <h3 className="font-semibold text-gray-800 mb-2">1. Upload Document</h3>
-                  <p className="text-sm text-gray-600">Upload je bestaande analyse of concept</p>
+                  <h3 className="font-gantari font-semibold text-gray-800 mb-2">1. Upload Document</h3>
+                  <p className="text-sm text-gray-600 font-gantari">Upload je bestaande analyse of concept</p>
                 </div>
                 <div className="text-center">
                   <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <span className="text-2xl">🤖</span>
                   </div>
-                  <h3 className="font-semibold text-gray-800 mb-2">2. AI Analyse</h3>
-                  <p className="text-sm text-gray-600">Krijg gedetailleerde feedback per 7S-element</p>
+                  <h3 className="font-gantari font-semibold text-gray-800 mb-2">2. AI Analyse</h3>
+                  <p className="text-sm text-gray-600 font-gantari">Krijg gedetailleerde feedback per 7S-element</p>
                 </div>
                 <div className="text-center">
                   <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <span className="text-2xl">📊</span>
                   </div>
-                  <h3 className="font-semibold text-gray-800 mb-2">3. Exporteer</h3>
-                  <p className="text-sm text-gray-600">Download je verbeterde analyse</p>
+                  <h3 className="font-gantari font-semibold text-gray-800 mb-2">3. Exporteer</h3>
+                  <p className="text-sm text-gray-600 font-gantari">Download je verbeterde analyse</p>
                 </div>
               </div>
             </div>
@@ -143,7 +143,7 @@ export default function Home() {
               </div>
               
               <div className="text-center md:text-right">
-                <p className="text-gray-500 text-sm">
+                <p className="text-gray-500 text-sm font-gantari">
                   Interne-Analyse-Coach • Powered by AI
                 </p>
               </div>
