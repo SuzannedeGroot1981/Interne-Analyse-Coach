@@ -346,30 +346,11 @@ export default function ProjectActions({ projectId, projectData, wizardData, cla
         </h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          {/* Genereer volledig rapport */}
-          <button
-            onClick={generateFullReport}
-            disabled={isGeneratingReport || !wizardData}
-            className="flex items-center justify-center space-x-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {isGeneratingReport ? (
-              <>
-                <div className="animate-spin w-4 h-4 border border-white border-t-transparent rounded-full" />
-                <span>Genereren...</span>
-              </>
-            ) : (
-              <>
-                <span>📊</span>
-                <span>Genereer volledig rapport</span>
-              </>
-            )}
-          </button>
-
           {/* Download Word */}
           <button
             onClick={downloadWord}
             disabled={isExportingWord || !wizardData}
-            className="flex items-center justify-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center justify-center space-x-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {isExportingWord ? (
               <>
@@ -386,8 +367,7 @@ export default function ProjectActions({ projectId, projectData, wizardData, cla
         </div>
 
         <p className="text-sm text-gray-600 mb-4">
-          <strong>Tip:</strong> Het rapport bevat alle ingevulde stappen met coach feedback. 
-          Word export bevat professionele opmaak met HL-logo.
+          <strong>Tip:</strong> Word export bevat professionele opmaak met HL-logo en alle ingevulde stappen met coach feedback.
         </p>
       </div>
 
@@ -521,7 +501,6 @@ export default function ProjectActions({ projectId, projectData, wizardData, cla
       <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
         <h4 className="text-sm font-semibold text-gray-700 mb-2">💡 Instructies</h4>
         <div className="text-xs text-gray-600 space-y-1">
-          <p><strong>📊 Genereer Rapport:</strong> Maakt een volledig overzicht van alle stappen met coach feedback</p>
           <p><strong>📄 Download Word:</strong> Exporteert je analyse als professioneel Word document met HL-logo</p>
           <p><strong>📦 Opslaan Project:</strong> Slaat je volledige project op als JSON bestand voor backup of delen</p>
           <p><strong>📥 Project Importeren:</strong> Laadt een eerder geëxporteerd JSON project bestand in</p>
