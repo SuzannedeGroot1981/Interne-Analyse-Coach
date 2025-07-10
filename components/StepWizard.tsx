@@ -653,23 +653,6 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
             </p>
           </div>
 
-          {/* Financiële data upload (alleen voor stap 8) */}
-          {currentStepData.hasFileUpload && (
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold text-hl-donkergroen mb-4 flex items-center font-gantari">
-                <span className="material-symbols-sharp hl-icon-primary hl-icon-md mr-2">upload_file</span>
-                Upload Financiële Data (Optioneel)
-              </h3>
-              <p className="text-gray-600 mb-4 font-gantari">
-                Upload een CSV, Excel, PDF of JPG bestand met financiële gegevens zoals budgetten, kosten, inkomsten, balansen, resultatenrekeningen of andere financiële data om je analyse te verrijken.
-              </p>
-              <FinanceDropzone 
-                onDataLoaded={handleFinanceDataUpload}
-                className="mb-4"
-              />
-            </div>
-          )}
-
           {/* Tekstvelden met evidence en document samenvatting - grid layout */}
           <div className="grid gap-6 mb-6 grid-cols-1">
             {/* Alle stappen: één gecombineerd veld */}
