@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/router'
 import { saveProject, loadProject, createProjectId } from '../utils/storage'
 import FinanceDropzone from './FinanceDropzone'
 import ProjectActions from './ProjectActions'
