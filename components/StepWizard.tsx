@@ -133,8 +133,7 @@ export default function StepWizard({ projectId, flow, onSave }: StepWizardProps)
       // Haal project ID uit URL parameter als niet meegegeven
       let finalProjectId = projectId
       if (!finalProjectId) {
-        const urlParams = new URLSearchParams(window.location.search)
-        const idFromUrl = urlParams.get('id')
+        const idFromUrl = router.query.id as string
         if (idFromUrl) {
           finalProjectId = idFromUrl
           setActualProjectId(idFromUrl)
@@ -189,7 +188,7 @@ export default function StepWizard({ projectId, flow, onSave }: StepWizardProps)
     }
 
     initializeWizard()
-  }, [projectId])
+  }, [projectId, router.query.id])
 
   // Auto-save functionaliteit
   const autoSave = async (data: WizardData) => {
