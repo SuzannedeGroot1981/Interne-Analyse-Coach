@@ -237,6 +237,13 @@ export default function DocumentReviewStep({ className = '' }: DocumentReviewSte
         </div>
       </div>
 
+      {/* Debug info - tijdelijk */}
+      <div className="text-center mb-4">
+        <span className="text-xs text-gray-500">
+          Actieve tab: {activeTab}
+        </span>
+      </div>
+
       {/* Document Upload Tab */}
       {activeTab === 'document' && (
         <div>
