@@ -946,7 +946,7 @@ function formatAPAResultsWithIcons(text: string): JSX.Element {
         if (line.includes('Verbetervoorstellen')) {
           return (
             <div key={index} className="flex items-center space-x-2 text-hl-donkergroen font-semibold mt-4">
-              <span className="material-symbols-sharp hl-icon-primary hl-icon-md">lightbulb</span>
+              <span className="material-symbols-sharp hl-icon-primary hl-icon-md">tips_and_updates</span>
               <span>{line.replace(/\*\*/g, '')}</span>
             </div>
           )
