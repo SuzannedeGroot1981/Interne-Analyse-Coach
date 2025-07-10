@@ -3,13 +3,11 @@ import { useEffect, useState } from 'react'
 import { listProjects, getOrCreateUserId, deleteProject, loadProject, type ProjectSummary } from '../utils/storage'
 import { v4 as uuid } from 'uuid'
 import { setActive, saveProject, clearActive } from '../utils/storage'
-import DocumentDropzone from '../components/DocumentDropzone'
 
 export default function Home() {
   const [projects, setProjects] = useState<ProjectSummary[]>([])
   const [userId, setUserId] = useState<string>('')
   const [isLoading, setIsLoading] = useState(true)
-  const [showImproveSection, setShowImproveSection] = useState(false)
 
   // Nieuwe project functie
   function newProject() {
@@ -18,15 +16,6 @@ export default function Home() {
     setActive(id)
     saveProject(id, { flow: "new", meta: { orgLevel: "Organisatie" } })
     window.location.href = `/sources?id=${id}`
-  }
-
-  // Handle document review voor verbeter concept
-  const handleDocumentLoaded = (documentData: any) => {
-    console.log('📄 Document geladen voor review:', {
-      fileName: documentData.fileName,
-      wordCount: documentData.wordCount,
-      fileType: documentData.fileType
-    })
   }
 
   // Laad projecten bij component mount
@@ -205,133 +194,55 @@ export default function Home() {
 
         {/* Main Action Buttons - Nieuwe workflow */}
         <div className="max-w-4xl mx-auto">
-          <div className="space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             
-            {/* Hoofdacties in grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Nieuw project - DIRECTE WORKFLOW */}
+            <div className="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+              <div className="text-center mb-6">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+                  <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </div>
+                <h2 className="text-2xl font-bold text-gray-800 mb-3">
+                  Nieuw Project
+                </h2>
+                <p className="text-gray-600 mb-6">
+                  Begin een volledig nieuwe interne analyse van je organisatie volgens het 7S-model met AI-ondersteuning.
+                </p>
+              </div>
               
-              {/* Nieuw project - DIRECTE WORKFLOW */}
-              <div className="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
-                <div className="text-center mb-6">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-                    <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    </svg>
-                  </div>
-                  <h2 className="text-2xl font-bold text-gray-800 mb-3">
-                    Nieuw Project
-                  </h2>
-                  <p className="text-gray-600 mb-6">
-                    Begin een volledig nieuwe interne analyse van je organisatie volgens het 7S-model met AI-ondersteuning.
-                  </p>
-                </div>
-                
-                <button
-                  onClick={newProject}
-                  className="btn-primary w-full py-4 px-6 text-lg font-semibold rounded-xl transition-all duration-200 transform hover:scale-105"
-                >
-                  Start nieuw project
-                </button>
-              </div>
-
-              {/* Check een concept versie */}
-              <div className="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
-                <div className="text-center mb-6">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
-                    <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                  </div>
-                  <h2 className="text-2xl font-bold text-gray-800 mb-3">
-                    Check een Concept Versie
-                  </h2>
-                  <p className="text-gray-600 mb-6">
-                    Upload je bestaande analyse of concept en laat AI helpen bij het identificeren van verbeterpunten en optimalisaties.
-                  </p>
-                </div>
-                
-                <button
-                  onClick={() => setShowImproveSection(!showImproveSection)}
-                  className="btn-secondary w-full py-4 px-6 text-lg font-semibold rounded-xl transition-all duration-200 transform hover:scale-105"
-                >
-                  {showImproveSection ? 'Verberg upload sectie' : 'Check een concept versie'}
-                </button>
-              </div>
+              <button
+                onClick={newProject}
+                className="btn-primary w-full py-4 px-6 text-lg font-semibold rounded-xl transition-all duration-200 transform hover:scale-105"
+              >
+                Start nieuw project
+              </button>
             </div>
 
-            {/* Document Review Sectie - alleen tonen als showImproveSection true is */}
-            {showImproveSection && (
-              <div className="bg-white rounded-2xl shadow-xl p-8 border-2 border-blue-200">
-                <div className="text-center mb-8">
-                  <h3 className="text-2xl font-bold text-gray-800 mb-4 flex items-center justify-center">
-                    <span className="mr-3">📝</span>
-                    Document Review & Verbetering
-                  </h3>
-                  <p className="text-gray-600 max-w-2xl mx-auto">
-                    Upload je bestaande document (DOCX of Markdown) en krijg gedetailleerde AI-feedback met sterke punten, 
-                    zwakke punten en APA-stijl issues. Voor elk zwak punt kun je automatisch een verbetervoorstel laten genereren.
-                  </p>
+            {/* Check een concept versie */}
+            <div className="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+              <div className="text-center mb-6">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
+                  <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
                 </div>
-
-                {/* Instructies */}
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
-                  <h4 className="text-lg font-semibold text-blue-800 mb-3 flex items-center">
-                    <span className="mr-2">💡</span>
-                    Hoe werkt het?
-                  </h4>
-                  <div className="space-y-2 text-blue-700">
-                    <p className="flex items-start">
-                      <span className="mr-2 mt-1">1️⃣</span>
-                      <span><strong>Upload</strong> je document (.docx of .md bestand)</span>
-                    </p>
-                    <p className="flex items-start">
-                      <span className="mr-2 mt-1">2️⃣</span>
-                      <span><strong>Review</strong> krijg automatische AI-analyse van je tekst</span>
-                    </p>
-                    <p className="flex items-start">
-                      <span className="mr-2 mt-1">3️⃣</span>
-                      <span><strong>Verbeter</strong> klik op "Pas fix toe" voor elk zwak punt</span>
-                    </p>
-                    <p className="flex items-start">
-                      <span className="mr-2 mt-1">4️⃣</span>
-                      <span><strong>Implementeer</strong> de AI-verbetervoorstellen in je document</span>
-                    </p>
-                  </div>
-                </div>
-
-                {/* Document Dropzone Component */}
-                <DocumentDropzone 
-                  onDocumentLoaded={handleDocumentLoaded}
-                  className="mt-6"
-                />
-
-                {/* Tips sectie */}
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mt-6">
-                  <h4 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                    <span className="mr-2">💡</span>
-                    Tips voor de beste resultaten
-                  </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
-                    <div>
-                      <h5 className="font-medium text-gray-800 mb-2">📄 Document kwaliteit</h5>
-                      <ul className="space-y-1">
-                        <li>• Upload complete documenten (niet fragmenten)</li>
-                        <li>• Zorg voor duidelijke structuur met headers</li>
-                        <li>• Minimaal 500 woorden voor beste analyse</li>
-                      </ul>
-                    </div>
-                    <div>
-                      <h5 className="font-medium text-gray-800 mb-2">🎯 Review focus</h5>
-                      <ul className="space-y-1">
-                        <li>• AI controleert inhoud, structuur en stijl</li>
-                        <li>• Speciale aandacht voor APA-richtlijnen</li>
-                        <li>• Constructieve verbetervoorstellen</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
+                <h2 className="text-2xl font-bold text-gray-800 mb-3">
+                  Check een Concept Versie
+                </h2>
+                <p className="text-gray-600 mb-6">
+                  Upload je bestaande analyse of concept en laat AI helpen bij het identificeren van verbeterpunten en optimalisaties.
+                </p>
               </div>
-            )}
+              
+              <Link href="/improve">
+                <button className="btn-secondary w-full py-4 px-6 text-lg font-semibold rounded-xl transition-all duration-200 transform hover:scale-105">
+                  Check een concept versie
+                </button>
+              </Link>
+            </div>
+
           </div>
         </div>
 
