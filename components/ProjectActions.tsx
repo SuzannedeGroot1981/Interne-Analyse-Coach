@@ -8,10 +8,11 @@ interface ProjectActionsProps {
   projectId?: string
   projectData?: any
   wizardData?: any // Toegevoegd voor directe toegang tot wizard data
+  apaResults?: { [stepId: string]: string } // Toegevoegd voor APA resultaten
   className?: string
 }
 
-export default function ProjectActions({ projectId, projectData, wizardData, className = '' }: ProjectActionsProps) {
+export default function ProjectActions({ projectId, projectData, wizardData, apaResults = {}, className = '' }: ProjectActionsProps) {
   const [isExportingWord, setIsExportingWord] = useState(false)
   const [isExportingJson, setIsExportingJson] = useState(false)
   const [isImporting, setIsImporting] = useState(false)
@@ -38,6 +39,7 @@ export default function ProjectActions({ projectId, projectData, wizardData, cla
 
     const data: Record<string, string> = {}
     const feedback: Record<string, string> = {}
+    const apaData: Record<string, string> = {}
 
     STEPS.forEach(step => {
       const stepData = wizardData[step.id]
@@ -58,13 +60,19 @@ export default function ProjectActions({ projectId, projectData, wizardData, cla
         if (stepData.feedback) {
           feedback[step.title] = stepData.feedback
         }
+        
+        // Voeg APA resultaten toe als beschikbaar
+        if (apaResults[step.id]) {
+          apaData[step.title] = apaResults[step.id]
+        }
       }
     })
 
     return {
       title: `Interne Analyse ${new Date().toLocaleDateString('nl-NL')}`,
       data,
-      feedback
+      feedback,
+      apaResults: apaData
     }
   }
 
@@ -114,6 +122,11 @@ export default function ProjectActions({ projectId, projectData, wizardData, cla
           
           if (stepData.feedback) {
             markdown += `### 🤖 Coach Feedback\n\n${stepData.feedback}\n\n`
+          }
+          
+          // Voeg APA resultaten toe als beschikbaar
+          if (apaResults[step.id]) {
+            markdown += `### 📝 APA Check Resultaten\n\n${apaResults[step.id]}\n\n`
           }
           
           if (stepData.completed) {

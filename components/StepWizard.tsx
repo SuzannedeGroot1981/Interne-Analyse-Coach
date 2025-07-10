@@ -841,6 +841,7 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
         projectId={actualProjectId}
         projectData={currentProjectData}
         wizardData={wizardData}
+        apaResults={apaResults}
         className="mt-6"
       />
 
