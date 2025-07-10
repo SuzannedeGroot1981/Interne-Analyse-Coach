@@ -53,7 +53,7 @@ export default function Home() {
 
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
         {/* Header */}
-        <div className="bg-white shadow-sm border-b border-gray-200">
+        <div className="bg-hl-wit shadow-sm border-b border-hl-zand">
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-between h-16">
               {/* Logo en titel */}
@@ -63,7 +63,7 @@ export default function Home() {
                   alt="Hogeschool Leiden Logo"
                   className="h-8 w-auto"
                 />
-                <h1 className="text-lg font-bold text-primary">
+                <h1 className="text-lg font-bold text-hl-donkergroen font-gantari">
                   Interne-Analyse-Coach
                 </h1>
               </div>
@@ -72,13 +72,13 @@ export default function Home() {
         </div>
 
         {/* Hero Sectie */}
-        <div className="bg-gradient-to-r from-primary to-green-700 text-white py-16">
+        <div className="hl-gradient-bg text-hl-wit py-16">
           <div className="container mx-auto px-4 text-center">
             <div className="max-w-4xl mx-auto">
               <h1 className="text-4xl md:text-5xl font-bold mb-6 font-gantari">
                 Welkom bij de Interne Analyse Coach
               </h1>
-              <p className="text-xl md:text-2xl mb-8 text-green-100 font-gantari font-medium">
+              <p className="text-xl md:text-2xl mb-8 text-hl-lichtgroen font-gantari font-medium">
                 Jouw AI-coach bij het schrijven van interne analyses volgens het 7S-model van McKinsey
               </p>
             </div>
@@ -86,33 +86,33 @@ export default function Home() {
         </div>
 
         {/* Main Content */}
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-8 bg-hl-wit">
           <div className="max-w-6xl mx-auto">
             {/* Instructies sectie */}
-            <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
-              <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center font-gantari">
+            <div className="hl-card mb-8">
+              <h2 className="text-2xl font-bold text-hl-donkergroen mb-6 text-center font-gantari">
                 Hoe werkt de Interne Analyse Coach?
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="text-center">
-                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <div className="w-12 h-12 bg-hl-lichtgroen rounded-full flex items-center justify-center mx-auto mb-4">
                     <span className="text-2xl">📄</span>
                   </div>
-                  <h3 className="font-gantari font-semibold text-gray-800 mb-2">1. Upload Document</h3>
+                  <h3 className="font-gantari font-semibold text-hl-donkergroen mb-2">1. Upload Document</h3>
                   <p className="text-sm text-gray-600 font-gantari">Upload je bestaande analyse of concept</p>
                 </div>
                 <div className="text-center">
-                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <div className="w-12 h-12 bg-hl-geel rounded-full flex items-center justify-center mx-auto mb-4">
                     <span className="text-2xl">🤖</span>
                   </div>
-                  <h3 className="font-gantari font-semibold text-gray-800 mb-2">2. AI Analyse</h3>
+                  <h3 className="font-gantari font-semibold text-hl-donkergroen mb-2">2. AI Analyse</h3>
                   <p className="text-sm text-gray-600 font-gantari">Krijg gedetailleerde feedback per 7S-element</p>
                 </div>
                 <div className="text-center">
-                  <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <div className="w-12 h-12 bg-hl-zand rounded-full flex items-center justify-center mx-auto mb-4">
                     <span className="text-2xl">📊</span>
                   </div>
-                  <h3 className="font-gantari font-semibold text-gray-800 mb-2">3. Exporteer</h3>
+                  <h3 className="font-gantari font-semibold text-hl-donkergroen mb-2">3. Exporteer</h3>
                   <p className="text-sm text-gray-600 font-gantari">Download je verbeterde analyse</p>
                 </div>
               </div>
@@ -128,7 +128,7 @@ export default function Home() {
         </div>
 
         {/* Footer */}
-        <footer className="bg-white border-t border-gray-200 mt-16">
+        <footer className="bg-hl-wit border-t border-hl-zand mt-16">
           <div className="container mx-auto px-4 py-8">
             <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
               <div className="flex items-center space-x-2">

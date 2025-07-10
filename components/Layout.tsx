@@ -20,7 +20,7 @@ export default function Layout({ children, title = 'Interne Analyse Coach' }: La
 
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
-        <header className="bg-white shadow-sm border-b border-gray-200">
+        <header className="bg-hl-wit shadow-sm border-b border-hl-zand">
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-between h-16">
               {/* Logo en Titel */}
@@ -34,7 +34,7 @@ export default function Layout({ children, title = 'Interne Analyse Coach' }: La
                   priority
                 />
                 <div className="hidden sm:block">
-                  <h1 className="text-xl font-bold text-primary font-gantari">
+                  <h1 className="text-xl font-bold text-hl-donkergroen font-gantari">
                     Interne-Analyse-Coach
                   </h1>
                   <p className="text-xs text-gray-600 font-gantari">
@@ -45,7 +45,7 @@ export default function Layout({ children, title = 'Interne Analyse Coach' }: La
 
               {/* Mobile titel */}
               <div className="sm:hidden">
-                <h1 className="text-lg font-bold text-primary font-gantari">
+                <h1 className="text-lg font-bold text-hl-donkergroen font-gantari">
                   IAC
                 </h1>
               </div>
@@ -54,13 +54,13 @@ export default function Layout({ children, title = 'Interne Analyse Coach' }: La
               <nav className="hidden md:flex items-center space-x-6">
                 <Link 
                   href="/start" 
-                  className="text-gray-600 hover:text-primary transition-colors text-sm font-medium font-gantari"
+                  className="hl-nav-link"
                 >
                   Nieuwe Analyse
                 </Link>
                 <Link 
                   href="/improve" 
-                  className="text-gray-600 hover:text-primary transition-colors text-sm font-medium font-gantari"
+                  className="hl-nav-link"
                 >
                   Verbeter Concept
                 </Link>
@@ -70,12 +70,12 @@ export default function Layout({ children, title = 'Interne Analyse Coach' }: La
         </header>
 
         {/* Main Content */}
-        <main className="flex-1">
+        <main className="flex-1 bg-hl-wit">
           {children}
         </main>
 
         {/* Footer */}
-        <footer className="bg-white border-t border-gray-200 mt-auto">
+        <footer className="bg-hl-wit border-t border-hl-zand mt-auto">
           <div className="container mx-auto px-4 py-6">
             <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
               <div className="flex items-center space-x-2">

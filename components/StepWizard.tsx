@@ -520,23 +520,23 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
     <div className="max-w-6xl mx-auto p-6">
       {/* API Quota Warning Banner */}
       {apiQuotaExceeded && isQuotaErrorRecent() && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+        <div className="hl-alert-warning mb-6">
           <div className="flex items-start space-x-3">
-            <div className="text-yellow-600 text-xl">⚠️</div>
+            <div className="text-hl-donkerpaars text-xl">⚠️</div>
             <div>
-              <h3 className="text-yellow-800 font-semibold mb-1">
+              <h3 className="text-hl-donkerpaars font-semibold mb-1 font-gantari">
                 API Quota Tijdelijk Bereikt
               </h3>
-              <p className="text-yellow-700 text-sm mb-2">
+              <p className="text-hl-donkerpaars text-sm mb-2 font-gantari">
                 De AI coach functionaliteit is tijdelijk niet beschikbaar. Je kunt wel handmatig verder werken aan je analyse.
               </p>
-              <div className="flex items-center space-x-4 text-xs text-yellow-600">
+              <div className="flex items-center space-x-4 text-xs text-hl-donkerpaars">
                 <span>Quota reset: ~{Math.ceil((24 * 60 - (Date.now() - lastQuotaError!.getTime()) / (1000 * 60)) / 60)} uur</span>
                 <a 
                   href="https://makersuite.google.com/app/apikey" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="underline hover:text-yellow-800"
+                  className="underline hover:text-hl-donkergroen"
                 >
                   Upgrade API Plan
                 </a>
@@ -547,10 +547,10 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
       )}
 
       {/* Header met voortgang */}
-      <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+      <div className="hl-card mb-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-800 font-gantari">
+            <h1 className="text-2xl font-bold text-hl-donkergroen font-gantari">
               {flow === 'start' ? '🆕 Interne analyse' : '🔄 Verbeter Bestaand Concept'}
             </h1>
             {projectMeta.orgName && (
@@ -566,16 +566,16 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
             <div className="text-sm text-gray-500 font-gantari">
               Stap {currentStep + 1} van {STEPS.length}
             </div>
-            <div className="text-lg font-semibold text-primary font-gantari">
+            <div className="text-lg font-semibold text-hl-donkergroen font-gantari">
               {Math.round(progressPercentage)}% voltooid
             </div>
           </div>
         </div>
 
         {/* Voortgangsbalk */}
-        <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
+        <div className="hl-progress mb-4">
           <div 
-            className="bg-primary h-3 rounded-full transition-all duration-500"
+            className="hl-progress-bar"
             style={{ width: `${progressPercentage}%` }}
           />
         </div>
@@ -588,10 +588,10 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
               onClick={() => goToStep(index)}
               className={`p-2 rounded-lg text-center transition-all duration-200 ${
                 index === currentStep
-                  ? 'bg-primary text-white shadow-lg'
+                  ? 'bg-hl-donkergroen text-hl-wit shadow-lg'
                   : wizardData[step.id]?.completed
-                  ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  ? 'bg-hl-lichtgroen text-hl-donkergroen hover:bg-hl-donkergroen hover:text-hl-wit'
+                  : 'bg-hl-zand text-gray-600 hover:bg-hl-lichtgroen'
               }`}
               title={step.title}
             >
@@ -609,7 +609,7 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
           <div className="flex items-center space-x-2">
             {isSaving && (
               <div className="flex items-center space-x-1">
-                <div className="animate-spin w-3 h-3 border border-primary border-t-transparent rounded-full" />
+                <div className="animate-spin w-3 h-3 border border-hl-donkergroen border-t-transparent rounded-full" />
                 <span>Opslaan...</span>
               </div>
             )}
@@ -624,16 +624,16 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
 
       {/* Huidige stap content */}
       {currentStepData && (
-        <div className="bg-white rounded-xl shadow-lg p-6">
+        <div className="hl-card">
           {/* Stap header */}
-          <div className="border-b border-gray-200 pb-6 mb-6">
+          <div className="border-b border-hl-zand pb-6 mb-6">
             <div className="flex items-center space-x-4 mb-4">
               <div className="text-4xl">{currentStepData.icon}</div>
               <div>
-                <h2 className="text-2xl font-bold text-gray-800 font-gantari">
+                <h2 className="text-2xl font-bold text-hl-donkergroen font-gantari">
                   {currentStepData.title}
                 </h2>
-                <p className="text-lg text-primary font-medium font-gantari">
+                <p className="text-lg text-hl-donkergroen font-medium font-gantari">
                   {currentStepData.subtitle}
                 </p>
               </div>
@@ -646,7 +646,7 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
           {/* Financiële data upload (alleen voor stap 8) */}
           {currentStepData.hasFileUpload && (
             <div className="mb-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center font-gantari">
+              <h3 className="text-lg font-semibold text-hl-donkergroen mb-4 flex items-center font-gantari">
                 <span className="mr-2">📊</span>
                 Upload Financiële Data (Optioneel)
               </h3>
@@ -664,7 +664,7 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
           <div className="grid gap-6 mb-6 grid-cols-1">
             {/* Alle stappen: één gecombineerd veld */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-3 font-gantari">
+              <label className="block text-sm font-semibold text-hl-donkergroen mb-3 font-gantari">
                 {currentStepData.icon} {currentStepData.title} Analyse
               </label>
               <p className="text-sm text-gray-600 mb-3 font-gantari">
@@ -674,7 +674,7 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
                 value={currentWizardData.current}
                 onChange={(e) => updateStepData(currentStepData.id, 'current', e.target.value)}
                 placeholder={getStepPlaceholder(currentStepData.id)}
-                className="w-full h-64 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none font-gantari"
+                className="hl-textarea h-64"
               />
 
             </div>
@@ -683,22 +683,22 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
           {/* APA Check sectie per stap */}
           <div className="mb-6">
             <div className="flex items-center justify-between mb-3">
-              <h4 className="text-sm font-semibold text-gray-700 font-gantari">
+              <h4 className="text-sm font-semibold text-hl-donkergroen font-gantari">
                 📝 APA 7e Editie Controle (Hogeschool Leiden)
               </h4>
               <button
                 onClick={() => checkAPAForStep(currentStepData.id)}
                 disabled={isCheckingAPA[currentStepData.id] || !currentWizardData.current.trim()}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors border font-gantari ${
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border font-gantari ${
                   isCheckingAPA[currentStepData.id]
-                    ? 'bg-blue-100 text-blue-700 border-blue-300 cursor-not-allowed'
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+                    ? 'bg-hl-lichtgroen text-hl-donkergroen border-hl-donkergroen cursor-not-allowed'
+                    : 'bg-hl-wit text-hl-donkergroen border-hl-zand hover:bg-hl-lichtgroen hover:border-hl-donkergroen'
                 }`}
                 title={`APA controle voor ${currentStepData.title}`}
               >
                 {isCheckingAPA[currentStepData.id] ? (
                   <div className="flex items-center space-x-2">
-                    <div className="animate-spin w-3 h-3 border border-blue-600 border-t-transparent rounded-full" />
+                    <div className="animate-spin w-3 h-3 border border-hl-donkergroen border-t-transparent rounded-full" />
                     <span>Controleren...</span>
                   </div>
                 ) : (
@@ -712,12 +712,12 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
             
             {/* APA Resultaten */}
             {apaResults[currentStepData.id] && (
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                <h5 className="text-sm font-semibold text-gray-800 mb-3 flex items-center font-gantari">
+              <div className="hl-alert-info">
+                <h5 className="text-sm font-semibold text-hl-donkergroen mb-3 flex items-center font-gantari">
                   <span className="mr-2">📊</span>
                   APA Controle Resultaten - {currentStepData.title}
                 </h5>
-                <div className="bg-white rounded-lg p-4 border">
+                <div className="bg-hl-wit rounded-lg p-4 border border-hl-zand">
                   <pre className="whitespace-pre-wrap text-sm text-gray-700 leading-relaxed font-gantari">
                     {apaResults[currentStepData.id]}
                   </pre>
@@ -728,7 +728,7 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
                       navigator.clipboard.writeText(apaResults[currentStepData.id])
                       alert('APA resultaten gekopieerd naar clipboard!')
                     }}
-                    className="text-xs text-blue-600 hover:text-blue-800 flex items-center space-x-1 font-gantari"
+                    className="text-xs text-hl-donkergroen hover:text-hl-donkerpaars flex items-center space-x-1 font-gantari"
                   >
                     <span>📋</span>
                     <span>Kopieer resultaten</span>
@@ -743,12 +743,12 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
           </div>
           {/* Coach feedback sectie */}
           {currentWizardData.feedback && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-              <h3 className="text-sm font-semibold text-blue-800 mb-2 flex items-center font-gantari">
+            <div className="hl-alert-info mb-6">
+              <h3 className="text-sm font-semibold text-hl-donkergroen mb-2 flex items-center font-gantari">
                 <span className="mr-2">🤖</span>
                 Coach Feedback
               </h3>
-              <div className="text-blue-700 text-sm whitespace-pre-line font-gantari">
+              <div className="text-hl-donkergroen text-sm whitespace-pre-line font-gantari">
                 {currentWizardData.feedback}
               </div>
             </div>
@@ -761,16 +761,16 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
               <button
                 onClick={() => requestCoachFeedback(currentStepData.id)}
                 disabled={isLoading || !currentWizardData.current.trim()}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors font-gantari ${
+                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 font-gantari ${
                   apiQuotaExceeded && isQuotaErrorRecent()
-                    ? 'bg-yellow-100 text-yellow-700 border border-yellow-200 hover:bg-yellow-200'
-                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                    ? 'bg-hl-geel text-hl-donkerpaars border border-hl-donkerpaars hover:bg-hl-donkerpaars hover:text-hl-wit'
+                    : 'bg-hl-donkergroen text-hl-wit hover:bg-hl-donkerpaars'
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
                 title={apiQuotaExceeded && isQuotaErrorRecent() ? 'API quota bereikt - handmatige feedback beschikbaar' : 'Vraag AI coach feedback'}
               >
                 {isLoading ? (
                   <>
-                    <div className="animate-spin w-4 h-4 border border-white border-t-transparent rounded-full" />
+                    <div className="animate-spin w-4 h-4 border border-hl-wit border-t-transparent rounded-full" />
                     <span>Analyseren...</span>
                   </>
                 ) : apiQuotaExceeded && isQuotaErrorRecent() ? (
@@ -790,10 +790,10 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
               <button
                 onClick={() => markStepCompleted(currentStepData.id)}
                 disabled={!currentWizardData.current.trim()}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors font-gantari ${
+                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 font-gantari ${
                   currentWizardData.completed
-                    ? 'bg-green-100 text-green-700 border border-green-200'
-                    : 'bg-gray-100 text-gray-700 hover:bg-green-100 hover:text-green-700 disabled:opacity-50'
+                    ? 'bg-hl-lichtgroen text-hl-donkergroen border border-hl-donkergroen'
+                    : 'bg-hl-zand text-gray-700 hover:bg-hl-lichtgroen hover:text-hl-donkergroen disabled:opacity-50'
                 }`}
               >
                 <span>{currentWizardData.completed ? '✅' : '☐'}</span>
@@ -806,7 +806,7 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
               <button
                 onClick={prevStep}
                 disabled={currentStep === 0}
-                className="flex items-center space-x-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-gantari"
+                className="btn-outline disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span>←</span>
                 <span>Vorige</span>
@@ -815,7 +815,7 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
               <button
                 onClick={nextStep}
                 disabled={currentStep === STEPS.length - 1}
-                className="flex items-center space-x-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-gantari"
+                className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span>Volgende</span>
                 <span>→</span>
@@ -835,16 +835,16 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
 
       {/* Overzicht sectie (alleen tonen als alle stappen voltooid) */}
       {completedSteps === STEPS.length && (
-        <div className="bg-green-50 border border-green-200 rounded-xl p-6 mt-6">
+        <div className="hl-alert-success mt-6">
           <div className="text-center">
             <div className="text-4xl mb-4">🎉</div>
-            <h3 className="text-xl font-bold text-green-800 mb-2 font-gantari">
+            <h3 className="text-xl font-bold text-hl-donkergroen mb-2 font-gantari">
               Analyse Voltooid!
             </h3>
-            <p className="text-green-700 mb-4 font-gantari">
+            <p className="text-hl-donkergroen mb-4 font-gantari">
               Je hebt alle 8 stappen van de interne analyse doorlopen. 
             </p>
-            <p className="text-green-600 text-sm font-gantari">
+            <p className="text-hl-donkergroen text-sm font-gantari">
               Gebruik de "Export & Rapporten" sectie hieronder om je analyse te downloaden of te delen.
             </p>
           </div>
