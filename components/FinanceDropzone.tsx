@@ -134,6 +134,40 @@ export default function FinanceDropzone({ onDataLoaded, className = '' }: Financ
     })
   }
 
+  // Verwerk PDF bestand
+  const processPDF = (file: File): Promise<FinanceData> => {
+    return new Promise((resolve) => {
+      const documentData: FinanceData = {
+        fileName: file.name,
+        data: [],
+        headers: ['PDF Document'],
+        summary: {
+          totalRows: 0,
+          totalColumns: 1,
+          fileSize: formatFileSize(file.size)
+        }
+      }
+      resolve(documentData)
+    })
+  }
+
+  // Verwerk Image bestand
+  const processImage = (file: File): Promise<FinanceData> => {
+    return new Promise((resolve) => {
+      const documentData: FinanceData = {
+        fileName: file.name,
+        data: [],
+        headers: ['Image Document'],
+        summary: {
+          totalRows: 0,
+          totalColumns: 1,
+          fileSize: formatFileSize(file.size)
+        }
+      }
+      resolve(documentData)
+    })
+  }
+
   // Parse financiële data via API
   const parseFinancialData = async (financeData: FinanceData) => {
     setIsParsingFinance(true)

@@ -230,4 +230,78 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!coachFeedback) {
       console.error('No feedback received from Gemini API:', data)
       return res.status(500).json({
-        error: '
+        error: 'Geen feedback ontvangen van de AI coach',
+        details: 'Empty response from Gemini API'
+      })
+    }
+
+    /* ---- 3. Na het antwoord: korte scan voor evidence citatie -------------- */
+    if (ev && userText && !coachFeedback.toLowerCase().includes("interview") && !coachFeedback.toLowerCase().includes("enquête")) {
+      // Check of student het evidence citeert in hun tekst
+      const hasInterviewRef = userText.toLowerCase().includes("interview") || 
+                             userText.toLowerCase().includes("gesprek") ||
+                             userText.toLowerCase().includes("gesproken");
+      const hasSurveyRef = userText.toLowerCase().includes("enquête") || 
+                          userText.toLowerCase().includes("onderzoek") ||
+                          userText.toLowerCase().includes("vragenlijst");
+      
+      if (!hasInterviewRef && !hasSurveyRef) {
+        coachFeedback = "**Let op:** Noem expliciet het interview/enquête-bewijs in je tekst. Je hebt waardevolle data beschikbaar die je analyse kan versterken.\n\n" + coachFeedback;
+      }
+    }
+
+    /* ---- 4. Mini-filter: vang per ongeluk extern advies af -------------- */
+    const forbidden = /extern|PEST|kansen|bedreigingen|concurrent|macro/i;
+    if (forbidden.test(coachFeedback)) {
+      coachFeedback =
+        "**Let op:** De coach merkte externe analyse-termen op. "
+        + "Die horen pas bij de volgende opdracht en zijn hier niet beoordeeld.\n\n"
+        + coachFeedback.replace(forbidden, (match: string) => `~~${match}~~`);
+    }
+
+    console.log('✅ Coach feedback gegenereerd:', {
+      feedbackLength: coachFeedback.length,
+      stepTitle: stepTitle || 'Algemeen',
+      success: true,
+      hasEvidence: !!ev,
+      filteredExternal: forbidden.test(data.candidates?.[0]?.content?.parts?.[0]?.text || ''),
+      evidenceWarningAdded: ev && userText && !userText.toLowerCase().includes("interview") && !userText.toLowerCase().includes("enquête")
+    })
+
+    // Succesvol antwoord
+    return res.status(200).json({
+      success: true,
+      feedback: coachFeedback,
+      stepTitle: stepTitle || null,
+      timestamp: new Date().toISOString(),
+      wordCount: coachFeedback.split(/\s+/).length,
+      evidenceUsed: !!ev
+    })
+
+  } catch (error) {
+    console.error('Coach API error:', error)
+    
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    
+    // Check if this is a quota-related error
+    const isQuotaError = errorMessage.includes('quota') || 
+                        errorMessage.includes('429') || 
+                        errorMessage.includes('RESOURCE_EXHAUSTED') ||
+                        errorMessage.includes('exceeded')
+    
+    return res.status(isQuotaError ? 429 : 500).json({
+      error: isQuotaError 
+        ? 'API quota bereikt. Probeer het later opnieuw.'
+        : 'Er is een fout opgetreden bij het genereren van coach feedback',
+      details: errorMessage,
+      timestamp: new Date().toISOString(),
+      ...(isQuotaError && {
+        quotaInfo: {
+          resetTime: '24 uur',
+          upgradeUrl: 'https://makersuite.google.com/app/apikey',
+          suggestion: 'Upgrade naar betaald plan voor hogere limieten'
+        }
+      })
+    })
+  }
+}
