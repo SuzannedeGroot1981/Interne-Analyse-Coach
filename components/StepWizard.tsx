@@ -22,7 +22,7 @@ STEPS.forEach(step => {
   const stepData = wizardData[step.id] || {
     analysis: '',
     allText += `## ${step.title}\n\n${stepData.analysis}\n\n`
-  } // Added missing closing bracket for stepData object
+  }
 }) // Added missing closing bracket for forEach
 ```
 
