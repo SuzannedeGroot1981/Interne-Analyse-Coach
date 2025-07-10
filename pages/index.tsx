@@ -96,21 +96,21 @@ export default function Home() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="text-center">
                   <div className="w-12 h-12 bg-hl-lichtgroen rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-2xl">📄</span>
+                    <span className="material-symbols-sharp hl-icon-primary hl-icon-lg">description</span>
                   </div>
                   <h3 className="font-gantari font-semibold text-hl-donkergroen mb-2">1. Upload Document</h3>
                   <p className="text-sm text-gray-600 font-gantari">Upload je bestaande analyse of concept</p>
                 </div>
                 <div className="text-center">
                   <div className="w-12 h-12 bg-hl-geel rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-2xl">🤖</span>
+                    <span className="material-symbols-sharp hl-icon-primary hl-icon-lg">psychology</span>
                   </div>
                   <h3 className="font-gantari font-semibold text-hl-donkergroen mb-2">2. AI Analyse</h3>
                   <p className="text-sm text-gray-600 font-gantari">Krijg gedetailleerde feedback per 7S-element</p>
                 </div>
                 <div className="text-center">
                   <div className="w-12 h-12 bg-hl-zand rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-2xl">📊</span>
+                    <span className="material-symbols-sharp hl-icon-primary hl-icon-lg">download</span>
                   </div>
                   <h3 className="font-gantari font-semibold text-hl-donkergroen mb-2">3. Exporteer</h3>
                   <p className="text-sm text-gray-600 font-gantari">Download je verbeterde analyse</p>

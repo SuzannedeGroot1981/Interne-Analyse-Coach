@@ -302,15 +302,11 @@ export default function DocumentDropzone({ onDocumentLoaded, className = '' }: D
             uploadedDocument ? 'bg-green-100' : 'bg-gray-100'
           }`}>
             {isProcessing ? (
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <span className="material-symbols-sharp text-blue-600 hl-icon-lg animate-spin">progress_activity</span>
             ) : uploadedDocument ? (
-              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+              <span className="material-symbols-sharp text-green-600 hl-icon-lg">check_circle</span>
             ) : (
-              <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
+              <span className="material-symbols-sharp text-gray-400 hl-icon-lg">description</span>
             )}
           </div>
 
@@ -337,7 +333,8 @@ export default function DocumentDropzone({ onDocumentLoaded, className = '' }: D
             ) : isDragActive ? (
               <div>
                 <p className="text-lg font-medium text-blue-600">
-                  📄 Drop je document hier
+                  <span className="material-symbols-sharp hl-icon-md mr-2">file_upload</span>
+                  Drop je document hier
                 </p>
                 <p className="text-sm text-gray-500">
                   DOCX of Markdown bestanden worden ondersteund
@@ -346,7 +343,8 @@ export default function DocumentDropzone({ onDocumentLoaded, className = '' }: D
             ) : (
               <div>
                 <p className="text-lg font-medium text-gray-700">
-                  📝 Upload Document voor Review
+                  <span className="material-symbols-sharp hl-icon-md mr-2">upload</span>
+                  Upload Document voor Review
                 </p>
                 <p className="text-sm text-gray-500 mt-1">
                   Sleep een DOCX of Markdown bestand hierheen, of klik om te selecteren
@@ -364,7 +362,8 @@ export default function DocumentDropzone({ onDocumentLoaded, className = '' }: D
               type="button"
               className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
-              📁 Selecteer Document
+              <span className="material-symbols-sharp hl-icon-sm mr-2">folder_open</span>
+              Selecteer Document
             </button>
           )}
         </div>
@@ -374,9 +373,7 @@ export default function DocumentDropzone({ onDocumentLoaded, className = '' }: D
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <div className="flex items-center space-x-2">
-            <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+            <span className="material-symbols-sharp text-red-500 hl-icon-md">error</span>
             <span className="text-red-700 font-medium">Fout bij verwerken</span>
           </div>
           <p className="text-red-600 text-sm mt-1">{error}</p>
@@ -388,7 +385,7 @@ export default function DocumentDropzone({ onDocumentLoaded, className = '' }: D
         <div className="bg-white border border-gray-200 rounded-lg p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-800 flex items-center">
-              <span className="mr-2">📄</span>
+              <span className="material-symbols-sharp hl-icon-primary hl-icon-md mr-2">description</span>
               Document Preview
             </h3>
             <div className="flex items-center space-x-3">
@@ -409,7 +406,7 @@ export default function DocumentDropzone({ onDocumentLoaded, className = '' }: D
                     </div>
                   ) : (
                     <div className="flex items-center space-x-2">
-                      <span>🤖</span>
+                      <span className="material-symbols-sharp hl-icon-white hl-icon-sm">psychology</span>
                       <span>Start AI Review</span>
                     </div>
                   )}
@@ -419,7 +416,8 @@ export default function DocumentDropzone({ onDocumentLoaded, className = '' }: D
                 onClick={clearData}
                 className="text-red-500 hover:text-red-700 text-sm font-medium"
               >
-                🗑️ Verwijderen
+                <span className="material-symbols-sharp hl-icon-sm mr-1">delete</span>
+                Verwijderen
               </button>
             </div>
           </div>
@@ -466,7 +464,7 @@ export default function DocumentDropzone({ onDocumentLoaded, className = '' }: D
           {/* Sterke punten */}
           <div className="bg-green-50 border border-green-200 rounded-lg p-6">
             <h3 className="text-lg font-bold text-green-800 mb-4 flex items-center">
-              <span className="mr-2">✅</span>
+              <span className="material-symbols-sharp text-green-600 hl-icon-md mr-2">check_circle</span>
               Sterke Punten
             </h3>
             <ul className="space-y-2">
@@ -483,7 +481,7 @@ export default function DocumentDropzone({ onDocumentLoaded, className = '' }: D
           {weaknessCards.length > 0 && (
             <div className="space-y-4">
               <h3 className="text-lg font-bold text-orange-800 flex items-center">
-                <span className="mr-2">⚠️</span>
+                <span className="material-symbols-sharp text-orange-600 hl-icon-md mr-2">warning</span>
                 Zwakke Punten & Verbeterpunten
               </h3>
               {weaknessCards.map((card) => (
@@ -505,7 +503,10 @@ export default function DocumentDropzone({ onDocumentLoaded, className = '' }: D
                           <span>Fixing...</span>
                         </div>
                       ) : (
-                        '🔧 Pas fix toe'
+                        <span className="flex items-center space-x-1">
+                          <span className="material-symbols-sharp hl-icon-sm">build</span>
+                          <span>Pas fix toe</span>
+                        </span>
                       )}
                     </button>
                   </div>
@@ -514,7 +515,7 @@ export default function DocumentDropzone({ onDocumentLoaded, className = '' }: D
                   {card.fixedText && (
                     <div className="mt-3 p-3 bg-white border border-green-200 rounded-lg">
                       <h5 className="text-sm font-semibold text-green-700 mb-2 flex items-center">
-                        <span className="mr-1">✨</span>
+                        <span className="material-symbols-sharp text-green-600 hl-icon-sm mr-1">auto_fix_high</span>
                         AI Verbetervoorstel:
                       </h5>
                       <p className="text-sm text-gray-700 whitespace-pre-wrap">{card.fixedText}</p>
@@ -529,7 +530,7 @@ export default function DocumentDropzone({ onDocumentLoaded, className = '' }: D
           {reviewResult.apa_issues.length > 0 && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-6">
               <h3 className="text-lg font-bold text-red-800 mb-4 flex items-center">
-                <span className="mr-2">📚</span>
+                <span className="material-symbols-sharp text-red-600 hl-icon-md mr-2">menu_book</span>
                 APA Stijl Issues
               </h3>
               <ul className="space-y-2">
@@ -547,7 +548,7 @@ export default function DocumentDropzone({ onDocumentLoaded, className = '' }: D
           {reviewResult.overall_feedback && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
               <h3 className="text-lg font-bold text-blue-800 mb-4 flex items-center">
-                <span className="mr-2">🤖</span>
+                <span className="material-symbols-sharp text-blue-600 hl-icon-md mr-2">psychology</span>
                 Overall AI Feedback
               </h3>
               <p className="text-blue-700 whitespace-pre-wrap">{reviewResult.overall_feedback}</p>
@@ -564,7 +565,8 @@ export default function DocumentDropzone({ onDocumentLoaded, className = '' }: D
               }}
               className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
             >
-              🔄 Nieuwe Review Starten
+              <span className="material-symbols-sharp hl-icon-white hl-icon-sm mr-2">refresh</span>
+              Nieuwe Review Starten
             </button>
           </div>
         </div>

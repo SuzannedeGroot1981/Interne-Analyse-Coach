@@ -32,7 +32,7 @@ const STEPS = [
     id: 'strategy',
     title: 'Strategy',
     subtitle: 'Strategie & Richting',
-    icon: '🎯',
+    icon: 'target_on',
     description: 'De langetermijnvisie, missie en strategische doelstellingen van de zorgorganisatie. Focus op interne strategische keuzes en prioriteiten.',
     questions: {
       current: 'Beschrijf de huidige strategie van je zorgorganisatie. Wat zijn de belangrijkste interne doelstellingen en hoe worden deze nagestreefd? Gebruik concrete voorbeelden en citeer interview/enquête resultaten.'
@@ -42,7 +42,7 @@ const STEPS = [
     id: 'structure',
     title: 'Structure',
     subtitle: 'Organisatiestructuur',
-    icon: '🏗️',
+    icon: 'account_tree',
     description: 'De interne organisatiestructuur: hiërarchie, afdelingen, rapportagelijnen en besluitvormingsprocessen binnen de zorgorganisatie.',
     questions: {
       current: 'Analyseer de huidige organisatiestructuur. Beschrijf hiërarchie, afdelingen, rapportagelijnen en besluitvorming. Ondersteun met organogram indien beschikbaar en interview bevindingen.'
@@ -52,7 +52,7 @@ const STEPS = [
     id: 'systems',
     title: 'Systems',
     subtitle: 'Systemen & Processen',
-    icon: '⚙️',
+    icon: 'settings',
     description: 'Interne procedures, processen, IT-systemen en werkwijzen die het dagelijkse zorgwerk ondersteunen en faciliteren.',
     questions: {
       current: 'Beschrijf de belangrijkste interne systemen en processen. Hoe verlopen zorgprocessen, administratieve procedures en IT-ondersteuning? Analyseer effectiviteit op basis van medewerker feedback.'
@@ -62,7 +62,7 @@ const STEPS = [
     id: 'shared-values',
     title: 'Shared Values',
     subtitle: 'Gedeelde Waarden',
-    icon: '💎',
+    icon: 'diamond',
     description: 'De kernwaarden, organisatiecultuur en normen die de zorgorganisatie intern definiëren en verbinden.',
     questions: {
       current: 'Analyseer de gedeelde waarden en cultuur. Hoe leven medewerkers deze waarden na in de dagelijkse zorgverlening? Gebruik concrete voorbeelden uit interviews en observaties.'
@@ -72,7 +72,7 @@ const STEPS = [
     id: 'skills',
     title: 'Skills',
     subtitle: 'Vaardigheden & Competenties',
-    icon: '🎓',
+    icon: 'school',
     description: 'De interne kennis, vaardigheden en competenties van medewerkers en teams binnen de zorgorganisatie.',
     questions: {
       current: 'Inventariseer de aanwezige vaardigheden en competenties. Waar liggen de sterke punten van je zorgteams? Identificeer kennislacunes op basis van competentiematrix en medewerkergesprekken.'
@@ -82,7 +82,7 @@ const STEPS = [
     id: 'style',
     title: 'Style',
     subtitle: 'Leiderschapsstijl',
-    icon: '👑',
+    icon: 'psychology',
     description: 'De interne leiderschapsstijl en managementaanpak van leidinggevenden binnen de zorgorganisatie.',
     questions: {
       current: 'Analyseer de leiderschapsstijl van management en teamleiders. Hoe wordt er intern leiding gegeven? Ondersteun met voorbeelden uit leiderschapssessies en medewerkerfeedback.'
@@ -92,7 +92,7 @@ const STEPS = [
     id: 'staff',
     title: 'Staff',
     subtitle: 'Personeel & Mensen',
-    icon: '👥',
+    icon: 'groups',
     description: 'Het interne personeelsbestand: rollen, ontwikkeling, motivatie en welzijn van medewerkers in de zorgorganisatie.',
     questions: {
       current: 'Beschrijf het personeelsbestand en teamsamenstelling. Hoe worden medewerkers ontwikkeld en gemotiveerd? Analyseer op basis van HR-data en medewerkertevredenheidsonderzoek.'
@@ -102,7 +102,7 @@ const STEPS = [
     id: 'finances',
     title: 'Financiën',
     subtitle: 'Financiële Situatie',
-    icon: '💰',
+    icon: 'account_balance',
     description: 'De interne financiële gezondheid: rentabiliteit, liquiditeit, solvabiliteit en budgetbeheersing van de zorgorganisatie.',
     questions: {
       current: 'Analyseer de financiële gezondheid met focus op rentabiliteit, liquiditeit en solvabiliteit. Hoe verhouden kosten zich tot opbrengsten? Verbind financiële prestaties aan andere 7S-elementen.'
@@ -522,7 +522,7 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
       {apiQuotaExceeded && isQuotaErrorRecent() && (
         <div className="hl-alert-warning mb-6">
           <div className="flex items-start space-x-3">
-            <div className="text-hl-donkerpaars text-xl">⚠️</div>
+            <span className="material-symbols-sharp hl-icon-warning hl-icon-lg">warning</span>
             <div>
               <h3 className="text-hl-donkerpaars font-semibold mb-1 font-gantari">
                 API Quota Tijdelijk Bereikt
@@ -551,7 +551,10 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-2xl font-bold text-hl-donkergroen font-gantari">
-              {flow === 'start' ? '🆕 Interne analyse' : '🔄 Verbeter Bestaand Concept'}
+              <span className="material-symbols-sharp hl-icon-primary mr-2">
+                {flow === 'start' ? 'add_circle' : 'refresh'}
+              </span>
+              {flow === 'start' ? 'Interne analyse' : 'Verbeter Bestaand Concept'}
             </h1>
             {projectMeta.orgName && (
               <p className="text-gray-600 font-gantari">
@@ -595,7 +598,12 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
               }`}
               title={step.title}
             >
-              <div className="text-lg mb-1">{step.icon}</div>
+              <span className={`material-symbols-sharp hl-icon-md mb-1 block ${
+                index === currentStep ? 'hl-icon-white' : 
+                wizardData[step.id]?.completed ? 'hl-icon-primary' : 'text-gray-600'
+              }`}>
+                {step.icon}
+              </span>
               <div className="text-xs font-medium truncate">{step.title}</div>
             </button>
           ))}
@@ -609,7 +617,7 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
           <div className="flex items-center space-x-2">
             {isSaving && (
               <div className="flex items-center space-x-1">
-                <div className="animate-spin w-3 h-3 border border-hl-donkergroen border-t-transparent rounded-full" />
+                <span className="material-symbols-sharp hl-icon-primary hl-icon-sm animate-spin">progress_activity</span>
                 <span>Opslaan...</span>
               </div>
             )}
@@ -628,7 +636,9 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
           {/* Stap header */}
           <div className="border-b border-hl-zand pb-6 mb-6">
             <div className="flex items-center space-x-4 mb-4">
-              <div className="text-4xl">{currentStepData.icon}</div>
+              <span className="material-symbols-sharp hl-icon-primary hl-icon-xl">
+                {currentStepData.icon}
+              </span>
               <div>
                 <h2 className="text-2xl font-bold text-hl-donkergroen font-gantari">
                   {currentStepData.title}
@@ -647,7 +657,7 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
           {currentStepData.hasFileUpload && (
             <div className="mb-6">
               <h3 className="text-lg font-semibold text-hl-donkergroen mb-4 flex items-center font-gantari">
-                <span className="mr-2">📊</span>
+                <span className="material-symbols-sharp hl-icon-primary hl-icon-md mr-2">upload_file</span>
                 Upload Financiële Data (Optioneel)
               </h3>
               <p className="text-gray-600 mb-4 font-gantari">
@@ -665,7 +675,10 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
             {/* Alle stappen: één gecombineerd veld */}
             <div>
               <label className="block text-sm font-semibold text-hl-donkergroen mb-3 font-gantari">
-                {currentStepData.icon} {currentStepData.title} Analyse
+                <span className="material-symbols-sharp hl-icon-primary hl-icon-sm mr-2">
+                  {currentStepData.icon}
+                </span>
+                {currentStepData.title} Analyse
               </label>
               <p className="text-sm text-gray-600 mb-3 font-gantari">
                 {getStepDescription(currentStepData.id)}
@@ -684,7 +697,8 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
           <div className="mb-6">
             <div className="flex items-center justify-between mb-3">
               <h4 className="text-sm font-semibold text-hl-donkergroen font-gantari">
-                📝 APA 7e Editie Controle (Hogeschool Leiden)
+                <span className="material-symbols-sharp hl-icon-primary hl-icon-sm mr-2">fact_check</span>
+                APA 7e Editie Controle (Hogeschool Leiden)
               </h4>
               <button
                 onClick={() => checkAPAForStep(currentStepData.id)}
@@ -698,12 +712,12 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
               >
                 {isCheckingAPA[currentStepData.id] ? (
                   <div className="flex items-center space-x-2">
-                    <div className="animate-spin w-3 h-3 border border-hl-donkergroen border-t-transparent rounded-full" />
+                    <span className="material-symbols-sharp hl-icon-primary hl-icon-sm animate-spin">progress_activity</span>
                     <span>Controleren...</span>
                   </div>
                 ) : (
                   <div className="flex items-center space-x-2">
-                    <span>📝</span>
+                    <span className="material-symbols-sharp hl-icon-primary hl-icon-sm">fact_check</span>
                     <span>APA Check {currentStepData.title}</span>
                   </div>
                 )}
@@ -714,7 +728,7 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
             {apaResults[currentStepData.id] && (
               <div className="hl-alert-info">
                 <h5 className="text-sm font-semibold text-hl-donkergroen mb-3 flex items-center font-gantari">
-                  <span className="mr-2">📊</span>
+                  <span className="material-symbols-sharp hl-icon-primary hl-icon-sm mr-2">analytics</span>
                   APA Controle Resultaten - {currentStepData.title}
                 </h5>
                 <div className="bg-hl-wit rounded-lg p-4 border border-hl-zand">
@@ -730,7 +744,7 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
                     }}
                     className="text-xs text-hl-donkergroen hover:text-hl-donkerpaars flex items-center space-x-1 font-gantari"
                   >
-                    <span>📋</span>
+                    <span className="material-symbols-sharp hl-icon-sm">content_copy</span>
                     <span>Kopieer resultaten</span>
                   </button>
                 </div>
@@ -745,7 +759,7 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
           {currentWizardData.feedback && (
             <div className="hl-alert-info mb-6">
               <h3 className="text-sm font-semibold text-hl-donkergroen mb-2 flex items-center font-gantari">
-                <span className="mr-2">🤖</span>
+                <span className="material-symbols-sharp hl-icon-primary hl-icon-sm mr-2">psychology</span>
                 Coach Feedback
               </h3>
               <div className="text-hl-donkergroen text-sm whitespace-pre-line font-gantari">
@@ -770,17 +784,17 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
               >
                 {isLoading ? (
                   <>
-                    <div className="animate-spin w-4 h-4 border border-hl-wit border-t-transparent rounded-full" />
+                    <span className="material-symbols-sharp hl-icon-white hl-icon-sm animate-spin">progress_activity</span>
                     <span>Analyseren...</span>
                   </>
                 ) : apiQuotaExceeded && isQuotaErrorRecent() ? (
                   <>
-                    <span>⚠️</span>
+                    <span className="material-symbols-sharp hl-icon-sm">warning</span>
                     <span>Handmatige feedback</span>
                   </>
                 ) : (
                   <>
-                    <span>🤖</span>
+                    <span className="material-symbols-sharp hl-icon-white hl-icon-sm">psychology</span>
                     <span>Vraag coach-feedback</span>
                   </>
                 )}
@@ -796,7 +810,9 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
                     : 'bg-hl-zand text-gray-700 hover:bg-hl-lichtgroen hover:text-hl-donkergroen disabled:opacity-50'
                 }`}
               >
-                <span>{currentWizardData.completed ? '✅' : '☐'}</span>
+                <span className="material-symbols-sharp hl-icon-sm">
+                  {currentWizardData.completed ? 'check_circle' : 'radio_button_unchecked'}
+                </span>
                 <span>{currentWizardData.completed ? 'Voltooid' : 'Markeer als voltooid'}</span>
               </button>
             </div>
@@ -808,7 +824,7 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
                 disabled={currentStep === 0}
                 className="btn-outline disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <span>←</span>
+                <span className="material-symbols-sharp hl-icon-sm">arrow_back</span>
                 <span>Vorige</span>
               </button>
 
@@ -818,7 +834,7 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
                 className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span>Volgende</span>
-                <span>→</span>
+                <span className="material-symbols-sharp hl-icon-white hl-icon-sm">arrow_forward</span>
               </button>
             </div>
           </div>
@@ -837,7 +853,7 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
       {completedSteps === STEPS.length && (
         <div className="hl-alert-success mt-6">
           <div className="text-center">
-            <div className="text-4xl mb-4">🎉</div>
+            <span className="material-symbols-sharp hl-icon-primary hl-icon-xl mb-4 block">celebration</span>
             <h3 className="text-xl font-bold text-hl-donkergroen mb-2 font-gantari">
               Analyse Voltooid!
             </h3>

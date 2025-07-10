@@ -54,14 +54,16 @@ export default function Layout({ children, title = 'Interne Analyse Coach' }: La
               <nav className="hidden md:flex items-center space-x-6">
                 <Link 
                   href="/start" 
-                  className="hl-nav-link"
+                  className="hl-nav-link flex items-center space-x-1"
                 >
+                  <span className="material-symbols-sharp hl-icon-sm">add_circle</span>
                   Nieuwe Analyse
                 </Link>
                 <Link 
                   href="/improve" 
-                  className="hl-nav-link"
+                  className="hl-nav-link flex items-center space-x-1"
                 >
+                  <span className="material-symbols-sharp hl-icon-sm">refresh</span>
                   Verbeter Concept
                 </Link>
               </nav>
