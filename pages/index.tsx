@@ -93,7 +93,7 @@ export default function Home() {
               <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
                 Hoe werkt de Interne Analyse Coach?
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="text-center">
                   <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <span className="text-2xl">📄</span>
