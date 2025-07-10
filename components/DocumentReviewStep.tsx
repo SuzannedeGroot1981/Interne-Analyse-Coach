@@ -102,68 +102,6 @@ export default function DocumentReviewStep({ className = '' }: DocumentReviewSte
     }))
   }
 
-  // Genereer feedback voor individueel element
-  const generateElementFeedback = async (elementId: string) => {
-    const elementData = sevenSData[elementId]
-    if (!elementData?.content?.trim()) {
-      alert('Vul eerst de inhoud in voor dit element.')
-      return
-    }
-
-    setIsGeneratingFeedback(true)
-    try {
-      const element = [...HARD_ELEMENTS, ...SOFT_ELEMENTS].find(el => el.id === elementId)
-      const elementText = `## ${element?.title}\n\n${elementData.content}`
-
-      const response = await fetch('/api/review', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          text: elementText,
-          fileName: `7S Element: ${element?.title}`,
-          fileType: 'manual'
-        }),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Review mislukt')
-      }
-
-      const result = await response.json()
-      
-      // Update element feedback in state
-      setSevenSData(prev => ({
-        ...prev,
-        [elementId]: {
-          ...prev[elementId],
-          feedback: result.overall_feedback || 'Feedback gegenereerd'
-        }
-      }))
-
-      console.log(`✅ Element feedback voor ${element?.title} voltooid`)
-
-    } catch (error) {
-      console.error('❌ Fout bij element feedback:', error)
-      alert(`Fout bij feedback generatie: ${error instanceof Error ? error.message : 'Onbekende fout'}`)
-    } finally {
-      setIsGeneratingFeedback(false)
-    }
-  }
-
-  // Verberg feedback voor individueel element
-  const hideElementFeedback = (elementId: string) => {
-    setSevenSData(prev => ({
-      ...prev,
-      [elementId]: {
-        ...prev[elementId],
-        feedback: undefined
-      }
-    }))
-  }
-
   // Genereer feedback voor handmatige invoer
   const generateManualFeedback = async () => {
     setIsGeneratingFeedback(true)
