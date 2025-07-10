@@ -125,6 +125,7 @@ export default function StepWizard({ projectId, flow, onSave }: StepWizardProps)
   const [isCheckingAPA, setIsCheckingAPA] = useState(false)
   const [evidence, setEvidence] = useState<any>(null) // Voor evidence data
   const [sources, setSources] = useState<any>(null) // Voor sources data
+  const [apaResults, setApaResults] = useState<any>(null) // Voor lokale APA resultaten
 
   // Vereenvoudigde initialisatie zonder evidence/sources
   useEffect(() => {
@@ -235,9 +236,11 @@ export default function StepWizard({ projectId, flow, onSave }: StepWizardProps)
     return lastQuotaError > oneHourAgo
   }
 
-  // APA Self-check functie
+  // Lokale APA Self-check functie
   const checkAPA = async () => {
     setIsCheckingAPA(true)
+    setApaResults(null)
+    
     try {
       console.log('📝 Start APA self-check...', {
         projectId: actualProjectId,
@@ -261,30 +264,26 @@ export default function StepWizard({ projectId, flow, onSave }: StepWizardProps)
         return
       }
 
-      const res = await fetch("/api/check-apa", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ markdown: allText })
-      })
-
-      if (!res.ok) {
-        const errorData = await res.json()
-        throw new Error(errorData.issues?.[0] || 'APA check mislukt')
-      }
-
-      const { issues } = await res.json()
+      // Gebruik lokale APA validator
+      const { validateAPA, generateAPASummary } = await import('../utils/apaValidator')
+      const result = validateAPA(allText)
       
       console.log('✅ APA check voltooid:', {
         textLength: allText.length,
-        issuesFound: issues.length
+        issuesFound: result.summary.totalIssues,
+        errors: result.summary.errors,
+        warnings: result.summary.warnings
       })
 
-      // Toon resultaat
-      if (issues.length === 0) {
-        alert("Geen APA-problemen gevonden 🎉\n\nJe bronvermeldingen en citaten lijken correct te zijn volgens APA-richtlijnen.")
+      // Sla resultaten op voor weergave
+      setApaResults(result)
+      
+      // Toon korte samenvatting
+      const summary = generateAPASummary(result)
+      if (result.isValid) {
+        alert(summary)
       } else {
-        const issueText = issues.map((issue: string, index: number) => `${index + 1}. ${issue}`).join('\n')
-        alert(`APA-aandachtspunten gevonden:\n\n${issueText}\n\n💡 Tip: Controleer je bronvermeldingen en citaten volgens APA 7e editie richtlijnen.`)
+        alert(`${summary}\n\n💡 Bekijk de gedetailleerde resultaten hieronder voor specifieke verbeterpunten.`)
       }
 
     } catch (error) {
@@ -708,16 +707,103 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
                   ) : (
                     <div className="flex items-center space-x-2">
                       <span>📝</span>
-                      <span>APA Self-check (HL)</span>
+                      <span>Lokale APA Check</span>
                     </div>
                   )}
                 </button>
                 <p className="text-xs text-gray-500 mt-1">
-                  Controleert APA 7e editie bronvermeldingen volgens HL-richtlijnen
+                  Lokale controle van APA 7e editie bronvermeldingen (werkt offline)
                 </p>
               </div>
             </div>
           </div>
+
+          {/* APA Resultaten sectie */}
+          {apaResults && (
+            <div className={`mb-6 rounded-lg border p-4 ${
+              apaResults.isValid 
+                ? 'bg-green-50 border-green-200' 
+                : 'bg-orange-50 border-orange-200'
+            }`}>
+              <h3 className={`text-sm font-semibold mb-3 flex items-center ${
+                apaResults.isValid ? 'text-green-800' : 'text-orange-800'
+              }`}>
+                <span className="mr-2">{apaResults.isValid ? '✅' : '📝'}</span>
+                Lokale APA Check Resultaten
+              </h3>
+              
+              {apaResults.isValid ? (
+                <p className="text-green-700 text-sm">
+                  Geen APA-problemen gevonden! Je bronvermeldingen en citaten lijken correct te zijn.
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {/* Samenvatting */}
+                  <div className="text-orange-700 text-sm">
+                    <p className="font-medium mb-2">
+                      {apaResults.summary.totalIssues} aandachtspunt(en) gevonden:
+                    </p>
+                    <div className="grid grid-cols-3 gap-2 text-xs">
+                      {apaResults.summary.errors > 0 && (
+                        <span className="bg-red-100 text-red-700 px-2 py-1 rounded">
+                          ❌ {apaResults.summary.errors} fout(en)
+                        </span>
+                      )}
+                      {apaResults.summary.warnings > 0 && (
+                        <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded">
+                          ⚠️ {apaResults.summary.warnings} waarschuwing(en)
+                        </span>
+                      )}
+                      {apaResults.summary.suggestions > 0 && (
+                        <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                          💡 {apaResults.summary.suggestions} suggestie(s)
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Gedetailleerde issues */}
+                  <details className="text-sm">
+                    <summary className="cursor-pointer text-orange-800 font-medium hover:text-orange-900">
+                      📋 Bekijk gedetailleerde resultaten ({apaResults.issues.length} items)
+                    </summary>
+                    <div className="mt-3 space-y-2 max-h-60 overflow-y-auto">
+                      {apaResults.issues.map((issue: any, index: number) => (
+                        <div key={index} className={`p-3 rounded border-l-4 text-xs ${
+                          issue.severity === 'error' 
+                            ? 'bg-red-50 border-red-400 text-red-700'
+                            : issue.severity === 'warning'
+                            ? 'bg-yellow-50 border-yellow-400 text-yellow-700'
+                            : 'bg-blue-50 border-blue-400 text-blue-700'
+                        }`}>
+                          <div className="font-medium mb-1">
+                            {issue.severity === 'error' ? '❌' : issue.severity === 'warning' ? '⚠️' : '💡'} 
+                            {issue.message}
+                            {issue.line && <span className="ml-2 text-gray-500">(regel {issue.line})</span>}
+                          </div>
+                          {issue.suggestion && (
+                            <div className="text-gray-600 italic">
+                              💡 {issue.suggestion}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </details>
+                  
+                  {/* Reset knop */}
+                  <div className="flex justify-end">
+                    <button
+                      onClick={() => setApaResults(null)}
+                      className="text-xs text-orange-600 hover:text-orange-800 underline"
+                    >
+                      Resultaten verbergen
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Coach feedback sectie */}
           {currentWizardData.feedback && (
