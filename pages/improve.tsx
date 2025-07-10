@@ -46,7 +46,8 @@ export default function Improve() {
   return (
     <>
       <Head>
-        <title>Verbeter Bestaand Concept - Interne Analyse Coach</title>
+        <title>Verbeter je concept - Interne Analyse Coach</title>
+        <title>Verbeter je concept - Interne Analyse Coach</title>
         <meta name="description" content="AI-gestuurde tool voor interne analyses en conceptverbetering" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />

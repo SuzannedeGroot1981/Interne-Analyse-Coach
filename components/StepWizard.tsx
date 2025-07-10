@@ -554,7 +554,7 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
               <span className="material-symbols-sharp hl-icon-primary mr-2">
                 {flow === 'start' ? 'add_circle' : 'refresh'}
               </span>
-              {flow === 'start' ? 'Interne analyse' : 'Verbeter Bestaand Concept'}
+              {flow === 'start' ? 'Interne analyse' : 'Verbeter je concept'}
             </h1>
             {projectMeta.orgName && (
               <p className="text-gray-600 font-gantari">
