@@ -129,5 +129,3 @@ export default function StepWizard({ projectId, flow, onSave }: StepWizardProps)
     </div>
   );
 }
-
-export default StepWizard
