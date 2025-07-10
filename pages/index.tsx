@@ -52,7 +52,7 @@ export default function Home() {
       </Head>
 
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-        {/* Minimale header */}
+        {/* Header */}
         <div className="bg-white shadow-sm border-b border-gray-200">
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-between h-16">
@@ -86,14 +86,114 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="container mx-auto px-4 py-8">
-          {/* StepWizard Component */}
-          <StepWizard 
-            projectId={projectId || undefined}
-            flow="improve"
-            onSave={handleSave}
-          />
+        {/* Hero Sectie */}
+        <div className="bg-gradient-to-r from-primary to-green-700 text-white py-16">
+          <div className="container mx-auto px-4 text-center">
+            <div className="max-w-4xl mx-auto">
+              <h1 className="text-4xl md:text-5xl font-bold mb-6">
+                Welkom bij de Interne Analyse Coach
+              </h1>
+              <p className="text-xl md:text-2xl mb-8 text-green-100">
+                Verbeter je organisatieconcepten met AI-gestuurde feedback en systematische analyse
+              </p>
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                  <div>
+                    <div className="text-3xl font-bold mb-2">7S</div>
+                    <div className="text-sm text-green-100">McKinsey Model</div>
+                  </div>
+                  <div>
+                    <div className="text-3xl font-bold mb-2">AI</div>
+                    <div className="text-sm text-green-100">Coach Feedback</div>
+                  </div>
+                  <div>
+                    <div className="text-3xl font-bold mb-2">📊</div>
+                    <div className="text-sm text-green-100">Financiële Analyse</div>
+                  </div>
+                </div>
+              </div>
+              <p className="text-lg text-green-100">
+                Start direct met het uploaden van je bestaande concept of begin een nieuwe analyse
+              </p>
+            </div>
+          </div>
         </div>
+
+        {/* Main Content */}
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-6xl mx-auto">
+            {/* Instructies sectie */}
+            <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
+              <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+                Hoe werkt de Interne Analyse Coach?
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-2xl">📄</span>
+                  </div>
+                  <h3 className="font-semibold text-gray-800 mb-2">1. Upload Document</h3>
+                  <p className="text-sm text-gray-600">Upload je bestaande analyse of concept</p>
+                </div>
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-2xl">🤖</span>
+                  </div>
+                  <h3 className="font-semibold text-gray-800 mb-2">2. AI Analyse</h3>
+                  <p className="text-sm text-gray-600">Krijg gedetailleerde feedback per 7S-element</p>
+                </div>
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-2xl">🔧</span>
+                  </div>
+                  <h3 className="font-semibold text-gray-800 mb-2">3. Verbeter</h3>
+                  <p className="text-sm text-gray-600">Pas verbetervoorstellen toe</p>
+                </div>
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-2xl">📊</span>
+                  </div>
+                  <h3 className="font-semibold text-gray-800 mb-2">4. Exporteer</h3>
+                  <p className="text-sm text-gray-600">Download je verbeterde analyse</p>
+                </div>
+              </div>
+            </div>
+
+            {/* StepWizard Component */}
+            <StepWizard 
+              projectId={projectId || undefined}
+              flow="improve"
+              onSave={handleSave}
+            />
+          </div>
+        </div>
+
+        {/* Footer */}
+        <footer className="bg-white border-t border-gray-200 mt-16">
+          <div className="container mx-auto px-4 py-8">
+            <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+              <div className="flex items-center space-x-2">
+                <img
+                  src="/images/Logo_HL_Donkergroen_RGB.png"
+                  alt="Hogeschool Leiden"
+                  className="h-6 w-auto opacity-60"
+                />
+                <span className="text-gray-500 text-sm">
+                  © 2024 Hogeschool Leiden
+                </span>
+              </div>
+              
+              <div className="text-center md:text-right">
+                <p className="text-gray-500 text-sm">
+                  Interne-Analyse-Coach • Powered by AI
+                </p>
+                <p className="text-gray-400 text-xs">
+                  Professionele organisatie-ontwikkeling
+                </p>
+              </div>
+            </div>
+          </div>
+        </footer>
       </div>
     </>
   )
