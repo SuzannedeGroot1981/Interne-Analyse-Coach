@@ -99,6 +99,7 @@ export default function Home() {
                     <span className="material-symbols-sharp hl-icon-primary hl-icon-lg">description</span>
                   </div>
                   <h3 className="font-gantari font-semibold text-hl-donkergroen mb-2">Schrijf je analyse</h3>
+                  <h3 className="font-gantari font-semibold text-hl-donkergroen mb-2">1. Schrijf je analyse</h3>
                   <p className="text-sm text-gray-600 font-gantari">Vul de 7S-secties in met je onderzoek</p>
                 </div>
                 <div className="text-center">
