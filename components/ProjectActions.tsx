@@ -341,34 +341,34 @@ export default function ProjectActions({ projectId, projectData, wizardData, cla
       {/* Hoofdacties - prominente weergave */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Word Export Card */}
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200 p-6 hover:shadow-lg transition-all duration-200">
+        <div className="bg-gradient-to-br from-hl-lichtgroen to-hl-wit rounded-xl border border-hl-donkergroen p-6 hover:shadow-lg transition-all duration-200">
           <div className="flex items-center mb-4">
-            <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mr-4">
-              <span className="text-2xl text-white">📄</span>
+            <div className="w-12 h-12 bg-hl-donkergroen rounded-lg flex items-center justify-center mr-4">
+              <span className="material-symbols-sharp text-hl-wit hl-icon-lg">description</span>
             </div>
             <div>
-              <h3 className="text-lg font-bold text-blue-900">Word Document</h3>
-              <p className="text-sm text-blue-700">Professioneel rapport</p>
+              <h3 className="text-lg font-bold text-hl-donkergroen font-gantari">Word Document</h3>
+              <p className="text-sm text-hl-donkergroen font-gantari">Professioneel rapport</p>
             </div>
           </div>
           
-          <p className="text-sm text-blue-800 mb-4">
+          <p className="text-sm text-hl-donkergroen mb-4 font-gantari">
             Exporteer je complete analyse als professioneel Word document met HL-logo en alle coach feedback.
           </p>
           
           <button
             onClick={downloadWord}
             disabled={isExportingWord || !wizardData}
-            className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold"
+            className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-hl-donkergroen text-hl-wit rounded-lg hover:bg-hl-donkerpaars disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold font-gantari"
           >
             {isExportingWord ? (
               <>
-                <div className="animate-spin w-4 h-4 border border-white border-t-transparent rounded-full" />
+                <span className="material-symbols-sharp hl-icon-white hl-icon-sm animate-spin">progress_activity</span>
                 <span>Downloaden...</span>
               </>
             ) : (
               <>
-                <span>📄</span>
+                <span className="material-symbols-sharp hl-icon-white hl-icon-sm">download</span>
                 <span>Download Word</span>
               </>
             )}
@@ -376,34 +376,34 @@ export default function ProjectActions({ projectId, projectData, wizardData, cla
         </div>
 
         {/* Project Opslaan Card */}
-        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl border border-green-200 p-6 hover:shadow-lg transition-all duration-200">
+        <div className="bg-gradient-to-br from-hl-geel to-hl-wit rounded-xl border border-hl-donkerpaars p-6 hover:shadow-lg transition-all duration-200">
           <div className="flex items-center mb-4">
-            <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mr-4">
-              <span className="text-2xl text-white">📦</span>
+            <div className="w-12 h-12 bg-hl-donkerpaars rounded-lg flex items-center justify-center mr-4">
+              <span className="material-symbols-sharp text-hl-wit hl-icon-lg">save</span>
             </div>
             <div>
-              <h3 className="text-lg font-bold text-green-900">Project Backup</h3>
-              <p className="text-sm text-green-700">Opslaan & delen</p>
+              <h3 className="text-lg font-bold text-hl-donkerpaars font-gantari">Project Backup</h3>
+              <p className="text-sm text-hl-donkerpaars font-gantari">Opslaan & delen</p>
             </div>
           </div>
           
-          <p className="text-sm text-green-800 mb-4">
+          <p className="text-sm text-hl-donkerpaars mb-4 font-gantari">
             Sla je volledige project op als JSON bestand voor backup of om te delen met anderen.
           </p>
           
           <button
             onClick={downloadProject}
             disabled={isExportingJson || (!projectData && !projectId)}
-            className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold"
+            className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-hl-donkerpaars text-hl-wit rounded-lg hover:bg-hl-donkergroen disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold font-gantari"
           >
             {isExportingJson ? (
               <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                <span className="material-symbols-sharp hl-icon-white hl-icon-sm animate-spin">progress_activity</span>
                 <span>Opslaan...</span>
               </>
             ) : (
               <>
-                <span>📦</span>
+                <span className="material-symbols-sharp hl-icon-white hl-icon-sm">cloud_download</span>
                 <span>Opslaan Project</span>
               </>
             )}
@@ -413,21 +413,21 @@ export default function ProjectActions({ projectId, projectData, wizardData, cla
 
       {/* Volledig rapport weergave - alleen tonen als er een rapport is */}
       {fullReport && (
-        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+        <div className="hl-card">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-800 flex items-center">
-              <span className="mr-2">📋</span>
+            <h3 className="text-lg font-semibold text-hl-donkergroen flex items-center font-gantari">
+              <span className="material-symbols-sharp hl-icon-primary hl-icon-md mr-2">assignment</span>
               Volledig Rapport
             </h3>
             <button
               onClick={() => setFullReport('')}
-              className="text-gray-500 hover:text-gray-700 text-sm"
+              className="text-gray-500 hover:text-hl-donkergroen text-sm"
             >
-              ✕ Sluiten
+              <span className="material-symbols-sharp hl-icon-sm">close</span>
             </button>
           </div>
           
-          <div className="bg-gray-50 rounded-lg p-6 max-h-96 overflow-y-auto">
+          <div className="bg-hl-zand rounded-lg p-6 max-h-96 overflow-y-auto">
             <div className="prose max-w-none">
               <ReactMarkdown>{fullReport}</ReactMarkdown>
             </div>
@@ -439,22 +439,23 @@ export default function ProjectActions({ projectId, projectData, wizardData, cla
             </span>
             <button
               onClick={() => navigator.clipboard.writeText(fullReport)}
-              className="text-sm text-blue-600 hover:text-blue-800"
+              className="text-sm text-hl-donkergroen hover:text-hl-donkerpaars flex items-center space-x-1 font-gantari"
             >
-              📋 Kopieer naar clipboard
+              <span className="material-symbols-sharp hl-icon-sm">content_copy</span>
+              <span>Kopieer naar clipboard</span>
             </button>
           </div>
         </div>
       )}
 
       {/* Project Import sectie - minder prominent */}
-      <div className="bg-gray-50 rounded-xl border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-          <span className="mr-2">📥</span>
+      <div className="bg-hl-zand rounded-xl border border-hl-donkergroen p-6">
+        <h3 className="text-lg font-semibold text-hl-donkergroen mb-4 flex items-center font-gantari">
+          <span className="material-symbols-sharp hl-icon-primary hl-icon-md mr-2">file_upload</span>
           Project Importeren
         </h3>
         
-        <p className="text-sm text-gray-600 mb-4">
+        <p className="text-sm text-hl-donkergroen mb-4 font-gantari">
           Laad een eerder geëxporteerd project bestand (.json) om verder te werken aan een bestaande analyse.
         </p>
         
@@ -469,20 +470,20 @@ export default function ProjectActions({ projectId, projectData, wizardData, cla
           />
           <label
             htmlFor="project-import"
-            className={`flex items-center justify-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 cursor-pointer ${
+            className={`flex items-center justify-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 cursor-pointer font-gantari ${
               isImporting
-                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                : 'bg-gray-600 text-white hover:bg-gray-700 hover:shadow-md'
+                ? 'bg-hl-lichtgroen text-hl-donkergroen cursor-not-allowed'
+                : 'bg-hl-donkergroen text-hl-wit hover:bg-hl-donkerpaars hover:shadow-md'
             }`}
           >
             {isImporting ? (
               <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500"></div>
+                <span className="material-symbols-sharp hl-icon-sm animate-spin">progress_activity</span>
                 <span>Importeren...</span>
               </>
             ) : (
               <>
-                <span>📥</span>
+                <span className="material-symbols-sharp hl-icon-white hl-icon-sm">upload_file</span>
                 <span>Selecteer JSON bestand</span>
               </>
             )}
@@ -493,38 +494,43 @@ export default function ProjectActions({ projectId, projectData, wizardData, cla
         {importError && (
           <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-3">
             <div className="flex items-center space-x-2">
-              <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span className="text-red-700 text-sm font-medium">Import Fout</span>
+              <span className="material-symbols-sharp text-red-500 hl-icon-sm">error</span>
+              <span className="text-red-700 text-sm font-medium font-gantari">Import Fout</span>
             </div>
-            <p className="text-red-600 text-sm mt-1">{importError}</p>
+            <p className="text-red-600 text-sm mt-1 font-gantari">{importError}</p>
           </div>
         )}
 
         {importSuccess && (
-          <div className="mt-4 bg-green-50 border border-green-200 rounded-lg p-3">
+          <div className="mt-4 bg-hl-lichtgroen border border-hl-donkergroen rounded-lg p-3">
             <div className="flex items-center space-x-2">
-              <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span className="text-green-700 text-sm font-medium">Import Succesvol</span>
+              <span className="material-symbols-sharp text-hl-donkergroen hl-icon-sm">check_circle</span>
+              <span className="text-hl-donkergroen text-sm font-medium font-gantari">Import Succesvol</span>
             </div>
-            <p className="text-green-600 text-sm mt-1">{importSuccess}</p>
+            <p className="text-hl-donkergroen text-sm mt-1 font-gantari">{importSuccess}</p>
           </div>
         )}
       </div>
 
       {/* Help sectie - compacter */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h4 className="text-sm font-semibold text-blue-800 mb-2 flex items-center">
-          <span className="mr-2">💡</span>
+      <div className="bg-hl-lichtgroen border border-hl-donkergroen rounded-lg p-4">
+        <h4 className="text-sm font-semibold text-hl-donkergroen mb-2 flex items-center font-gantari">
+          <span className="material-symbols-sharp hl-icon-primary hl-icon-sm mr-2">help</span>
           Hulp & Tips
         </h4>
-        <div className="text-xs text-blue-700 space-y-1">
-          <p><strong>Word Document:</strong> Bevat alle stappen, coach feedback en professionele opmaak</p>
-          <p><strong>Project Backup:</strong> JSON bestand voor veilige opslag en delen met teamleden</p>
-          <p><strong>Import:</strong> Laad eerder opgeslagen projecten om verder te werken</p>
+        <div className="text-xs text-hl-donkergroen space-y-1 font-gantari">
+          <p className="flex items-start space-x-2">
+            <span className="material-symbols-sharp hl-icon-primary hl-icon-sm mt-0.5">description</span>
+            <span><strong>Word Document:</strong> Bevat alle stappen, coach feedback en professionele HL-opmaak</span>
+          </p>
+          <p className="flex items-start space-x-2">
+            <span className="material-symbols-sharp hl-icon-primary hl-icon-sm mt-0.5">save</span>
+            <span><strong>Project Backup:</strong> JSON bestand voor veilige opslag en delen met teamleden</span>
+          </p>
+          <p className="flex items-start space-x-2">
+            <span className="material-symbols-sharp hl-icon-primary hl-icon-sm mt-0.5">file_upload</span>
+            <span><strong>Import:</strong> Laad eerder opgeslagen projecten om verder te werken</span>
+          </p>
         </div>
       </div>
     </div>
