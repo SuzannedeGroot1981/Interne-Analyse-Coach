@@ -122,9 +122,13 @@ export default function StepWizard({ projectId, flow, onSave }: StepWizardProps)
   const [apiQuotaExceeded, setApiQuotaExceeded] = useState(false)
   const [lastQuotaError, setLastQuotaError] = useState<Date | null>(null)
   const [projectMeta, setProjectMeta] = useState<{ orgName?: string, level?: string }>({})
-  const [isCheckingAPA, setIsCheckingAPA] = useState(false)
+  const [apaResults, setApaResults] = useState<{ [stepId: string]: string }>({})
+  const [isCheckingAPA, setIsCheckingAPA] = useState<{ [stepId: string]: boolean }>({})
   const [evidence, setEvidence] = useState<any>(null) // Voor evidence data
   const [sources, setSources] = useState<any>(null) // Voor sources data
+
+  // Import APA validator
+  const { validateAPA, formatAPAResults, getStepSpecificTips } = require('../utils/apaValidator')
 
   // Vereenvoudigde initialisatie zonder evidence/sources
   useEffect(() => {
@@ -206,6 +210,51 @@ export default function StepWizard({ projectId, flow, onSave }: StepWizardProps)
     autoSave(newData)
 
     console.log('💰 Financiële data toegevoegd aan wizard:', {
+  // APA Check functie per stap
+  const checkAPAForStep = (stepId: string) => {
+    const stepData = wizardData[stepId]
+    if (!stepData || !stepData.current.trim()) {
+      alert('Geen tekst gevonden om te controleren. Vul eerst tekst in voor deze stap.')
+      return
+    }
+
+    setIsCheckingAPA(prev => ({ ...prev, [stepId]: true }))
+
+    // Simuleer processing tijd voor betere UX
+    setTimeout(() => {
+      try {
+        console.log(`📝 Start APA check voor ${stepId}...`, {
+          textLength: stepData.current.length,
+          wordCount: stepData.current.split(/\s+/).length
+        })
+
+        const result = validateAPA(stepData.current)
+        const formattedResult = formatAPAResults(result)
+        
+        // Voeg stap-specifieke tips toe
+        const stepTips = getStepSpecificTips(stepId)
+        const finalResult = formattedResult + '\n\n📋 **Tips voor dit onderdeel:**\n' + 
+          stepTips.map((tip, index) => `${index + 1}. ${tip}`).join('\n')
+
+        setApaResults(prev => ({ ...prev, [stepId]: finalResult }))
+
+        console.log('✅ APA check voltooid voor', stepId, ':', {
+          score: result.score,
+          totalIssues: result.totalIssues
+        })
+
+      } catch (error) {
+        console.error('❌ APA check fout:', error)
+        setApaResults(prev => ({ 
+          ...prev, 
+          [stepId]: '❌ Er is een fout opgetreden bij de APA controle. Probeer het opnieuw.' 
+        }))
+      } finally {
+        setIsCheckingAPA(prev => ({ ...prev, [stepId]: false }))
+      }
+    }, 1000) // 1 seconde processing tijd
+  }
+
       fileName: financeData.fileName,
       rows: financeData.summary.totalRows,
       columns: financeData.summary.totalColumns
@@ -632,6 +681,67 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
             </div>
           </div>
 
+          {/* APA Check sectie per stap */}
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-sm font-semibold text-gray-700">
+                📝 APA 7e Editie Controle (Hogeschool Leiden)
+              </h4>
+              <button
+                onClick={() => checkAPAForStep(currentStepData.id)}
+                disabled={isCheckingAPA[currentStepData.id] || !currentWizardData.current.trim()}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${
+                  isCheckingAPA[currentStepData.id]
+                    ? 'bg-blue-100 text-blue-700 border-blue-300 cursor-not-allowed'
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+                }`}
+                title={`APA controle voor ${currentStepData.title}`}
+              >
+                {isCheckingAPA[currentStepData.id] ? (
+                  <div className="flex items-center space-x-2">
+                    <div className="animate-spin w-3 h-3 border border-blue-600 border-t-transparent rounded-full" />
+                    <span>Controleren...</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center space-x-2">
+                    <span>📝</span>
+                    <span>APA Check {currentStepData.title}</span>
+                  </div>
+                )}
+              </button>
+            </div>
+            
+            {/* APA Resultaten */}
+            {apaResults[currentStepData.id] && (
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <h5 className="text-sm font-semibold text-gray-800 mb-3 flex items-center">
+                  <span className="mr-2">📊</span>
+                  APA Controle Resultaten - {currentStepData.title}
+                </h5>
+                <div className="bg-white rounded-lg p-4 border">
+                  <pre className="whitespace-pre-wrap text-sm text-gray-700 font-sans leading-relaxed">
+                    {apaResults[currentStepData.id]}
+                  </pre>
+                </div>
+                <div className="flex justify-end mt-3">
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(apaResults[currentStepData.id])
+                      alert('APA resultaten gekopieerd naar clipboard!')
+                    }}
+                    className="text-xs text-blue-600 hover:text-blue-800 flex items-center space-x-1"
+                  >
+                    <span>📋</span>
+                    <span>Kopieer resultaten</span>
+                  </button>
+                </div>
+              </div>
+            )}
+            
+            <p className="text-xs text-gray-500 mt-2">
+              Lokale APA 7e editie controle volgens Hogeschool Leiden richtlijnen voor {currentStepData.subtitle.toLowerCase()}
+            </p>
+          </div>
           {/* Coach feedback sectie */}
           {currentWizardData.feedback && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
