@@ -754,7 +754,7 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
                 </div>
                 <button
                   onClick={() => {
-                    navigator.clipboard.writeText(currentWizardData.feedback)
+                    navigator.clipboard.writeText(currentWizardData.feedback!)
                     alert('Coach feedback gekopieerd naar clipboard!')
                   }}
                   className="text-xs text-hl-donkergroen hover:text-hl-donkerpaars flex items-center space-x-1 font-gantari"
