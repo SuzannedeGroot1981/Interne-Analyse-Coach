@@ -720,8 +720,13 @@ Je kunt ook zonder AI feedback een volledige analyse maken. De tool slaat je wer
                 <div className="flex justify-end mt-3">
                   <button
                     onClick={() => {
-                      navigator.clipboard.writeText(apaResults[currentStepData.id])
-                      alert('APA resultaten gekopieerd naar clipboard!')
+                      const fb = currentWizardData.feedback;
+                      if (!fb) {
+                        alert('Geen feedback beschikbaar om te kopiëren.');
+                        return;
+                      }
+                      navigator.clipboard.writeText(fb);
+                      alert('Coach feedback gekopieerd naar clipboard!');
                     }}
                     className="text-xs text-hl-donkergroen hover:text-hl-donkerpaars flex items-center space-x-1 font-gantari"
                   >
